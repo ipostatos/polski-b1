@@ -57,9 +57,9 @@ python tools/mine_tasks.py      # → data/exam_map.json
 Базовый адрес: `https://certyfikatpolski.pl/wp-content/uploads/2017/03/`
 
 Кроме сборников, комиссия публикует **testy przykładowe** (2017, 2019, 2020)
-«z transkrypcją nagrań i kluczem do ćwiczeń» — то есть официальные ключи к
-тренировочным материалам существуют; не выложены только ключи к архивным
-сессиям 2021–2024.
+«z transkrypcją nagrań i kluczem do ćwiczeń». Ключи к архивным сессиям
+2021–2024 тоже опубликованы — внутри файлов транскрипций («TRANSKRYPCJE
+I KLUCZ DO ZADAŃ»), проверено по всем 15 сессиям.
 
 ### Нормативка
 
