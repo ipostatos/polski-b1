@@ -23,7 +23,7 @@ jobs:
           pip install pytest reportlab pymupdf
 
       - name: Тесты бота и содержания
-        run: python -m pytest bot/test_bot.py -q
+        run: python -m pytest bot/test_bot.py bot/test_dashboard.py -q
 
       - name: Рабочая тетрадь собирается и читается
         run: |

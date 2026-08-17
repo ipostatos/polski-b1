@@ -42,6 +42,7 @@ from aiogram.types import (
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import api  # noqa: E402
 import content  # noqa: E402
 import storage  # noqa: E402
 
@@ -61,7 +62,7 @@ def wczytaj_env() -> dict[str, str]:
                 continue
             k, v = line.split("=", 1)
             env[k.strip()] = v.strip()
-    for k in ("BOT_TOKEN", "OWNER_ID", "WEBAPP_URL"):
+    for k in ("BOT_TOKEN", "OWNER_ID", "WEBAPP_URL", "API_PORT"):
         if os.environ.get(k):
             env[k] = os.environ[k]
     return env
@@ -221,7 +222,13 @@ async def cb_odpowiedz(cb: CallbackQuery) -> None:
         return
     wybor = p.opcje[int(idx)]
     ok = wybor == p.klucz
+    byla_powtorka = p.id in storage.do_powtorki(cb.from_user.id)
     storage.zapisz_odpowiedz(cb.from_user.id, p.id, p.kategoria, ok)
+    storage.zaloguj_aktywnosc(
+        cb.from_user.id,
+        "sluchanie" if p.kategoria in ("INTENCJA", "SYTUACJA") else "gramatyka")
+    if byla_powtorka:
+        storage.zaloguj_aktywnosc(cb.from_user.id, "powtorka")
 
     if ok:
         tekst = f"✅ <b>{p.klucz}</b>"
@@ -332,6 +339,7 @@ async def cmd_blad(m: Message) -> None:
         await m.answer("Нужен хотя бы текст ошибки после кода.")
         return
     storage.dodaj_blad(m.from_user.id, kod, zle, dobrze, kom)
+    storage.zaloguj_aktywnosc(m.from_user.id, "blad")
     ile = dict(storage.mapa_bledow(m.from_user.id)).get(kod.upper(), 1)
     dopisek = ""
     if ile >= 3:
@@ -388,6 +396,7 @@ async def cmd_wynik(m: Message) -> None:
         return
     nazwa, maks, prog, cel = content.MODULY[modul]
     storage.zapisz_wynik(m.from_user.id, sesja, modul, punkty, maks)
+    storage.zaloguj_aktywnosc(m.from_user.id, "mok")
     proc = punkty / maks * 100
     if punkty >= cel:
         status = "🟢 цель взята"
@@ -507,6 +516,7 @@ async def przyjmij_tekst(m: Message) -> None:
     slow = content.licz_slowa(m.text or "")
     ikona, komentarz = content.ocena_objetosci(slow, wymagane)
     storage.zapisz_prace(m.from_user.id, zestaw_id, czesc, slow, wymagane, m.text or "")
+    storage.zaloguj_aktywnosc(m.from_user.id, "pisanie")
 
     if czesc == "a":
         OCZEKIWANIE[m.from_user.id] = ("pisanie", zestaw_id, "b")
@@ -527,7 +537,11 @@ async def przyjmij_otwarte(m: Message, item_id: str) -> None:
     if not o:
         return
     ok = o.poprawna(m.text or "")
+    byla_powtorka = o.id in storage.do_powtorki(m.from_user.id)
     storage.zapisz_odpowiedz(m.from_user.id, o.id, o.kategoria, ok)
+    storage.zaloguj_aktywnosc(m.from_user.id, "gramatyka")
+    if byla_powtorka:
+        storage.zaloguj_aktywnosc(m.from_user.id, "powtorka")
     if ok:
         tekst = f"✅ <b>{o.klucz}</b>"
     else:
@@ -557,6 +571,7 @@ async def przyjmij_mow3(m: Message, zestaw_id: str, krok: int) -> None:
         await m.answer("🗣 " + dialog[krok])
     if krok >= len(dialog) - 1:
         OCZEKIWANIE.pop(m.from_user.id, None)
+        storage.zaloguj_aktywnosc(m.from_user.id, "mowienie")
         await m.answer(
             "Rozmowa zakończona. Проверь себя: были ли вопросы к собеседнику, "
             "реакция на возражение и договорённость о конкретике? "
@@ -588,8 +603,27 @@ async def main() -> None:
     if WEBAPP_URL:
         await bot.set_chat_menu_button(menu_button=MenuButtonWebApp(
             text="B1", web_app=WebAppInfo(url=WEBAPP_URL)))
+
+    # API дашборда: тот же процесс, localhost, наружу — через Caddy.
+    # API_PORT=0 выключает; ошибка API не должна ронять поллинг бота.
+    runner = None
+    api_port = int(ENV.get("API_PORT") or 0)
+    if api_port:
+        try:
+            pula = {"gramatyka": len(GRAMATYKA), "sluchanie": len(INTENCJE),
+                    "otwarte": len(OTWARTE)}
+            runner = await api.uruchom_api(
+                api.zbuduj_api(token, OWNER_ID, pula), api_port)
+            log.info("API дашборда на 127.0.0.1:%d", api_port)
+        except Exception:
+            log.exception("API дашборда не поднялся — бот работает без него")
+
     await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
+    try:
+        await dp.start_polling(bot)
+    finally:
+        if runner:
+            await runner.cleanup()
 
 
 if __name__ == "__main__":

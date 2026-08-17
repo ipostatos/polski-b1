@@ -1,51 +1,37 @@
 /* ===========================================================================
-   Polski B1 — дизайн-система Mini App (нативный стиль Telegram).
-   Подключать ПЕРВЫМ среди стилей:  <link rel="stylesheet" href="theme.css">
-   Страницы могут переопределять/дополнять своими <style> после него.
+   Polski B1 — дизайн-система Mini App.
+   Дашборд подготовки к госэкзамену: тёмный navy, спокойный синий акцент,
+   приглушённый польский красный — только для порогов, штампов и критики.
+   Приложение сознательно ВСЕГДА тёмное (решение спеки): собственная
+   идентичность важнее следования теме Telegram; фон и текст заданы явно.
    =========================================================================== */
 
 :root{
-  /* цвета берём из темы Telegram, с тёмным fallback по умолчанию */
-  --bg: var(--tg-theme-bg-color, #17212b);
-  --text: var(--tg-theme-text-color, #fff);
-  --hint: var(--tg-theme-hint-color, #8a9aa9);
-  --card: var(--tg-theme-secondary-bg-color, #232e3c);
-  --accent: var(--tg-theme-button-color, #50a8eb);
-  --accent-text: var(--tg-theme-button-text-color, #fff);
-  --link: var(--tg-theme-link-color, var(--accent));
-  --border: rgba(255,255,255,.10);
-  --ok: #4caf72;
-  --warn: #e0a13a;
-  --bad: #e5544b;
+  --bg: #0E1420;
+  --card: #16202F;
+  --card-2: #1B2739;
+  --text: #E9EDF4;
+  --hint: #8B98AC;
+  --border: rgba(233,237,244,.09);
+  --accent: #5B9BD9;          /* спокойный синий */
+  --accent-soft: rgba(91,155,217,.16);
+  --accent-text: #0E1420;
+  --red: #C7495B;             /* приглушённый польский красный: пороги, штампы */
+  --ok: #4CAF72;
+  --warn: #E0A13A;
+  --bad: #E5544B;
 
-  /* шкала отступов и радиусов — единая по всему приложению */
   --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px; --sp-5: 20px; --sp-6: 28px;
   --r-sm: 10px; --r-md: 14px; --r-lg: 18px; --r-pill: 999px;
-  --shadow: 0 1px 3px rgba(0,0,0,.18);
+  --shadow: 0 1px 3px rgba(0,0,0,.25);
 
-  /* типографика */
   --fs-h1: 22px; --fs-h2: 17px; --fs-body: 15px; --fs-sm: 13px; --fs-xs: 11px;
-}
-
-/* Светлый системный режим: если Telegram НЕ передал тему — светлый fallback,
-   иначе при системной светлой теме был бы белый текст на белом фоне. */
-@media (prefers-color-scheme: light){
-  :root{
-    --bg: var(--tg-theme-bg-color, #ffffff);
-    --text: var(--tg-theme-text-color, #1a1a1a);
-    --hint: var(--tg-theme-hint-color, #7d8a99);
-    --card: var(--tg-theme-secondary-bg-color, #f1f3f5);
-    --accent: var(--tg-theme-button-color, #3390ec);
-    --accent-text: var(--tg-theme-button-text-color, #ffffff);
-    --border: rgba(0,0,0,.10);
-    --shadow: 0 1px 3px rgba(0,0,0,.08);
-  }
 }
 
 *{ box-sizing:border-box }
 
 body{
-  margin:0; padding: var(--sp-5) var(--sp-4);
+  margin:0; padding: var(--sp-5) var(--sp-4) calc(var(--sp-6) + env(safe-area-inset-bottom));
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   background:var(--bg); color:var(--text); line-height:1.5;
   -webkit-tap-highlight-color:transparent;
@@ -55,76 +41,133 @@ body{
 /* ── типографика ── */
 .h1, h1{ font-size:var(--fs-h1); font-weight:800; margin:0 0 var(--sp-1) }
 .h2{ font-size:var(--fs-h2); font-weight:700; margin:0 0 var(--sp-2) }
-.sub{ color:var(--hint); font-size:var(--fs-sm); margin:0 0 var(--sp-5) }
+.sub{ color:var(--hint); font-size:var(--fs-sm); margin:0 0 var(--sp-4) }
 .muted{ color:var(--hint) }
 .foot{ color:var(--hint); font-size:var(--fs-xs); text-align:center;
   margin-top:var(--sp-6); line-height:1.5 }
+.section-title{ font-size:var(--fs-sm); font-weight:700; color:var(--hint);
+  margin:var(--sp-5) 0 var(--sp-2); text-transform:uppercase; letter-spacing:.04em }
+.num{ font-variant-numeric:tabular-nums }
 
 /* ── карточки ── */
 .card{ background:var(--card); border:1px solid var(--border);
   border-radius:var(--r-lg); padding:var(--sp-4); box-shadow:var(--shadow) }
 
-/* кликабельная карточка-строка (раздел/действие) */
-.row-card{ display:flex; align-items:center; gap:var(--sp-3); width:100%;
-  text-align:left; font:inherit; cursor:pointer;
-  text-decoration:none; color:var(--text); background:var(--card);
-  border:1px solid var(--border); border-radius:var(--r-md);
-  padding:var(--sp-3) var(--sp-4); margin-bottom:var(--sp-2);
-  transition:transform .12s }
-.row-card:active{ transform:scale(.99) }
-.row-card .ic{ font-size:24px; line-height:1; flex:0 0 auto }
-.row-card .body{ flex:1; min-width:0 }
-.row-card .t{ font-size:var(--fs-h2); font-weight:700 }
-.row-card .d{ color:var(--hint); font-size:var(--fs-sm); margin-top:2px; line-height:1.4 }
-.row-card .chev{ color:var(--hint); flex:0 0 auto; font-size:18px }
+/* приоритетная карточка «что сейчас» */
+.next{ background:linear-gradient(180deg, var(--card-2), var(--card));
+  border:1px solid var(--border); border-radius:var(--r-lg);
+  padding:var(--sp-4); margin-bottom:var(--sp-3); box-shadow:var(--shadow) }
+.next .label{ font-size:var(--fs-xs); letter-spacing:.05em; text-transform:uppercase;
+  color:var(--hint); margin-bottom:var(--sp-2) }
+.next .big{ font-size:20px; font-weight:800; margin-bottom:var(--sp-1) }
+.next .hintline{ color:var(--hint); font-size:var(--fs-sm); margin-bottom:var(--sp-3) }
+.next .actions{ display:flex; gap:var(--sp-2) }
+.next .actions .btn{ width:auto; flex:1 }
 
-/* ── кнопки ── */
+/* сетка разделов 2 колонки */
+.grid{ display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-2) }
+.cell{ display:flex; flex-direction:column; gap:var(--sp-1); text-align:left;
+  font:inherit; cursor:pointer; text-decoration:none; color:var(--text);
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r-md);
+  padding:var(--sp-3) var(--sp-4); min-height:92px; transition:transform .12s }
+.cell:active{ transform:scale(.98) }
+.cell .t{ font-size:var(--fs-body); font-weight:700 }
+.cell .d{ color:var(--hint); font-size:var(--fs-xs); line-height:1.35 }
+.cell.wide{ grid-column:1 / -1; flex-direction:row; align-items:center;
+  gap:var(--sp-3); min-height:0 }
+.cell.wide .body{ flex:1; min-width:0 } .cell.wide .chev{ color:var(--hint) }
+
+/* ── кнопки: тап-мишень ≥44px ── */
 .btn{ display:inline-flex; align-items:center; justify-content:center; gap:var(--sp-2);
-  width:100%; padding:14px var(--sp-4); font-size:var(--fs-body); font-weight:700;
-  border:none; border-radius:var(--r-md); background:var(--accent);
-  color:var(--accent-text); cursor:pointer; text-decoration:none }
+  width:100%; min-height:44px; padding:12px var(--sp-4); font-size:var(--fs-body);
+  font-weight:700; border:none; border-radius:var(--r-md); background:var(--accent);
+  color:#fff; cursor:pointer; text-decoration:none }
 .btn:active{ transform:scale(.99) }
 .btn.ghost{ background:transparent; color:var(--text); border:1px solid var(--border) }
-.btn.sm{ padding:10px var(--sp-3); font-size:var(--fs-sm) }
+.btn.sm{ min-height:40px; padding:9px var(--sp-3); font-size:var(--fs-sm) }
+.btn.danger{ background:var(--red) }
 .btn:disabled{ opacity:.5; cursor:default }
 
-/* ── шкала прогресса ── */
-.meter{ height:8px; background:var(--border); border-radius:var(--r-pill); overflow:hidden }
-.meter > i{ display:block; height:100%; border-radius:var(--r-pill); background:var(--accent);
-  transition:width .25s }
+/* ── шкалы ── */
+.meter{ position:relative; height:8px; background:var(--border);
+  border-radius:var(--r-pill); overflow:visible }
+.meter > i{ display:block; height:100%; border-radius:var(--r-pill);
+  background:var(--accent); transition:width .25s; max-width:100% }
 .meter.ok > i{ background:var(--ok) } .meter.warn > i{ background:var(--warn) }
 .meter.bad > i{ background:var(--bad) }
+.meter .tick{ position:absolute; top:-3px; width:2px; height:14px; border-radius:1px }
+.meter .tick.prog{ background:var(--red) }
+.meter .tick.cel{ background:var(--hint) }
 
-/* ── бейдж/чип ── */
-.chip{ display:inline-block; font-size:var(--fs-xs); color:var(--hint);
-  background:var(--bg); border:1px solid var(--border); border-radius:var(--r-pill);
-  padding:2px 9px }
+/* ── чипы ── */
+.chip{ display:inline-flex; align-items:center; gap:4px; font-size:var(--fs-xs);
+  color:var(--hint); background:var(--card); border:1px solid var(--border);
+  border-radius:var(--r-pill); padding:4px 10px }
+.chip.tap{ min-height:32px; cursor:pointer; color:var(--text) }
+.chip .dot{ width:7px; height:7px; border-radius:50%; flex:0 0 auto }
 
-/* ── состояния (пусто/ошибка) ── */
+/* ── состояния ── */
 .state{ color:var(--hint); font-size:var(--fs-body); text-align:center;
   padding:24px var(--sp-2); line-height:1.5 }
+.banner{ background:var(--accent-soft); border:1px solid var(--border);
+  color:var(--text); border-radius:var(--r-md); padding:var(--sp-3) var(--sp-4);
+  font-size:var(--fs-sm); margin-bottom:var(--sp-3) }
 
-/* ── цветные плашки для иконок (эмодзи) ──
-   Подложка — мягкий акцент. Читается в тёмной и светлой теме. */
-.ic-tile{ --tone: var(--accent); display:inline-flex; align-items:center; justify-content:center;
-  width:40px; height:40px; border-radius:11px; font-size:20px; flex:0 0 auto;
-  color:var(--tone); background:color-mix(in srgb, var(--tone) 16%, transparent) }
-.ic-tile.blue  { --tone:#3390ec }
-.ic-tile.green { --tone:#4caf72 }
-.ic-tile.amber { --tone:#e0a13a }
-.ic-tile.violet{ --tone:#8e7bef }
-.ic-tile.red   { --tone:#e5544b }
-.ic-tile.cyan  { --tone:#2bb6c4 }
-.ic-tile.gold  { --tone:#e3b341 }
+/* ── иконка-плашка ── */
+.ic-tile{ --tone: var(--accent); display:inline-flex; align-items:center;
+  justify-content:center; width:40px; height:40px; border-radius:11px;
+  font-size:20px; flex:0 0 auto; color:var(--tone);
+  background:color-mix(in srgb, var(--tone) 16%, transparent) }
+.ic-tile.blue  { --tone:#5B9BD9 }
+.ic-tile.green { --tone:#4CAF72 }
+.ic-tile.amber { --tone:#E0A13A }
+.ic-tile.violet{ --tone:#8E7BEF }
+.ic-tile.red   { --tone:#C7495B }
+.ic-tile.cyan  { --tone:#2BB6C4 }
+.ic-tile.gold  { --tone:#E3B341 }
 
-/* ── кольцо прогресса — conic-gradient, без SVG ── */
+/* ── кольцо прогресса ── */
 .ring{ --p:0; --ring-color:var(--accent); position:relative;
-  width:92px; height:92px; border-radius:50%; flex:0 0 auto;
+  width:96px; height:96px; border-radius:50%; flex:0 0 auto;
   background:conic-gradient(var(--ring-color) calc(var(--p)*1%), var(--border) 0) }
-.ring::before{ content:""; position:absolute; inset:9px; border-radius:50%; background:var(--card) }
+.ring::before{ content:""; position:absolute; inset:9px; border-radius:50%;
+  background:var(--card) }
 .ring .ring-val{ position:absolute; inset:0; display:flex; flex-direction:column;
   align-items:center; justify-content:center; line-height:1 }
-.ring .ring-num{ font-size:22px; font-weight:800 }
-.ring .ring-cap{ font-size:10px; color:var(--hint); margin-top:2px }
+.ring .ring-num{ font-size:23px; font-weight:800 }
+.ring .ring-cap{ font-size:10px; color:var(--hint); margin-top:3px }
+
+/* ── стат-боксы ── */
+.stats{ display:flex; gap:var(--sp-2) }
+.stats > div{ flex:1; text-align:center; padding:10px 6px;
+  border:1px solid var(--border); border-radius:12px; min-width:0 }
+.stats .k{ font-size:var(--fs-xs); color:var(--hint) }
+.stats .v{ font-weight:800; font-size:18px; margin-top:2px }
+
+/* ── heatmap активности ── */
+.heatmap{ display:grid; grid-auto-flow:column; grid-template-rows:repeat(7, 1fr);
+  gap:3px; overflow-x:auto; padding-bottom:2px }
+.heatmap i{ width:11px; height:11px; border-radius:3px; background:var(--border) }
+.heatmap i.a1{ background:color-mix(in srgb, var(--accent) 30%, transparent) }
+.heatmap i.a2{ background:color-mix(in srgb, var(--accent) 55%, transparent) }
+.heatmap i.a3{ background:color-mix(in srgb, var(--accent) 80%, transparent) }
+.heatmap i.a4{ background:var(--accent) }
+
+/* ── строки модулей ── */
+.mod{ display:flex; align-items:center; gap:var(--sp-3); padding:var(--sp-2) 0 }
+.mod + .mod{ border-top:1px solid var(--border) }
+.mod .name{ flex:1; min-width:0 }
+.mod .name .t{ font-size:var(--fs-sm); font-weight:700 }
+.mod .name .meter{ margin-top:6px }
+.mod .score{ text-align:right; flex:0 0 74px }
+.mod .score .v{ font-weight:800; font-size:15px }
+.mod .score .s{ font-size:var(--fs-xs); color:var(--hint) }
+.trend-up{ color:var(--ok) } .trend-down{ color:var(--bad) } .trend-flat{ color:var(--hint) }
+
+/* ── экзаменационный штамп ── */
+.stamp{ display:inline-block; border:2px solid var(--red); color:var(--red);
+  border-radius:8px; padding:2px 10px; font-weight:800; letter-spacing:.03em;
+  font-size:var(--fs-sm); transform:rotate(-3deg) }
+.stamp.ok{ border-color:var(--ok); color:var(--ok) }
 
 .hidden{ display:none !important }

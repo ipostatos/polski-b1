@@ -26,6 +26,12 @@ MODULY = {
     "mowienie": ("Mówienie", 40, 20, 28),
 }
 
+# тайминг письменной части экзамена 2026 в минутах (Dz.U. 2025 poz. 217);
+# перерывы между модулями — не меньше 10 минут, mówienie — до 15 минут
+TIMING = {"sluchanie": 25, "czytanie": 45, "gramatyka": 45, "pisanie": 75}
+PRZERWA_MIN = 10
+MOWIENIE_MAX_MIN = 15
+
 
 @dataclass
 class Pozycja:
@@ -311,15 +317,49 @@ PLAN = [
     (9, "12.10", "16.10", "Финальный мок 2024-04, дальше только короткие тренировки."),
 ]
 
-DZIEN = {
-    0: "Понедельник: gramatyka 20 · słuchanie 15 · czytanie 15 · mówienie 10",
-    1: "Вторник: gramatyka 20 · pisanie (работа целиком) · słuchanie 15",
-    2: "Среда: gramatyka 20 · słuchanie 15 · czytanie 15 · mówienie 10",
-    3: "Четверг: gramatyka 20 · pisanie (работа целиком) · czytanie 15",
-    4: "Пятница: gramatyka 20 · słuchanie 15 · czytanie 15 · mówienie 15",
-    5: "Суббота: экзаменационная практика, 90–190 минут",
-    6: "Воскресенье: разбор ошибок + лёгкий польский без напряжения",
+# План дня: (тип активности, подпись, минуты, порог «сделано» в действиях).
+# Тип совпадает со storage.TYPY_AKTYWNOSCI — по нему же считается активность.
+PLAN_DNIA: dict[int, list[tuple[str, str, str, int]]] = {
+    0: [("gramatyka", "Gramatyka", "20", 15), ("sluchanie", "Słuchanie", "15", 8),
+        ("czytanie", "Czytanie", "15", 1), ("mowienie", "Mówienie", "10", 1)],
+    1: [("gramatyka", "Gramatyka", "20", 15),
+        ("pisanie", "Pisanie — работа целиком", "≈60", 2),
+        ("sluchanie", "Słuchanie", "15", 8)],
+    2: [("gramatyka", "Gramatyka", "20", 15), ("sluchanie", "Słuchanie", "15", 8),
+        ("czytanie", "Czytanie", "15", 1), ("mowienie", "Mówienie", "10", 1)],
+    3: [("gramatyka", "Gramatyka", "20", 15),
+        ("pisanie", "Pisanie — работа целиком", "≈60", 2),
+        ("czytanie", "Czytanie", "15", 1)],
+    4: [("gramatyka", "Gramatyka", "20", 15), ("sluchanie", "Słuchanie", "15", 8),
+        ("czytanie", "Czytanie", "15", 1), ("mowienie", "Mówienie", "15", 1)],
+    5: [("mok", "Экзаменационная практика", "90–190", 1)],
+    6: [("powtorka", "Разбор ошибок + лёгкий польский", "30", 5)],
 }
+
+_DZIEN_NAZWY = ["Понедельник", "Вторник", "Среда", "Четверг",
+                "Пятница", "Суббота", "Воскресенье"]
+
+
+def _tekst_dnia(weekday: int) -> str:
+    czesci = " · ".join(f"{label} {minut}" for _, label, minut, _ in PLAN_DNIA[weekday])
+    return f"{_DZIEN_NAZWY[weekday]}: {czesci}"
+
+
+DZIEN = {i: _tekst_dnia(i) for i in range(7)}
+
+
+def plan_dnia(weekday: int, dzis: dict[str, int] | None = None) -> list[dict]:
+    """План дня со статусом выполнения по реальной активности.
+
+    `dzis` — {тип: действий сегодня} из storage.aktywnosc_dzis().
+    Пункт выполнен, когда действий по типу не меньше порога.
+    """
+    dzis = dzis or {}
+    return [{
+        "typ": typ, "label": label, "minut": minut, "prog": prog,
+        "zrobione": dzis.get(typ, 0),
+        "done": dzis.get(typ, 0) >= prog,
+    } for typ, label, minut, prog in PLAN_DNIA[weekday]]
 
 
 def tydzien_programu(today: date | None = None) -> tuple[int, str]:

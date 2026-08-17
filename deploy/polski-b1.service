@@ -11,6 +11,8 @@ Type=simple
 User=polskib1
 Group=polskib1
 WorkingDirectory=/opt/polski-b1/app
+# границы «учебного дня» (SRS, активность, серия) — по времени владельца
+Environment=TZ=Europe/Warsaw
 ExecStart=/opt/polski-b1/venv/bin/python bot/bot.py
 Restart=always
 RestartSec=5
