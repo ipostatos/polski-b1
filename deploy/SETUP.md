@@ -25,6 +25,7 @@ systemctl daemon-reload && systemctl enable --now polski-b1
 
 В `.env` добавить `API_PORT=4600` (localhost-only, наружу — Caddy).
 4300 НЕ брать: занят соседним ботом флота (obshak, node, слушает 0.0.0.0).
+Карта портов всего VPS — `/opt/PORTS.md` на сервере (обновлять при правках).
 В `/etc/caddy/Caddyfile` добавить сайт (и `systemctl reload caddy`):
 
 ```caddyfile

@@ -33,6 +33,20 @@ ssh "$HOST" "
     sleep 3
     systemctl is-active polski-b1
     systemctl show polski-b1 -p Environment | grep -F 'TZ=Europe/Warsaw'
+    # smoke: при API_PORT != 0 API дашборда ОБЯЗАН отвечать. Бот сознательно
+    # переживает сбой API (graceful degradation), поэтому bind-конфликт
+    # (Errno 98: порт занят соседом) не роняет службу — ловим его здесь,
+    # чтобы неудачный деплой никогда не выглядел успешным.
+    PORT=\$(sed -n 's/^API_PORT=//p' $APP/.env | tail -1)
+    if [ -n \"\$PORT\" ] && [ \"\$PORT\" != 0 ]; then
+        ok=''
+        for i in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS -o /dev/null http://127.0.0.1:\$PORT/api/config; then ok=1; break; fi
+            sleep 1
+        done
+        [ -n \"\$ok\" ] || { echo \"smoke: API на \$PORT не отвечает — деплой ПРОВАЛЕН\" >&2; exit 1; }
+        echo \"smoke: API на \$PORT отвечает\"
+    fi
     journalctl -u polski-b1 -n 5 --no-pager
 "
 
