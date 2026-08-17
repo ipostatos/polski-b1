@@ -39,8 +39,9 @@ jobs:
 
       - name: Нет следов чужих проектов
         run: |
-          # содержимое репозитория — только про экзамен B1
-          if git grep -inE '\b(jacht|skipper|żegl[a-ząęółśćżźń]*|rejs|marina|VHF|ISSA)\b' -- . ':!.github/workflows/ci.yml'; then
+          # содержимое репозитория — только про экзамен B1; -I: бинарники
+          # (mp3, pdf) не смотрим — случайные байты дают ложные срабатывания
+          if git grep -InE '\b(jacht|skipper|żegl[a-ząęółśćżźń]*|rejs|marina|VHF|ISSA)\b' -- . ':!.github/workflows/ci.yml'; then
             echo "Найдены посторонние слова из других проектов"
             exit 1
           fi
