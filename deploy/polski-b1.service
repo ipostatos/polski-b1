@@ -1,0 +1,27 @@
+[Unit]
+Description=Polski B1 exam-prep personal Telegram bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Своя учётка: в .env лежит токен бота, процессу с выходом в интернет root ни к чему.
+# Код раскладывает выкладка от root (сервису — только чтение); писать нужно лишь
+# в moje/ (postep.db). .env бот читает сам из корня приложения — файл root:polskib1 640.
+User=polskib1
+Group=polskib1
+WorkingDirectory=/opt/polski-b1/app
+ExecStart=/opt/polski-b1/venv/bin/python bot/bot.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=yes
+ReadWritePaths=/opt/polski-b1/app/moje
+
+[Install]
+WantedBy=multi-user.target
