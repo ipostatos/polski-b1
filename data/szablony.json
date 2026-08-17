@@ -1,0 +1,221 @@
+{
+  "opis": "Каркасы и устойчивые конструкции для модулей Pisanie и Mówienie. Не сочинения для заучивания, а рамки, в которые вставляется любая тема.",
+  "pisanie": {
+    "krotkie": [
+      {
+        "gatunek": "Ogłoszenie",
+        "slow": "30",
+        "kiedy": "sprzedam / kupię / wynajmę / zgubiłem / szukam",
+        "szkielet": ["nagłówek: co ogłaszam", "co dokładnie (2–3 cechy)", "cena albo warunek", "kontakt"],
+        "zwroty": [
+          "Sprzedam / Kupię / Wynajmę / Oddam za darmo…",
+          "Stan bardzo dobry, mało używany.",
+          "Cena do negocjacji.",
+          "Kontakt: tel. 500 100 200, e-mail: …",
+          "Zainteresowanych proszę o kontakt telefoniczny w godzinach wieczornych."
+        ],
+        "pulapka": "brak kontaktu albo brak ceny — to strata punktu za formę"
+      },
+      {
+        "gatunek": "Zaproszenie",
+        "slow": "30",
+        "kiedy": "urodziny, parapetówka, otwarcie, spotkanie",
+        "szkielet": ["zwrot do adresata", "na co zapraszam", "kiedy i gdzie", "prośba o potwierdzenie"],
+        "zwroty": [
+          "Serdecznie zapraszam Cię / Państwa na…",
+          "Spotkanie odbędzie się w sobotę, 12 września, o godzinie 18.00, w moim mieszkaniu przy ulicy…",
+          "Będzie mi bardzo miło, jeśli przyjdziesz.",
+          "Proszę o potwierdzenie obecności do piątku."
+        ],
+        "pulapka": "brak daty albo miejsca"
+      },
+      {
+        "gatunek": "Życzenia",
+        "slow": "30",
+        "kiedy": "ślub, urodziny, awans, święta",
+        "szkielet": ["zwrot w wołaczu", "z jakiej okazji", "czego życzę (2–3 rzeczy)", "podpis"],
+        "zwroty": [
+          "Droga Aniu! / Szanowna Pani Dyrektor!",
+          "Z okazji ślubu składam najserdeczniejsze życzenia…",
+          "…dużo zdrowia, szczęścia i spełnienia wszystkich planów.",
+          "Wszystkiego najlepszego!",
+          "Łączę serdeczne pozdrowienia, …"
+        ],
+        "pulapka": "mianownik zamiast wołacza: „Droga Ania” zamiast „Droga Aniu”"
+      },
+      {
+        "gatunek": "Pozdrowienia / kartka",
+        "slow": "30–35",
+        "kiedy": "z podróży, z nowego miasta",
+        "szkielet": ["skąd piszę", "co tu robię", "jedno wrażenie", "pozdrowienie"],
+        "zwroty": [
+          "Pozdrawiam Cię serdecznie z Gdańska!",
+          "Jestem tu od tygodnia i bardzo mi się podoba.",
+          "Pogoda dopisuje, codziennie chodzę nad morze.",
+          "Do zobaczenia po powrocie!"
+        ],
+        "pulapka": "za długo — objętość liczy się w obie strony"
+      },
+      {
+        "gatunek": "Notatka / krótki e-mail z prośbą",
+        "slow": "30–35",
+        "kiedy": "prośba o informację, o zmianę terminu",
+        "szkielet": ["zwrot", "powód pisania", "konkretna prośba", "podziękowanie i podpis"],
+        "zwroty": [
+          "Szanowni Państwo,",
+          "Zwracam się z prośbą o…",
+          "Chciałbym uzyskać informacje dotyczące…",
+          "Z góry dziękuję za odpowiedź.",
+          "Z poważaniem, …"
+        ],
+        "pulapka": "mieszanie rejestrów: „Cześć” + „Z poważaniem”"
+      }
+    ],
+    "dlugie": [
+      {
+        "gatunek": "Opowiadanie",
+        "slow": "170",
+        "kiedy": "często z narzuconym pierwszym zdaniem",
+        "szkielet": ["wstęp: kiedy i gdzie", "rozwinięcie: co się działo (3–4 zdarzenia po kolei)", "punkt zwrotny", "zakończenie: czym się skończyło i co czułem"],
+        "zwroty": [
+          "Pewnego dnia… / Tego dnia padał deszcz.",
+          "Najpierw… Potem… Nagle… W końcu…",
+          "Nie mogłem uwierzyć, że…",
+          "Do dziś pamiętam ten moment.",
+          "Od tamtej pory zawsze…"
+        ],
+        "pulapka": "cały tekst w czasie teraźniejszym; opowiadanie wymaga czasu przeszłego i konsekwentnego aspektu"
+      },
+      {
+        "gatunek": "Sprawozdanie / relacja",
+        "slow": "165–170",
+        "kiedy": "z wydarzenia, do gazety",
+        "szkielet": ["co, gdzie, kiedy się odbyło", "kto brał udział", "przebieg po kolei", "ocena i wniosek"],
+        "zwroty": [
+          "W ubiegłą sobotę w naszym mieście odbyło się…",
+          "W wydarzeniu wzięło udział około stu osób.",
+          "Na początku… Następnie… Później… Na zakończenie…",
+          "Organizatorzy zapowiedzieli, że…",
+          "Moim zdaniem impreza była bardzo udana."
+        ],
+        "pulapka": "styl prywatny zamiast prasowego"
+      },
+      {
+        "gatunek": "Esej / wypracowanie",
+        "slow": "170",
+        "kiedy": "temat-teza, np. „Zawsze znajdę czas na moje hobby”",
+        "szkielet": ["teza: moje stanowisko", "argument 1 + przykład", "argument 2 + przykład", "kontrargument i odpowiedź", "wniosek"],
+        "zwroty": [
+          "Moim zdaniem… / Uważam, że…",
+          "Przede wszystkim… Po pierwsze… Po drugie…",
+          "Na przykład…, co pokazuje, że…",
+          "Z drugiej strony niektórzy twierdzą, że…",
+          "Podsumowując, jestem przekonany, że…"
+        ],
+        "pulapka": "wyliczanie bez przykładów; przykład jest tym, co odróżnia B1 od A2"
+      },
+      {
+        "gatunek": "List formalny",
+        "slow": "165–170",
+        "kiedy": "reklamacja, prośba, zapytanie do instytucji",
+        "szkielet": ["nagłówek", "powód pisania", "opis sprawy", "konkretne żądanie", "formuła końcowa"],
+        "zwroty": [
+          "Szanowni Państwo,",
+          "Piszę w sprawie… / Zwracam się z prośbą o…",
+          "W dniu 3 marca kupiłem w Państwa sklepie…",
+          "W związku z powyższym proszę o wymianę towaru / zwrot pieniędzy.",
+          "Z wyrazami szacunku, …"
+        ],
+        "pulapka": "formy grzecznościowe: „Pana”, „Państwa” wielką literą"
+      },
+      {
+        "gatunek": "Opis",
+        "slow": "170",
+        "kiedy": "miejsce, osoba, przedmiot",
+        "szkielet": ["ogólne wrażenie", "szczegóły od ogółu do detalu", "co w tym szczególnego", "mój stosunek"],
+        "zwroty": [
+          "Na pierwszy rzut oka…",
+          "W centralnej części znajduje się…",
+          "Po lewej stronie… Po prawej… W tle…",
+          "Najbardziej podoba mi się…",
+          "To miejsce ma dla mnie szczególne znaczenie, ponieważ…"
+        ],
+        "pulapka": "lista rzeczowników bez zdań złożonych"
+      }
+    ],
+    "kontrola_objetosci": {
+      "zasada": "Объём — это балл, который даётся даром: 1 из 15 у каждого экзаменатора, то есть 2 из 30 модуля.",
+      "metoda": "Один раз посчитать, сколько слов помещается в твою строку от руки. Дальше считать строки, а не слова.",
+      "orientacyjnie": "30 слов ≈ 3–4 строки. 170 слов ≈ 17–20 строк.",
+      "uwaga": "Слишком длинный текст тоже теряет балл. Ориентир: не более +10% от требуемого."
+    }
+  },
+  "mowienie": {
+    "zadanie1_opis": {
+      "nazwa": "Opis ilustracji",
+      "szkielet": ["co to za zdjęcie i ogólne wrażenie", "kto jest na zdjęciu", "gdzie i kiedy", "co się dzieje", "przypuszczenie: dlaczego", "moja ocena / wniosek"],
+      "zwroty": [
+        "Na zdjęciu widzę…",
+        "Na pierwszym planie… W tle… Po lewej stronie…",
+        "Wydaje mi się, że… / Prawdopodobnie…",
+        "Sądząc po ubraniach, jest to…",
+        "Ci ludzie wyglądają na zadowolonych.",
+        "Trudno powiedzieć na pewno, ale przypuszczam, że…",
+        "Ogólnie to zdjęcie kojarzy mi się z…"
+      ],
+      "czego_unikac": "«Widzę kobietę. Jest park. Jest pies.» — zdania proste bez przypuszczeń i bez oceny"
+    },
+    "zadanie2_monolog": {
+      "nazwa": "Monolog na temat",
+      "szkielet": ["wstęp: o czym będę mówić", "punkt 1 + przykład z życia", "punkt 2 + przykład", "trudność albo wyjątek", "zakończenie"],
+      "zwroty": [
+        "Chciałbym powiedzieć kilka słów o…",
+        "Najpierw… Następnie… Później… W końcu…",
+        "Z mojego doświadczenia wynika, że…",
+        "Pamiętam sytuację, kiedy…",
+        "Nie zawsze jest to łatwe, ponieważ…",
+        "Podsumowując, uważam, że…"
+      ],
+      "czego_unikac": "milczenie zamiast łączników; lepiej powiedzieć «Muszę się chwilę zastanowić» niż zamilknąć"
+    },
+    "zadanie3_sytuacja": {
+      "nazwa": "Sytuacja komunikacyjna",
+      "szkielet": ["nawiązanie kontaktu", "przedstawienie sprawy", "propozycja / prośba", "reakcja na wątpliwość rozmówcy", "ustalenie konkretu", "zakończenie rozmowy"],
+      "zwroty": [
+        "Dzień dobry, chciałbym zapytać o…",
+        "Mam do Pana / Pani prośbę…",
+        "Czy mógłby Pan…? / Czy dałoby się…?",
+        "Rozumiem, ale może udałoby się inaczej…",
+        "W takim razie proponuję…",
+        "Czyli umawiamy się na wtorek o piętnastej, tak?",
+        "Bardzo dziękuję za pomoc. Do widzenia."
+      ],
+      "czego_unikac": "monolog zamiast dialogu: to zadanie ocenia interakcję, trzeba zadawać pytania"
+    },
+    "ratunkowe": {
+      "opis": "Фразы, которые спасают, когда не хватает слова или мысли. Их надо довести до автоматизма.",
+      "zwroty": [
+        "Przepraszam, czy mógłby Pan powtórzyć?",
+        "Nie jestem pewien, czy dobrze zrozumiałem.",
+        "Jak to się mówi po polsku…?",
+        "Nie znam dokładnego słowa, ale chodzi mi o coś takiego, co…",
+        "Muszę się chwilę zastanowić.",
+        "Powiem inaczej: …",
+        "To znaczy… / Chodzi mi o to, że…"
+      ]
+    },
+    "wymowa": {
+      "opis": "Официальные требования к произношению на B1 (Dz.U. poz. 405).",
+      "pary": [
+        ["y : i", "być : bić, my : mi"],
+        ["sz : ś", "wiesz : wieś, kasza : Kasia"],
+        ["cz : ć", "czy : ci, leczy : leci"],
+        ["ż/rz : ź", "burza : buzia"],
+        ["r : l", "rok : lok, rada : lada"],
+        ["ł : l", "były : byli, łata : lata"],
+        ["ą / ę", "piszą : piszę, idą : idę"]
+      ],
+      "akcent": "Ударение в прошедшем времени и сослагательном сдвигается: poszLIśmy → poSZLIśmy (na trzecią sylabę od końca), zroBIliByśmy. Также wyrazy obce: graMAtyka."
+    }
+  }
+}

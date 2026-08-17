@@ -1,0 +1,208 @@
+{
+  "opis": "Собственные упражнения в формате восьми заданий модуля Poprawność gramatyczna. Формат повторяет экзаменационный, тексты авторские, ключи точные.",
+  "zadania": [
+    {
+      "nr": "I",
+      "sprawdza": "odmiana rzeczowników, przymiotników i zaimków",
+      "punkty": 5.0,
+      "format": "podkreślić poprawną formę z nawiasu",
+      "polecenie": "Proszę podkreślić poprawne formy wyrazów podanych w nawiasach.",
+      "zestawy": [
+        {
+          "id": "I-A",
+          "tekst": "W zeszłym miesiącu byłam na spotkaniu {1} mojej szkoły. Nie widziałam {2} od piętnastu lat. Rozmawialiśmy o {3} i o tym, co zmieniło się w {4}. Najbardziej ucieszyłam się ze spotkania z {5}. Ona pracuje teraz w jednym z {6} i opiekuje się {7}. Po kolacji poszliśmy na spacer po {8}. Pogoda była piękna, więc siedzieliśmy na {9} do późnej {10}.",
+          "luki": [
+            {"nr": 1, "opcje": ["absolwentów", "absolwenci", "absolwentom"], "klucz": "absolwentów", "dlaczego": "spotkanie kogo? — dopełniacz liczby mnogiej"},
+            {"nr": 2, "opcje": ["te osoby", "tych osób", "tym osobom"], "klucz": "tych osób", "dlaczego": "po zaprzeczonym czasowniku biernik zmienia się w dopełniacz: widziałam te osoby → nie widziałam tych osób"},
+            {"nr": 3, "opcje": ["nasze plany", "naszych planach", "naszym planom"], "klucz": "naszych planach", "dlaczego": "rozmawiać o czym? — miejscownik"},
+            {"nr": 4, "opcje": ["nasze życie", "naszym życiu", "nasze życia"], "klucz": "naszym życiu", "dlaczego": "w czym? — miejscownik"},
+            {"nr": 5, "opcje": ["moja najlepsza koleżanka", "moją najlepszą koleżanką", "mojej najlepszej koleżanki"], "klucz": "moją najlepszą koleżanką", "dlaczego": "spotkanie z kim? — narzędnik"},
+            {"nr": 6, "opcje": ["warszawskie licea", "warszawskich liceów", "warszawskim liceum"], "klucz": "warszawskich liceów", "dlaczego": "jeden z czego? — dopełniacz liczby mnogiej"},
+            {"nr": 7, "opcje": ["trzy córki", "trzema córkami", "trzech córek"], "klucz": "trzema córkami", "dlaczego": "opiekować się kim? — narzędnik, także liczebnik"},
+            {"nr": 8, "opcje": ["stare miasto", "starym mieście", "starego miasta"], "klucz": "starym mieście", "dlaczego": "spacer po czym? — miejscownik"},
+            {"nr": 9, "opcje": ["ławka", "ławce", "ławką"], "klucz": "ławce", "dlaczego": "siedzieć na czym? — miejscownik"},
+            {"nr": 10, "opcje": ["noc", "nocy", "nocą"], "klucz": "nocy", "dlaczego": "do czego? — dopełniacz"}
+          ]
+        },
+        {
+          "id": "I-B",
+          "tekst": "Mój brat od dwóch {1} mieszka w Gdańsku. Wynajmuje tam mieszkanie razem z {2}. Kiedy go odwiedzam, zawsze jedziemy nad {3} albo zwiedzamy {4}. On interesuje się {5} i zna historię {6} bardzo dobrze. W zeszłą sobotę pokazał mi kilka {7}, których nie ma w przewodnikach. Wieczorem wróciliśmy do {8} zmęczeni, ale zadowoleni. Powiedziałem {9}, że przyjadę znowu w {10}.",
+          "luki": [
+            {"nr": 1, "opcje": ["lata", "lat", "latach"], "klucz": "lat", "dlaczego": "od dwóch czego? — dopełniacz liczby mnogiej"},
+            {"nr": 2, "opcje": ["dwaj koledzy", "dwoma kolegami", "dwóch kolegów"], "klucz": "dwoma kolegami", "dlaczego": "razem z kim? — narzędnik"},
+            {"nr": 3, "opcje": ["morze", "morzem", "morza"], "klucz": "morze", "dlaczego": "nad co? — biernik, bo jest to kierunek ruchu"},
+            {"nr": 4, "opcje": ["stare kamienice", "starych kamienic", "starym kamienicom"], "klucz": "stare kamienice", "dlaczego": "zwiedzać co? — biernik"},
+            {"nr": 5, "opcje": ["architektura", "architekturą", "architektury"], "klucz": "architekturą", "dlaczego": "interesować się czym? — narzędnik"},
+            {"nr": 6, "opcje": ["to miasto", "tego miasta", "temu miastu"], "klucz": "tego miasta", "dlaczego": "historia czego? — dopełniacz"},
+            {"nr": 7, "opcje": ["ciekawe miejsca", "ciekawych miejsc", "ciekawym miejscom"], "klucz": "ciekawych miejsc", "dlaczego": "kilka czego? — dopełniacz liczby mnogiej"},
+            {"nr": 8, "opcje": ["dom", "domu", "domem"], "klucz": "domu", "dlaczego": "wrócić do czego? — dopełniacz"},
+            {"nr": 9, "opcje": ["mój brat", "mojemu bratu", "mojego brata"], "klucz": "mojemu bratu", "dlaczego": "powiedzieć komu? — celownik"},
+            {"nr": 10, "opcje": ["wakacje", "wakacjach", "wakacji"], "klucz": "wakacje", "dlaczego": "w co? — biernik w wyrażeniu czasowym: w wakacje"}
+          ]
+        }
+      ]
+    },
+    {
+      "nr": "II",
+      "sprawdza": "spójniki i wskaźniki zespolenia",
+      "punkty": 2.5,
+      "format": "uzupełnić wyrazami z ramki, jeden wyraz zbędny",
+      "polecenie": "Proszę uzupełnić zdania wyrazami z ramki. Uwaga! Jeden wyraz w ramce jest niepotrzebny.",
+      "zestawy": [
+        {
+          "id": "II-A",
+          "ramka": ["ponieważ", "który", "żeby", "chociaż", "albo", "dlatego", "kiedy"],
+          "zdania": [
+            {"nr": 1, "tekst": "Nie poszedłem wczoraj na trening, ……… bardzo bolała mnie noga.", "klucz": "ponieważ", "dlaczego": "zdanie podrzędne przyczyny"},
+            {"nr": 2, "tekst": "To jest ten kolega, ……… pomógł mi w przeprowadzce.", "klucz": "który", "dlaczego": "zdanie przydawkowe: odnosi się do rzeczownika „kolega”"},
+            {"nr": 3, "tekst": "Uczę się polskiego, ……… móc studiować w Krakowie.", "klucz": "żeby", "dlaczego": "zdanie celu, po nim bezokolicznik"},
+            {"nr": 4, "tekst": "……… mieszkam tu dopiero rok, czuję się już jak u siebie.", "klucz": "Chociaż", "dlaczego": "przeciwstawienie: fakt wbrew oczekiwaniu"},
+            {"nr": 5, "tekst": "Zadzwoń do mnie jutro rano ……… wieczorem, obie pory mi pasują.", "klucz": "albo", "dlaczego": "wybór między dwiema możliwościami"}
+          ],
+          "zbedny": "kiedy"
+        },
+        {
+          "id": "II-B",
+          "ramka": ["że", "jeśli", "ale", "gdy", "oraz", "bo", "im"],
+          "zdania": [
+            {"nr": 1, "tekst": "Wydaje mi się, ……… ten film już kiedyś widziałem.", "klucz": "że", "dlaczego": "zdanie dopełnieniowe po czasowniku mówienia lub myślenia"},
+            {"nr": 2, "tekst": "……… będzie padać, zostaniemy w domu.", "klucz": "Jeśli", "dlaczego": "warunek realny"},
+            {"nr": 3, "tekst": "Chciałem kupić te buty, ……… nie mieli mojego rozmiaru.", "klucz": "ale", "dlaczego": "przeciwstawienie dwóch zdań współrzędnych"},
+            {"nr": 4, "tekst": "……… wracałem do domu, spotkałem sąsiadkę.", "klucz": "Gdy", "dlaczego": "zdanie czasu"},
+            {"nr": 5, "tekst": "Na kurs trzeba przynieść zeszyt ……… słownik.", "klucz": "oraz", "dlaczego": "połączenie dwóch równorzędnych elementów"}
+          ],
+          "zbedny": "im"
+        }
+      ]
+    },
+    {
+      "nr": "III",
+      "sprawdza": "stopniowanie przymiotników i przysłówków",
+      "punkty": 2.5,
+      "format": "podkreślić poprawną formę z nawiasu",
+      "polecenie": "Proszę podkreślić poprawne formy wyrazów podanych w nawiasach.",
+      "zestawy": [
+        {
+          "id": "III-A",
+          "tekst": "Mieszkanie na parterze jest {1} niż na czwartym piętrze, bo nie trzeba wchodzić po schodach. Z drugiej strony na wysokim piętrze jest {2} i widok jest {3} ze wszystkich w budynku. Mój sąsiad twierdzi, że zimą na górze grzeje się {4}, a rachunki są {5}.",
+          "luki": [
+            {"nr": 1, "opcje": ["wygodne", "wygodniejsze", "najwygodniej"], "klucz": "wygodniejsze", "dlaczego": "porównanie z „niż” wymaga stopnia wyższego przymiotnika"},
+            {"nr": 2, "opcje": ["cicho", "ciszej", "najcichszy"], "klucz": "ciszej", "dlaczego": "stopień wyższy przysłówka: jest jak? — ciszej"},
+            {"nr": 3, "opcje": ["ładniejszy", "najładniejszy", "najładniej"], "klucz": "najładniejszy", "dlaczego": "„ze wszystkich” wymaga stopnia najwyższego przymiotnika"},
+            {"nr": 4, "opcje": ["drogo", "drożej", "najdroższy"], "klucz": "drożej", "dlaczego": "stopień wyższy przysłówka przy czasowniku"},
+            {"nr": 5, "opcje": ["wysokie", "wyższe", "najwyżej"], "klucz": "wyższe", "dlaczego": "domyślne porównanie: rachunki są wyższe"}
+          ]
+        }
+      ]
+    },
+    {
+      "nr": "IV",
+      "sprawdza": "czasy: teraźniejszy, przeszły, przyszły",
+      "punkty": 5.0,
+      "format": "wpisać poprawną formę wyrazu z nawiasu",
+      "polecenie": "Proszę uzupełnić tekst poprawnymi formami wyrazów podanych w nawiasach.",
+      "zestawy": [
+        {
+          "id": "IV-A",
+          "tekst": "Od trzech lat {1} (pracować) w tej samej firmie. Zanim tu przyszedłem, {2} (uczyć się) na kursie programowania, a wcześniej {3} (studiować) ekonomię. Moja żona {4} (skończyć) studia w zeszłym roku i teraz {5} (szukać) pracy. W przyszłym miesiącu oboje {6} (przeprowadzić się) do Wrocławia. Ona {7} (zacząć) tam pracę w szkole, a ja {8} (pracować) zdalnie. Na początku pewnie {9} (być) nam trudno, ale myślę, że szybko {10} (przyzwyczaić się).",
+          "luki": [
+            {"nr": 1, "podstawa": "pracować", "klucz": "pracuję", "dlaczego": "czas teraźniejszy, 1 os. l. poj., trwa do teraz"},
+            {"nr": 2, "podstawa": "uczyć się", "klucz": "uczyłem się", "dlaczego": "czas przeszły, rodzaj męski"},
+            {"nr": 3, "podstawa": "studiować", "klucz": "studiowałem", "dlaczego": "czas przeszły, aspekt niedokonany"},
+            {"nr": 4, "podstawa": "skończyć", "klucz": "skończyła", "dlaczego": "czas przeszły, rodzaj żeński, aspekt dokonany"},
+            {"nr": 5, "podstawa": "szukać", "klucz": "szuka", "dlaczego": "czas teraźniejszy, 3 os. l. poj."},
+            {"nr": 6, "podstawa": "przeprowadzić się", "klucz": "przeprowadzimy się", "dlaczego": "czas przyszły prosty od czasownika dokonanego"},
+            {"nr": 7, "podstawa": "zacząć", "klucz": "zacznie", "dlaczego": "czas przyszły prosty, 3 os. l. poj."},
+            {"nr": 8, "podstawa": "pracować", "klucz": "będę pracował", "dlaczego": "czas przyszły złożony od czasownika niedokonanego; dopuszczalne też: będę pracować"},
+            {"nr": 9, "podstawa": "być", "klucz": "będzie", "dlaczego": "konstrukcja bezosobowa: będzie nam trudno"},
+            {"nr": 10, "podstawa": "przyzwyczaić się", "klucz": "przyzwyczaimy się", "dlaczego": "czas przyszły prosty, 1 os. l. mn."}
+          ]
+        }
+      ]
+    },
+    {
+      "nr": "V",
+      "sprawdza": "pytanie o podkreśloną część zdania",
+      "punkty": 2.5,
+      "format": "zapytać o podkreśloną część zdania",
+      "polecenie": "Proszę zapytać o podkreśloną część zdania.",
+      "zestawy": [
+        {
+          "id": "V-A",
+          "zdania": [
+            {"nr": 1, "zdanie": "Anna czeka na listonosza.", "podkreslone": "na listonosza", "klucz": "Na kogo czeka Anna?", "dlaczego": "czekać na kogo? — biernik z przyimkiem"},
+            {"nr": 2, "zdanie": "Wróciliśmy z Zakopanego w niedzielę.", "podkreslone": "w niedzielę", "klucz": "Kiedy wróciliście z Zakopanego?", "dlaczego": "okolicznik czasu"},
+            {"nr": 3, "zdanie": "Ten dom należy do moich dziadków.", "podkreslone": "do moich dziadków", "klucz": "Do kogo należy ten dom?", "dlaczego": "należeć do kogo? — dopełniacz z przyimkiem"},
+            {"nr": 4, "zdanie": "Marek interesuje się fotografią.", "podkreslone": "fotografią", "klucz": "Czym interesuje się Marek?", "dlaczego": "interesować się czym? — narzędnik"},
+            {"nr": 5, "zdanie": "Kupiłam ten prezent siostrze.", "podkreslone": "siostrze", "klucz": "Komu kupiłaś ten prezent?", "dlaczego": "kupić komu? — celownik"}
+          ]
+        }
+      ]
+    },
+    {
+      "nr": "VI",
+      "sprawdza": "transformacja zdania z zachowaniem sensu",
+      "punkty": 5.0,
+      "format": "przekształcić zdanie, używając wyrazu z nawiasu",
+      "polecenie": "Proszę użyć wyrazu w nawiasie i przekształcić zdanie tak, by miało ten sam sens.",
+      "zestawy": [
+        {
+          "id": "VI-A",
+          "zdania": [
+            {"nr": 1, "zdanie": "Nie mam czasu, więc nie pójdę na spotkanie.", "wyraz": "gdybym", "klucz": "Gdybym miał czas, poszedłbym na spotkanie.", "dlaczego": "tryb przypuszczający: warunek nierzeczywisty"},
+            {"nr": 2, "zdanie": "Musisz koniecznie przeczytać tę książkę.", "wyraz": "warto", "klucz": "Warto przeczytać tę książkę.", "dlaczego": "konstrukcja bezosobowa z bezokolicznikiem"},
+            {"nr": 3, "zdanie": "Zaczęło padać, dlatego wróciliśmy do domu.", "wyraz": "ponieważ", "klucz": "Wróciliśmy do domu, ponieważ zaczęło padać.", "dlaczego": "zamiana zdania współrzędnego na podrzędne przyczyny"},
+            {"nr": 4, "zdanie": "Proszę zamknąć okno.", "wyraz": "zamknij", "klucz": "Zamknij okno.", "dlaczego": "tryb rozkazujący, forma nieoficjalna"},
+            {"nr": 5, "zdanie": "On jest zbyt zmęczony i nie może prowadzić samochodu.", "wyraz": "żeby", "klucz": "Jest zbyt zmęczony, żeby prowadzić samochód.", "dlaczego": "konstrukcja zbyt… żeby + bezokolicznik"}
+          ]
+        }
+      ]
+    },
+    {
+      "nr": "VII",
+      "sprawdza": "aspekt i tryby",
+      "punkty": 5.0,
+      "format": "podkreślić poprawną formę z nawiasu",
+      "polecenie": "Proszę podkreślić poprawne formy wyrazów podanych w nawiasach.",
+      "zestawy": [
+        {
+          "id": "VII-A",
+          "tekst": "Wczoraj cały wieczór {1} zupę na dzisiejszą kolację i w końcu ją {2}. Zwykle {3} takie rzeczy szybciej, ale tym razem przepis był trudny. Jutro rano {4} jeszcze sałatkę. Mamo, {5} mi, proszę, jaki sos do niej pasuje! Gdybym {6} więcej czasu, {7} też ciasto. Kiedy goście {8}, wszystko będzie już gotowe. Nie {9} się, na pewno zdążę. {10} spokojnie i przyjdźcie o siódmej.",
+          "luki": [
+            {"nr": 1, "opcje": ["gotowałam", "ugotowałam"], "klucz": "gotowałam", "dlaczego": "„cały wieczór” — czynność trwająca, aspekt niedokonany"},
+            {"nr": 2, "opcje": ["kończyłam", "skończyłam"], "klucz": "skończyłam", "dlaczego": "„w końcu” — rezultat, aspekt dokonany"},
+            {"nr": 3, "opcje": ["robię", "zrobię"], "klucz": "robię", "dlaczego": "„zwykle” — czynność powtarzalna, czas teraźniejszy niedokonany"},
+            {"nr": 4, "opcje": ["będę robić", "zrobię"], "klucz": "zrobię", "dlaczego": "jednorazowa czynność zakończona rezultatem"},
+            {"nr": 5, "opcje": ["mów", "powiedz"], "klucz": "powiedz", "dlaczego": "tryb rozkazujący, jednorazowa prośba — aspekt dokonany"},
+            {"nr": 6, "opcje": ["miał", "miała"], "klucz": "miała", "dlaczego": "tryb przypuszczający, rodzaj żeński: gdybym miała"},
+            {"nr": 7, "opcje": ["upiekłabym", "piekłabym"], "klucz": "upiekłabym", "dlaczego": "rezultat w trybie przypuszczającym — aspekt dokonany"},
+            {"nr": 8, "opcje": ["będą przychodzić", "przyjdą"], "klucz": "przyjdą", "dlaczego": "jednorazowe zdarzenie w przyszłości"},
+            {"nr": 9, "opcje": ["martwcie", "zmartwcie"], "klucz": "martwcie", "dlaczego": "zakaz w trybie rozkazującym zawsze z aspektem niedokonanym: nie martwcie się"},
+            {"nr": 10, "opcje": ["Odpoczywajcie", "Odpocznijcie"], "klucz": "Odpoczywajcie", "dlaczego": "zachęta do czynności trwającej, aspekt niedokonany"}
+          ]
+        }
+      ]
+    },
+    {
+      "nr": "VIII",
+      "sprawdza": "przyimki",
+      "punkty": 2.5,
+      "format": "uzupełnić wyrazami z ramki, jeden wyraz zbędny",
+      "polecenie": "Proszę uzupełnić zdania wyrazami z ramki. Uwaga! Jeden wyraz w ramce jest niepotrzebny.",
+      "zestawy": [
+        {
+          "id": "VIII-A",
+          "ramka": ["do", "na", "z", "o", "przez", "od", "bez"],
+          "zdania": [
+            {"nr": 1, "tekst": "Czekam ……… ciebie już pół godziny przed kinem.", "klucz": "na", "dlaczego": "czekać na kogo? — rekcja z biernikiem"},
+            {"nr": 2, "tekst": "Wróciłem ……… pracy dopiero o dziewiątej.", "klucz": "z", "dlaczego": "kierunek „skąd” od miejsca, do którego idzie się „do”"},
+            {"nr": 3, "tekst": "Rozmawialiśmy długo ……… twoim pomyśle.", "klucz": "o", "dlaczego": "rozmawiać o czym? — miejscownik"},
+            {"nr": 4, "tekst": "Dostałem tę książkę ……… mojego nauczyciela.", "klucz": "od", "dlaczego": "źródło, od kogo — dopełniacz"},
+            {"nr": 5, "tekst": "Nie wychodź ……… parasola, zaraz będzie padać.", "klucz": "bez", "dlaczego": "brak czegoś — dopełniacz"}
+          ],
+          "zbedny": "przez"
+        }
+      ]
+    }
+  ]
+}
