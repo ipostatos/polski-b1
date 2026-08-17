@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  testy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Зависимости
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r bot/requirements.txt
+          pip install pytest reportlab pymupdf
+
+      - name: Тесты бота и содержания
+        run: python -m pytest bot/test_bot.py -q
+
+      - name: Рабочая тетрадь собирается
+        run: |
+          python workbook/build_workbook.py
+          test -s workbook/Zeszyt_B1.pdf
+
+      - name: В репозитории нет экзаменационных материалов
+        run: |
+          if git ls-files | grep -iE '(arkusz|transkrypcja|dzwiekowy)|\.mp3$'; then
+            echo "Официальные материалы не должны попадать в репозиторий"
+            exit 1
+          fi
