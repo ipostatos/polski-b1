@@ -28,6 +28,7 @@ import storage
 
 MAX_WIEK_INITDATA = 24 * 3600      # сутки: Telegram выдаёт initData при каждом открытии
 DOZWOLONE_ORIGINS = {"https://ipostatos.github.io"}
+OKNO_BLEDOW_DNI = 30               # окно «повторяющихся» ошибок для штрафа и слабых мест
 
 # типы, которые Mini App может отметить вручную (протокольные активности);
 # остальное логируется сервером само при реальных действиях
@@ -80,8 +81,14 @@ def user_id_z(dane: dict) -> int | None:
 # ------------------------------------------------------------------ приложение
 
 
-def zbuduj_api(bot_token: str, owner_id: int, pula: dict[str, int]) -> web.Application:
-    """`pula` — размеры пулов тренажёров: {"gramatyka": n, "sluchanie": n, "otwarte": n}."""
+def zbuduj_api(bot_token: str, owner_id: int) -> web.Application:
+    """Собирает API. Индекс позиций строится из content — сервер сам решает,
+    верен ли ответ: клиенту истина о результате не доверяется."""
+    zamkniete = {p.id: p for p in
+                 content.pozycje_gramatyka() + content.pozycje_intencje()}
+    otwarte = {o.id: o for o in
+               content.pozycje_czasy() + content.pozycje_transformacje()}
+    pula_razem = len(zamkniete) + len(otwarte)
 
     def autoryzuj(request: web.Request) -> int:
         naglowek = request.headers.get("Authorization", "")
@@ -117,8 +124,8 @@ def zbuduj_api(bot_token: str, owner_id: int, pula: dict[str, int]) -> web.Appli
         historia = storage.historia_wynikow(uid)
         wyniki = storage.ostatnie_wyniki(uid)
         prace = storage.objetosc_ostatnich_prac(uid)
-        mapa = storage.mapa_bledow(uid)
-        got = gotowosc.gotowosc(content.MODULY, wyniki, srs["kategorie"], prace, mapa)
+        mapa = storage.mapa_bledow(uid, dni=OKNO_BLEDOW_DNI)
+        got = gotowosc.gotowosc(content.MODULY, wyniki, srs["kategorie"], mapa)
         tr = gotowosc.trendy(historia)
         dni_akt = storage.aktywnosc_dni(uid, 84)
         dzis = storage.aktywnosc_dzis(uid)
@@ -140,7 +147,8 @@ def zbuduj_api(bot_token: str, owner_id: int, pula: dict[str, int]) -> web.Appli
             "readiness": got,
             "modules": moduly,
             "srs": {"znane": srs["znane"], "due": srs["due"],
-                    "zakreplone": srs["zakreplone"], "pula": sum(pula.values())},
+                    "zakreplone": srs["zakreplone"], "pula": pula_razem},
+            "pisanie_objetosc": gotowosc.objetosc_dyscyplina(prace),
             "today": {"plan": plan,
                       "done": sum(1 for p in plan if p["done"]),
                       "target": len(plan)},
@@ -148,6 +156,7 @@ def zbuduj_api(bot_token: str, owner_id: int, pula: dict[str, int]) -> web.Appli
             "streak": gotowosc.seria(dni_akt, date.today()),
             "activity": dni_akt,
             "weakest": {
+                "okno_dni": OKNO_BLEDOW_DNI,
                 "error_map": [{"kod": k, "n": n, "priorytet": n >= 3}
                               for k, n in mapa[:5]],
                 "kategorie": [{"kategoria": k, "bledy": b, "pokazy": p}
@@ -156,20 +165,35 @@ def zbuduj_api(bot_token: str, owner_id: int, pula: dict[str, int]) -> web.Appli
         })
 
     async def api_odpowiedz(request: web.Request) -> web.Response:
+        """Клиент присылает ТОЛЬКО item_id и свой ответ. Категорию, ключ и
+        верность определяет сервер по content — фронту истина о результате
+        не доверяется (data integrity, а не безопасность)."""
         uid = autoryzuj(request)
         cialo = await request.json()
         item_id = str(cialo.get("item_id", ""))[:64]
-        kategoria = str(cialo.get("kategoria", ""))[:32]
-        ok = bool(cialo.get("ok"))
-        if not item_id or not kategoria:
-            raise web.HTTPBadRequest(text="item_id i kategoria wymagane")
+        odpowiedz = str(cialo.get("odpowiedz", ""))[:500]
+        if not item_id:
+            raise web.HTTPBadRequest(text="item_id wymagane")
+        akceptowane: list[str] = []
+        if item_id in zamkniete:
+            p = zamkniete[item_id]
+            kategoria, klucz = p.kategoria, p.klucz
+            ok = odpowiedz.strip() == p.klucz
+        elif item_id in otwarte:
+            o = otwarte[item_id]
+            kategoria, klucz, akceptowane = o.kategoria, o.klucz, list(o.akceptowane)
+            ok = o.poprawna(odpowiedz)
+        else:
+            raise web.HTTPNotFound(text="nieznana pozycja")
         byla_powtorka = item_id in storage.do_powtorki(uid)
         storage.zapisz_odpowiedz(uid, item_id, kategoria, ok)
         typ = "sluchanie" if kategoria in ("INTENCJA", "SYTUACJA") else "gramatyka"
         storage.zaloguj_aktywnosc(uid, typ)
         if byla_powtorka:
             storage.zaloguj_aktywnosc(uid, "powtorka")
-        return web.json_response({"zapisano": True})
+        return web.json_response({"zapisano": True, "ok": ok, "klucz": klucz,
+                                  "akceptowane": akceptowane,
+                                  "kategoria": kategoria})
 
     async def api_praca(request: web.Request) -> web.Response:
         uid = autoryzuj(request)
@@ -205,6 +229,44 @@ def zbuduj_api(bot_token: str, owner_id: int, pula: dict[str, int]) -> web.Appli
             "zapisano": True, "prog": prog, "cel": cel,
             "status": "cel" if punkty >= cel else ("prog" if punkty >= prog else "oblany"),
         })
+
+    async def api_mok(request: web.Request) -> web.Response:
+        """Мок целиком: валидация всех модулей → одна транзакция → вердикт
+        сервера. Штамп ZDANY/NIEZDANY фронт показывает только из этого ответа —
+        никаких локальных вердиктов поверх наполовину записанных данных."""
+        uid = autoryzuj(request)
+        cialo = await request.json()
+        sesja = str(cialo.get("sesja", ""))[:32] or date.today().isoformat()
+        surowe = cialo.get("wyniki")
+        if not isinstance(surowe, dict) or not surowe:
+            raise web.HTTPBadRequest(text="wyniki: {modul: punkty} wymagane")
+        wiersze: list[tuple[str, float, float]] = []
+        for modul, punkty in surowe.items():
+            if modul not in content.MODULY:
+                raise web.HTTPBadRequest(text=f"nieznany moduł: {modul}")
+            try:
+                punkty = float(punkty)
+            except (ValueError, TypeError):
+                raise web.HTTPBadRequest(text=f"{modul}: punkty muszą być liczbą")
+            _, maks, _prog, _cel = content.MODULY[modul]
+            if not 0 <= punkty <= maks:
+                raise web.HTTPBadRequest(text=f"{modul}: punkty poza zakresem 0–{maks}")
+            wiersze.append((modul, punkty, maks))
+        storage.zapisz_wyniki_moka(uid, sesja, wiersze)     # одна транзакция
+        storage.zaloguj_aktywnosc(uid, "mok")
+        statusy = {}
+        for modul, punkty, maks in wiersze:
+            _, _, prog, cel = content.MODULY[modul]
+            statusy[modul] = {"punkty": punkty, "maks": maks, "prog": prog,
+                              "zdal": punkty >= prog, "cel_wziety": punkty >= cel}
+        if len(wiersze) == len(content.MODULY):
+            zdany, oblane = gotowosc.egzamin_zdany(
+                {m: p for m, p, _ in wiersze}, content.MODULY)
+        else:
+            zdany, oblane = None, []                        # niepełny — вердикта нет
+        return web.json_response({"zapisano": True, "sesja": sesja,
+                                  "statusy": statusy, "zdany": zdany,
+                                  "oblane": oblane})
 
     async def api_blad(request: web.Request) -> web.Response:
         uid = autoryzuj(request)
@@ -278,6 +340,7 @@ def zbuduj_api(bot_token: str, owner_id: int, pula: dict[str, int]) -> web.Appli
     app.router.add_get("/api/powtorki", api_powtorki)
     app.router.add_post("/api/odpowiedz", api_odpowiedz)
     app.router.add_post("/api/praca", api_praca)
+    app.router.add_post("/api/mok", api_mok)
     app.router.add_post("/api/wynik", api_wynik)
     app.router.add_post("/api/blad", api_blad)
     app.router.add_post("/api/aktywnosc", api_aktywnosc)

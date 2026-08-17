@@ -610,10 +610,7 @@ async def main() -> None:
     api_port = int(ENV.get("API_PORT") or 0)
     if api_port:
         try:
-            pula = {"gramatyka": len(GRAMATYKA), "sluchanie": len(INTENCJE),
-                    "otwarte": len(OTWARTE)}
-            runner = await api.uruchom_api(
-                api.zbuduj_api(token, OWNER_ID, pula), api_port)
+            runner = await api.uruchom_api(api.zbuduj_api(token, OWNER_ID), api_port)
             log.info("API дашборда на 127.0.0.1:%d", api_port)
         except Exception:
             log.exception("API дашборда не поднялся — бот работает без него")

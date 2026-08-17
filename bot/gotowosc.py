@@ -8,9 +8,9 @@
   тренировочная точность модуля (только при достатке данных):
     gramatyka  — точность SRS по категориям GRAM-* (минимум 20 показов);
     sluchanie  — точность SRS по INTENCJA и SYTUACJA (минимум 20 показов);
-    pisanie    — доля последних работ с попаданием в объём 90–110%
-                 (минимум 3 работы);
-    czytanie, mowienie — тренажёра нет, только моки.
+    pisanie, czytanie, mowienie — только моки. Попадание в объём письма —
+    дисциплина формата, а не умение писать: в готовность оно не входит
+    и показывается отдельной строкой «objętość».
 
   готовность модуля:
     мок и тренировки → 0.6·мок% + 0.4·тренировки%;
@@ -18,8 +18,9 @@
     только тренировки → min(тренировки%, 50)  — без мока выше 50 не бывает;
     ничего           → 0, модуль помечен «не замерено».
 
-  штраф gramatyka: −3 п.п. за каждую категорию Error Map с ≥3 ошибками,
-  максимум −12 (повторяющаяся ошибка — системный риск).
+  штраф gramatyka: −3 п.п. за каждую категорию Error Map с ≥3 ошибками
+  ЗА ПОСЛЕДНИЕ 30 ДНЕЙ, максимум −12: закрытая в прошлом категория
+  не штрафует вечно (окно передаёт вызывающая сторона).
 
   итог — среднее по модулям, взвешенное их баллами (30/30/30/30/40).
 """
@@ -28,7 +29,6 @@ from __future__ import annotations
 from datetime import date, timedelta
 
 MIN_POKAZOW = 20      # меньше показов SRS — тренировочная точность не считается
-MIN_PRAC = 3          # меньше работ — точность письма не считается
 KARA_ZA_KATEGORIE = 3
 KARA_MAX = 12
 
@@ -47,20 +47,13 @@ STATUSY = [
 ]
 
 
-def dokladnosc_treningu(modul: str, kategorie: dict[str, dict[str, int]],
-                        prace: list[tuple[int, int]] | None = None) -> float | None:
+def dokladnosc_treningu(modul: str,
+                        kategorie: dict[str, dict[str, int]]) -> float | None:
     """Тренировочная точность модуля в процентах, None если данных мало.
 
     `kategorie` — {категория: {"powtorki": n, "bledy": n}} из podsumowanie_srs.
-    `prace` — [(слов, требовалось)] для модуля pisanie.
+    Pisanie сюда сознательно не входит: попадание в объём — не умение писать.
     """
-    if modul == "pisanie":
-        prace = prace or []
-        if len(prace) < MIN_PRAC:
-            return None
-        trafienia = sum(1 for slow, wymagane in prace
-                        if wymagane > 0 and 90 <= round(slow / wymagane * 100, 6) <= 110)
-        return trafienia / len(prace) * 100
     prefiksy = KATEGORIE_MODULU.get(modul)
     if not prefiksy:
         return None
@@ -91,12 +84,19 @@ def kara_bledow(mapa: list[tuple[str, int]]) -> int:
     return min(powtarzajace * KARA_ZA_KATEGORIE, KARA_MAX)
 
 
+def objetosc_dyscyplina(prace: list[tuple[int, int]]) -> dict:
+    """Дисциплина объёма письма — отдельный показатель, НЕ часть готовности."""
+    trafienia = sum(1 for slow, wymagane in prace
+                    if wymagane > 0 and 90 <= round(slow / wymagane * 100, 6) <= 110)
+    return {"prace": len(prace), "trafienia": trafienia}
+
+
 def gotowosc(moduly: dict[str, tuple[float, float, float, float]],
              wyniki: dict[str, tuple[float, float, str]],
              kategorie: dict[str, dict[str, int]],
-             prace: list[tuple[int, int]],
              mapa: list[tuple[str, int]]) -> dict:
-    """Полный расчёт. `moduly` — content.MODULY без имени: {ключ: (имя, макс, порог, цель)}."""
+    """Полный расчёт. `moduly` — content.MODULY без имени: {ключ: (имя, макс, порог, цель)}.
+    `mapa` — Error Map за СВЕЖЕЕ окно (storage.mapa_bledow с dni=30), не за всю историю."""
     out: dict = {"moduly": {}, "zmierzone": 0}
     suma = wagi = 0.0
     kara = kara_bledow(mapa)
@@ -105,8 +105,7 @@ def gotowosc(moduly: dict[str, tuple[float, float, float, float]],
         if klucz in wyniki:
             p, mx, _ = wyniki[klucz]
             mok = p / mx * 100 if mx else None
-        trening = dokladnosc_treningu(
-            klucz, kategorie, prace if klucz == "pisanie" else None)
+        trening = dokladnosc_treningu(klucz, kategorie)
         wartosc, zmierzony = gotowosc_modulu(mok, trening)
         if klucz == "gramatyka" and zmierzony:
             wartosc = max(0, wartosc - kara)

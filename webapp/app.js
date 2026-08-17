@@ -153,9 +153,20 @@ function pozycjeOtwarte(cw, nr) {
   return out;
 }
 
-/* запись ответа: сервер — единственный источник истины */
-function zapiszOdpowiedz(p, ok) {
-  if (S.authed) apiCicho("/api/odpowiedz", { item_id: p.id, kategoria: p.kat, ok });
+/* Запись ответа: истину о результате определяет СЕРВЕР по content —
+   клиент шлёт только id позиции и сам ответ. Возвращает {ok, klucz,
+   akceptowane, zapisano}; при недоступном API — локальная проверка
+   (прогресс не записан, счётчик niezapisane растёт). */
+async function sprawdzOdpowiedz(p, odpowiedz) {
+  if (S.authed) {
+    try {
+      const r = await api("/api/odpowiedz", { item_id: p.id, odpowiedz });
+      return { ok: r.ok, klucz: r.klucz, akceptowane: r.akceptowane || [], zapisano: true };
+    } catch (e) { S.niezapisane += 1; }
+  }
+  const warianty = [p.klucz, ...(p.akceptowane || [])].map(normalizuj);
+  return { ok: warianty.includes(normalizuj(odpowiedz)), klucz: p.klucz,
+           akceptowane: p.akceptowane || [], zapisano: false };
 }
 
 /* выбор позиции: очередь due (если знаем) → новое → случайное */
@@ -256,14 +267,18 @@ function home() {
           <div><div class="k">До экзамена</div><div class="v num">${d.exam.days_left}</div></div>
         </div>
         ${slabe.length ? `<div class="muted" style="font-size:var(--fs-sm); margin-top:var(--sp-3)">
-          Слабее всего: ${slabe.map(s =>
+          Слабее всего (${d.weakest.okno_dni ?? 30} дн): ${slabe.map(s =>
             `<span class="chip tap" data-go="${s.go}">${esc(s.label)}</span>`).join(" ")}
         </div>` : ""}
       </div>`);
 
     /* ── пять модулей ── */
+    const ob = d.pisanie_objetosc;
     czesci.push(`<div class="card" style="margin-bottom:var(--sp-3)">
       ${Object.entries(d.modules).map(([k, m]) => wierszModulu(k, m)).join("")}
+      ${ob && ob.prace ? `<div class="muted num" style="font-size:var(--fs-xs); margin-top:var(--sp-2)">
+        Objętość (дисциплина формата, не входит в готовность):
+        ${ob.trafienia}/${ob.prace} работ в допуске</div>` : ""}
       <div class="muted" style="font-size:var(--fs-xs); margin-top:var(--sp-2)">
         <span style="color:var(--red)">|</span> порог (50%) ·
         <span style="color:var(--hint)">|</span> цель · результат — последний мок</div>
@@ -401,10 +416,12 @@ function widokOGotowosci() {
       • только мок → его процент<br>
       • только тренировки → не выше <b>50%</b> (без мока запас не подтверждён)<br>
       • данных нет → <b>0</b>, модуль «не замерено»</p>
-      <p>Тренировочная точность: gramatyka и słuchanie — из SRS (минимум 20 показов),
-      pisanie — доля попаданий в объём из последних 10 работ (минимум 3).
-      Czytanie и mówienie замеряются только моками.</p>
-      <p>Штраф: −3 п.п. gramatyce за каждую категорию Error Map с ≥3 ошибками (до −12).</p>
+      <p>Тренировочная точность: gramatyka и słuchanie — из SRS (минимум
+      20 показов). Pisanie, czytanie и mówienie замеряются только моками:
+      попадание в объём — дисциплина формата, а не умение писать, оно
+      показывается отдельной строкой и в готовность не входит.</p>
+      <p>Штраф: −3 п.п. gramatyce за каждую категорию Error Map с ≥3 ошибками
+      за последние 30 дней (до −12) — закрытая старая категория не штрафует.</p>
       <p style="margin-bottom:0">Итог — среднее по модулям, взвешенное их баллами
       (30/30/30/30/40). Формула детерминированная и покрыта тестами
       (bot/gotowosc.py).</p>
@@ -439,24 +456,24 @@ function widokWybor(name, pula, opts = {}) {
           play.textContent = "🎧 Odtworzone (1/1)"; };
       }
       let done = false;
-      app.querySelectorAll(".opt").forEach(btn => btn.onclick = () => {
+      app.querySelectorAll(".opt").forEach(btn => btn.onclick = async () => {
         if (done) return;
         done = true;
         const wybor = p.opcje[+btn.dataset.i];
-        const ok = wybor === p.klucz;
-        zapiszOdpowiedz(p, ok);
+        const w = await sprawdzOdpowiedz(p, wybor);
         app.querySelectorAll(".opt").forEach(b2 => {
           const val = p.opcje[+b2.dataset.i];
-          if (val === p.klucz) b2.classList.add("good");
+          if (val === w.klucz) b2.classList.add("good");
           else if (b2 === btn) b2.classList.add("badly");
         });
         const ex = document.getElementById("expl");
         ex.classList.remove("hidden");
-        ex.innerHTML = (ok ? "✅ " : "❌ правильно: <b>" + esc(p.klucz) + "</b><br>")
+        ex.innerHTML = (w.ok ? "✅ " : "❌ правильно: <b>" + esc(w.klucz) + "</b><br>")
           + (audioSrc && p.tekst ? `Transkrypcja: „${esc(p.tekst)}”<br>` : "")
-          + (p.dlaczego ? "<i>" + esc(p.dlaczego) + "</i>" : "");
-        if (tg) tg.HapticFeedback.notificationOccurred(ok ? "success" : "error");
-        if (opts.poOdpowiedzi) opts.poOdpowiedzi();
+          + (p.dlaczego ? "<i>" + esc(p.dlaczego) + "</i>" : "")
+          + (w.zapisano ? "" : "<br><i>⚠ не сохранено</i>");
+        if (tg) tg.HapticFeedback.notificationOccurred(w.ok ? "success" : "error");
+        if (opts.poOdpowiedzi) opts.poOdpowiedzi(w.ok);
       });
       document.getElementById("next").onclick =
         () => (opts.dalej ? opts.dalej() : widokWybor(name, pula, opts));
@@ -484,21 +501,21 @@ function widokOtwarte(name, pula, opts = {}) {
       const inp = document.getElementById("odp");
       inp.focus();
       let done = false;
-      const check = () => {
+      const check = async () => {
         if (done) return;
         done = true;
-        const warianty = [p.klucz, ...p.akceptowane].map(normalizuj);
-        const ok = warianty.includes(normalizuj(inp.value || ""));
-        zapiszOdpowiedz(p, ok);
+        const w = await sprawdzOdpowiedz(p, inp.value || "");
         const ex = document.getElementById("expl");
         ex.classList.remove("hidden");
-        ex.innerHTML = (ok ? "✅ <b>" + esc(p.klucz) + "</b>"
-            : "❌ правильно: <b>" + esc(p.klucz) + "</b>"
-              + (p.akceptowane.length ? "<br>также принимается: "
-                 + p.akceptowane.map(esc).join(" · ") : ""))
-          + (p.dlaczego ? "<br><i>" + esc(p.dlaczego) + "</i>" : "");
+        ex.innerHTML = (w.ok ? "✅ <b>" + esc(w.klucz) + "</b>"
+            : "❌ правильно: <b>" + esc(w.klucz) + "</b>"
+              + (w.akceptowane.length ? "<br>также принимается: "
+                 + w.akceptowane.map(esc).join(" · ") : ""))
+          + (p.dlaczego ? "<br><i>" + esc(p.dlaczego) + "</i>" : "")
+          + (w.zapisano ? "" : "<br><i>⚠ не сохранено</i>");
         document.getElementById("check").disabled = true;
-        if (tg) tg.HapticFeedback.notificationOccurred(ok ? "success" : "error");
+        if (tg) tg.HapticFeedback.notificationOccurred(w.ok ? "success" : "error");
+        if (opts.poOdpowiedzi) opts.poOdpowiedzi(w.ok);
       };
       document.getElementById("check").onclick = check;
       inp.addEventListener("keydown", e => { if (e.key === "Enter") check(); });
@@ -514,6 +531,14 @@ async function widokPowtorki() {
   catch (e) { render("powtorki", `<div class="state">Очередь не загрузилась: ${esc(e.message)}</div>`); return; }
   const kolejka = shuffle(due.slice());
   let zrobione = 0;
+  let biezacy = null;
+
+  /* неверный ответ по правилам SRS остаётся due сегодня — возвращаем позицию
+     в очередь через несколько вопросов, а не выбрасываем до завтра */
+  const poOdpowiedzi = ok => {
+    zrobione += 1;
+    if (!ok && biezacy) kolejka.splice(Math.min(3, kolejka.length), 0, biezacy);
+  };
 
   const nastepny = () => {
     const id = kolejka.shift();
@@ -521,16 +546,16 @@ async function widokPowtorki() {
       render("powtorki", `
         <h1>Повторение</h1>
         <div class="state">Очередь пуста — на сегодня всё повторено
-          (${zrobione} позиций). ✓</div>
+          (${zrobione} ответов). ✓</div>
         <button class="btn" id="dom">На дашборд</button>`,
         { after: () => document.getElementById("dom").onclick = przeladujHome });
       return;
     }
-    zrobione += 1;
+    biezacy = id;
     const zwykla = D.wszystkie.get(id);
-    if (zwykla) { widokWybor("powtorki", [], { nastepna: zwykla, dalej: nastepny }); return; }
+    if (zwykla) { widokWybor("powtorki", [], { nastepna: zwykla, dalej: nastepny, poOdpowiedzi }); return; }
     const otwarta = D.otwarte.get(id);
-    if (otwarta) { widokOtwarte("powtorki", [], { nastepna: otwarta, dalej: nastepny }); return; }
+    if (otwarta) { widokOtwarte("powtorki", [], { nastepna: otwarta, dalej: nastepny, poOdpowiedzi }); return; }
     nastepny();   // позиция ушла из пула контента — пропускаем
   };
   nastepny();
@@ -678,10 +703,46 @@ function widokMowienie() {
 /* ═══════════════════════════ REAL EXAM ═══════════════════════════ */
 
 const EXAM_KOLEJNOSC = ["sluchanie", "czytanie", "gramatyka", "pisanie"];
+const EXAM_KLUCZ_SS = "b1.egzamin";
+const EXAM_MAX_WIEK_MS = 6 * 3600 * 1000;
+
+/* чекпоинт текущего экзамена: НЕ учебная статистика, а страховка от
+   выгрузки WebView — SQLite остаётся единственным источником прогресса */
+function egzaminStan() {
+  try {
+    const s = JSON.parse(sessionStorage.getItem(EXAM_KLUCZ_SS));
+    if (s && Date.now() - s.start < EXAM_MAX_WIEK_MS) return s;
+  } catch (e) { /* повреждённый чекпоинт игнорируем */ }
+  sessionStorage.removeItem(EXAM_KLUCZ_SS);
+  return null;
+}
+function egzaminZapisz(stan) {
+  sessionStorage.setItem(EXAM_KLUCZ_SS, JSON.stringify(stan));
+}
+function egzaminWyczysc() {
+  sessionStorage.removeItem(EXAM_KLUCZ_SS);
+  if (tg) tg.disableClosingConfirmation();
+}
+
+/* восстановление после reload: фаза выводится из абсолютных времён */
+function egzaminWznow() {
+  const stan = egzaminStan();
+  if (!stan || !S.cfg) return false;
+  if (stan.faza === "wynik") { egzaminWynik(stan.sesja); return true; }
+  if (tg) tg.enableClosingConfirmation();
+  if (stan.faza === "modul") {
+    if (Date.now() < stan.koniec) egzaminModul(stan);
+    else egzaminPoModule(stan);       // время модуля вышло, пока нас не было
+    return true;
+  }
+  if (stan.faza === "przerwa") { egzaminPrzerwa(stan); return true; }
+  return false;
+}
 
 function widokEgzamin() {
   const cfg = S.cfg;
   if (!cfg) { render("egzamin", `<div class="state">Конфиг экзамена не загрузился.</div>`); return; }
+  if (egzaminStan()) { egzaminWznow(); return; }
   const t = cfg.timing;
   render("egzamin", `
     <h1>Realny tryb egzaminu</h1>
@@ -697,6 +758,8 @@ function widokEgzamin() {
         Аудио — ровно столько раз, сколько в задании. Пустых клеток не оставлять:
         штрафа за неверный ответ нет. Материал модуля — архивный аркуш по
         программе (в приложение он не встроен: чужие авторские материалы).
+        Следующий модуль начинается по расписанию, даже если работа сдана
+        раньше, — как на настоящем экзамене.
       </div>
       <label class="muted" style="font-size:var(--fs-sm)">Сессия аркуша
         <input type="text" id="sesja" placeholder="например 2021-11"
@@ -710,66 +773,124 @@ function widokEgzamin() {
         const sesja = document.getElementById("sesja").value.trim()
           || isoLokalne(new Date());
         if (tg) tg.enableClosingConfirmation();
-        egzaminModul(sesja, 0);
+        const stan = { sesja, idx: 0, faza: "modul", start: Date.now(),
+                       koniec: Date.now() + S.cfg.timing[EXAM_KOLEJNOSC[0]] * 60000,
+                       oddany: false };
+        egzaminZapisz(stan);
+        egzaminModul(stan);
       };
     }});
 }
 
-function egzaminModul(sesja, idx) {
+function egzaminModul(stan) {
   const cfg = S.cfg;
-  const klucz = EXAM_KOLEJNOSC[idx];
+  const klucz = EXAM_KOLEJNOSC[stan.idx];
   const m = cfg.moduly[klucz];
-  const sekund = cfg.timing[klucz] * 60;
-  const koniec = Date.now() + sekund * 1000;
   render("egzamin", `
-    <h1>${idx + 1}/4 · ${esc(m.nazwa)}</h1>
+    <h1>${stan.idx + 1}/4 · ${esc(m.nazwa)}</h1>
     <p class="sub">${m.maks} p. · próg ${m.prog} · cel ${m.cel}</p>
-    <div class="timer" id="t">${MMSS(sekund)}</div>
+    <div class="timer" id="t">--:--</div>
     <div class="card" style="margin-bottom:var(--sp-3)">
-      <p class="q-text" style="margin:0">Работай в аркуше сессии <b>${esc(sesja)}</b>.
-      Когда время выйдет — модуль закрыт, листы откладываются и больше не трогаются.</p>
+      <p class="q-text" style="margin:0" id="opis">${stan.oddany
+        ? opisOddanego(klucz)
+        : `Работай в аркуше сессии <b>${esc(stan.sesja)}</b>. Когда время выйдет —
+           модуль закрыт, листы откладываются и больше не трогаются.`}</p>
     </div>
-    <button class="btn ghost" id="stop">Zakończ moduł wcześniej</button>`, { after: () => {
+    <button class="btn ghost" id="oddaj" ${stan.oddany ? "disabled" : ""}>
+      Oddaj pracę wcześniej</button>
+    <button class="btn ghost" id="przerwij"
+      style="margin-top:var(--sp-2); color:var(--red)">Przerwij egzamin</button>`,
+    { after: () => {
       const t = document.getElementById("t");
-      const iv = timerEkranu(() => {
-        const s = Math.max(0, Math.round((koniec - Date.now()) / 1000));
+      const tick = () => {
+        const s = Math.max(0, Math.round((stan.koniec - Date.now()) / 1000));
         t.textContent = MMSS(s);
-        if (s <= 0) { clearInterval(iv); dalej(); }
-      }, 500);
-      const dalej = () => {
-        clearInterval(iv);
-        if (idx + 1 < EXAM_KOLEJNOSC.length) egzaminPrzerwa(sesja, idx + 1);
-        else egzaminWynik(sesja);
+        return s;
       };
-      document.getElementById("stop").onclick = dalej;
+      tick();
+      timerEkranu(() => { if (tick() <= 0) egzaminPoModule(stan); }, 500);
+      /* досрочная сдача НЕ ускоряет расписание: лист закрыт, время модуля идёт */
+      document.getElementById("oddaj").onclick = function () {
+        stan.oddany = true;
+        egzaminZapisz(stan);
+        this.disabled = true;
+        document.getElementById("opis").innerHTML = opisOddanego(klucz);
+      };
+      przyciskPrzerwania(document.getElementById("przerwij"));
     }});
   window.scrollTo(0, 0);
 }
 
-function egzaminPrzerwa(sesja, idx) {
-  const min = S.cfg.przerwa_min;
-  const koniec = Date.now() + min * 60 * 1000;
+function opisOddanego(klucz) {
+  return `Лист сдан. Следующий модуль начнётся по расписанию — после конца
+    времени <b>${esc(S.cfg.moduly[klucz].nazwa)}</b> и перерыва. Досиди:
+    на экзамене выйти из зала можно, а ускорить день — нет.`;
+}
+
+/* «Przerwij egzamin» — двойное подтверждение без диалогов (они вешают WebView) */
+function przyciskPrzerwania(btn) {
+  btn.onclick = () => {
+    if (btn.dataset.raz) {
+      egzaminWyczysc();
+      przeladujHome();
+      return;
+    }
+    btn.dataset.raz = "1";
+    btn.textContent = "Точно прервать? Мок пропадёт";
+    setTimeout(() => {
+      if (document.body.contains(btn)) {
+        delete btn.dataset.raz;
+        btn.textContent = "Przerwij egzamin";
+      }
+    }, 4000);
+  };
+}
+
+function egzaminPoModule(stan) {
+  if (stan.idx + 1 < EXAM_KOLEJNOSC.length) {
+    const nowy = { ...stan, idx: stan.idx + 1, faza: "przerwa", oddany: false,
+                   koniec: Date.now() + S.cfg.przerwa_min * 60000 };
+    egzaminZapisz(nowy);
+    egzaminPrzerwa(nowy);
+  } else {
+    const nowy = { ...stan, faza: "wynik" };
+    egzaminZapisz(nowy);
+    egzaminWynik(stan.sesja);
+  }
+}
+
+function egzaminPrzerwa(stan) {
+  const cfg = S.cfg;
   render("egzamin", `
     <h1>Przerwa</h1>
-    <p class="sub">Минимум ${min} минут. Следующий модуль:
-      ${esc(S.cfg.moduly[EXAM_KOLEJNOSC[idx]].nazwa)}</p>
-    <div class="timer" id="t">${MMSS(min * 60)}</div>
+    <p class="sub">Минимум ${cfg.przerwa_min} минут. Следующий модуль:
+      ${esc(cfg.moduly[EXAM_KOLEJNOSC[stan.idx]].nazwa)}</p>
+    <div class="timer" id="t">--:--</div>
     <button class="btn" id="dalej" disabled>Rozpocznij następny moduł</button>
+    <button class="btn ghost" id="przerwij"
+      style="margin-top:var(--sp-2); color:var(--red)">Przerwij egzamin</button>
     <p class="foot">Кнопка откроется, когда перерыв пройдёт целиком —
       как на настоящем экзамене.</p>`, { after: () => {
       const t = document.getElementById("t");
       const btn = document.getElementById("dalej");
-      const iv = timerEkranu(() => {
-        const s = Math.max(0, Math.round((koniec - Date.now()) / 1000));
+      const tick = () => {
+        const s = Math.max(0, Math.round((stan.koniec - Date.now()) / 1000));
         t.textContent = MMSS(s);
-        if (s <= 0) { clearInterval(iv); btn.disabled = false; t.textContent = "00:00"; }
-      }, 500);
-      btn.onclick = () => { clearInterval(iv); egzaminModul(sesja, idx); };
+        if (s <= 0) btn.disabled = false;
+        return s;
+      };
+      if (tick() > 0) timerEkranu(tick, 500);
+      btn.onclick = () => {
+        const nowy = { ...stan, faza: "modul",
+                       koniec: Date.now() + S.cfg.timing[EXAM_KOLEJNOSC[stan.idx]] * 60000 };
+        egzaminZapisz(nowy);
+        egzaminModul(nowy);
+      };
+      przyciskPrzerwania(document.getElementById("przerwij"));
     }});
 }
 
 function egzaminWynik(sesja) {
-  if (tg) tg.disableClosingConfirmation();
   const cfg = S.cfg;
   const pola = Object.entries(cfg.moduly).map(([k, m]) => `
     <label style="display:block; margin-bottom:var(--sp-3); font-size:var(--fs-sm)">
@@ -792,35 +913,54 @@ function egzaminWynik(sesja) {
           if (v !== "") wpisane[k] = parseFloat(v);
         }
         if (!Object.keys(wpisane).length) { this.disabled = false; return; }
-        if (S.authed)
-          for (const [k, p] of Object.entries(wpisane))
-            await apiCicho("/api/wynik", { sesja, modul: k, punkty: p });
-        pokazWerdykt(wpisane, sesja);
+        const w = document.getElementById("werdykt");
+        if (S.authed) {
+          /* мок пишется атомарно; штамп — ТОЛЬКО из ответа сервера */
+          try {
+            const r = await api("/api/mok", { sesja, wyniki: wpisane });
+            egzaminWyczysc();
+            pokazWerdykt(r);
+          } catch (e) {
+            this.disabled = false;
+            w.innerHTML = `<div class="banner">⚠ Мок НЕ записан (${esc(e.message)}).
+              Ничего не потеряно — исправь связь или значения и нажми ещё раз.</div>`;
+          }
+          return;
+        }
+        /* вне Telegram: сохранить некуда — честно считаем локально */
+        egzaminWyczysc();
+        const statusy = {};
+        for (const [k, m] of Object.entries(cfg.moduly))
+          if (wpisane[k] !== undefined)
+            statusy[k] = { punkty: wpisane[k], maks: m.maks, prog: m.prog,
+                           zdal: wpisane[k] >= m.prog };
+        const pelny = Object.keys(cfg.moduly).every(k => wpisane[k] !== undefined);
+        pokazWerdykt({ statusy,
+          zdany: pelny ? Object.values(statusy).every(s => s.zdal) : null },
+          "⚠ Вне Telegram — результат НЕ сохранён.");
       };
     }});
 }
 
-function pokazWerdykt(wpisane, sesja) {
+function pokazWerdykt(r, dopisek) {
   const cfg = S.cfg;
   const wiersze = Object.entries(cfg.moduly).map(([k, m]) => {
-    const p = wpisane[k];
-    if (p === undefined)
+    const s = r.statusy[k];
+    if (!s)
       return `<div class="todo"><span class="st">·</span><span class="lbl muted">${esc(m.nazwa)}</span><span class="min">не внесено</span></div>`;
-    const zdal = p >= m.prog;
-    return `<div class="todo"><span class="st">${zdal ? "✓" : "✗"}</span>
+    return `<div class="todo"><span class="st">${s.zdal ? "✓" : "✗"}</span>
       <span class="lbl">${esc(m.nazwa)}</span>
-      <span class="min num" style="color:${zdal ? "var(--ok)" : "var(--bad)"}">
-        ${p}/${m.maks}</span></div>`;
+      <span class="min num" style="color:${s.zdal ? "var(--ok)" : "var(--bad)"}">
+        ${s.punkty}/${s.maks}</span></div>`;
   }).join("");
-  const pelny = Object.keys(cfg.moduly).every(k => wpisane[k] !== undefined);
-  const zdany = pelny && Object.entries(cfg.moduly).every(([k, m]) => wpisane[k] >= m.prog);
-  const stamp = !pelny
+  const stamp = r.zdany === null || r.zdany === undefined
     ? `<p class="muted" style="font-size:var(--fs-sm)">Вердикта нет — мок неполный.
-       Внеси недостающие модули через Historia, вердикт появится там.</p>`
+       Внеси недостающие модули позже, вердикт появится в Historia.</p>`
     : `<p style="text-align:center; margin:var(--sp-4) 0">
-       <span class="stamp ${zdany ? "ok" : ""}">${zdany ? "EGZAMIN ZDANY" : "EGZAMIN NIEZDANY"}</span></p>`;
+       <span class="stamp ${r.zdany ? "ok" : ""}">${r.zdany ? "EGZAMIN ZDANY" : "EGZAMIN NIEZDANY"}</span></p>`;
   const w = document.getElementById("werdykt");
-  w.innerHTML = `<div class="card">${wiersze}</div>${stamp}
+  w.innerHTML = `${dopisek ? `<div class="banner">${dopisek}</div>` : ""}
+    <div class="card">${wiersze}</div>${stamp}
     <button class="btn ghost" id="dom" style="margin-top:var(--sp-3)">На дашборд</button>`;
   document.getElementById("dom").onclick = przeladujHome;
 }
@@ -875,7 +1015,8 @@ function widokMapa() {
   const kat = d ? d.weakest.kategorie : [];
   render("mapa", `
     <h1>Error Map</h1>
-    <p class="sub">Повторяющиеся ошибки — приоритет тренировки</p>
+    <p class="sub">Повторяющиеся ошибки за ${d && d.weakest.okno_dni || 30} дней —
+      приоритет тренировки</p>
     ${em.length ? `<div class="card" style="margin-bottom:var(--sp-3)">
       ${em.map(e => `<div class="todo">
         <span class="st">${e.priorytet ? "⚠" : "·"}</span>
@@ -967,5 +1108,6 @@ const VIEWS = {
     try { S.dash = await api("/api/dashboard"); S.authed = true; }
     catch (e) { S.authed = false; }
   }
-  home();
+  /* незавершённый экзамен переживает reload/выгрузку WebView */
+  if (!egzaminWznow()) home();
 })();

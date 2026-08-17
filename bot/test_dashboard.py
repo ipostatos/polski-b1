@@ -49,10 +49,15 @@ def test_trening_malo_danych_nie_liczy_sie():
     assert gotowosc.dokladnosc_treningu("gramatyka", kategorie) is None
 
 
-def test_trening_pisanie_po_objetosci():
-    prace = [(170, 170), (30, 30), (100, 170)]     # 2 попадания из 3
-    assert gotowosc.dokladnosc_treningu("pisanie", {}, prace) == pytest.approx(66.67, abs=0.01)
-    assert gotowosc.dokladnosc_treningu("pisanie", {}, [(170, 170)]) is None
+def test_pisanie_nie_ma_treningu_w_gotowosci():
+    """Попадание в объём — не умение писать: pisanie замеряется только моком."""
+    assert gotowosc.dokladnosc_treningu("pisanie", {"GRAM-I": {"powtorki": 99, "bledy": 0}}) is None
+
+
+def test_objetosc_osobny_wskaznik():
+    prace = [(170, 170), (30, 30), (100, 170)]
+    assert gotowosc.objetosc_dyscyplina(prace) == {"prace": 3, "trafienia": 2}
+    assert gotowosc.objetosc_dyscyplina([]) == {"prace": 0, "trafienia": 0}
 
 
 def test_czytanie_bez_treningu():
@@ -76,8 +81,8 @@ def test_kara_bledow():
 def test_gotowosc_deterministyczna_i_wazona():
     wyniki = {"gramatyka": (18.0, 30.0, "2021-11"), "mowienie": (28.0, 40.0, "2021-11")}
     kategorie = {"GRAM-I": {"powtorki": 40, "bledy": 4}}
-    r1 = gotowosc.gotowosc(MODULY, wyniki, kategorie, [], [])
-    r2 = gotowosc.gotowosc(MODULY, wyniki, kategorie, [], [])
+    r1 = gotowosc.gotowosc(MODULY, wyniki, kategorie, [])
+    r2 = gotowosc.gotowosc(MODULY, wyniki, kategorie, [])
     assert r1 == r2
     # gramatyka: 0.6*60 + 0.4*90 = 72; mowienie: 70; остальные 0
     assert r1["moduly"]["gramatyka"]["gotowosc"] == 72
@@ -92,7 +97,7 @@ def test_gotowosc_deterministyczna_i_wazona():
 def test_gotowosc_kara_tylko_gramatyka():
     wyniki = {"gramatyka": (20.0, 30.0, "x"), "pisanie": (20.0, 30.0, "x")}
     mapa = [("ASP", 5), ("REKCJA", 3)]
-    r = gotowosc.gotowosc(MODULY, wyniki, {}, [], mapa)
+    r = gotowosc.gotowosc(MODULY, wyniki, {}, mapa)
     assert r["kara_bledow"] == 6
     assert r["moduly"]["gramatyka"]["gotowosc"] == round(20 / 30 * 100) - 6
     assert r["moduly"]["pisanie"]["gotowosc"] == round(20 / 30 * 100)
@@ -205,6 +210,39 @@ def test_aktywnosc_i_due(baza):
     assert s["znane"] == 2 and s["due"] == 1 and s["zakreplone"] == 0
 
 
+def test_mapa_bledow_okno_swiezosci(baza):
+    """Категория, закрытая месяцы назад, не значится «повторяющейся» вечно."""
+    uid = baza
+    with storage._conn() as c:
+        for _ in range(3):
+            c.execute("INSERT INTO bledy (user_id,kod,zle,dobrze,komentarz,kiedy) "
+                      "VALUES (?,?,?,?,?,?)", (uid, "ASP", "x", "", "", "2026-05-01 10:00:00"))
+    storage.dodaj_blad(uid, "ORTH", "y")
+    assert dict(storage.mapa_bledow(uid)) == {"ASP": 3, "ORTH": 1}
+    assert dict(storage.mapa_bledow(uid, dni=30)) == {"ORTH": 1}
+
+
+def test_slabe_kategorie_po_procencie(baza):
+    """Сортировка по доле ошибок, а не по абсолюту; мало показов — не судим."""
+    uid = baza
+    with storage._conn() as c:
+        c.executemany(
+            "INSERT INTO srs (user_id,item_id,kategoria,powtorki,bledy,interwal,nastepnie) "
+            "VALUES (?,?,?,?,?,?,?)",
+            [(uid, "A-1", "GRAM-A", 20, 4, 1, "2099-01-01"),    # 20% ошибок
+             (uid, "B-1", "GRAM-B", 10, 5, 1, "2099-01-01"),    # 50% ошибок
+             (uid, "C-1", "GRAM-C", 4, 3, 1, "2099-01-01")])    # мало показов
+    slabe = storage.slabe_kategorie(uid, 5)
+    assert [k for k, _, _ in slabe] == ["GRAM-B", "GRAM-A"]
+
+
+def test_mok_atomowy(baza):
+    uid = baza
+    storage.zapisz_wyniki_moka(uid, "2021-11", [("gramatyka", 18, 30), ("pisanie", 20, 30)])
+    h = storage.historia_wynikow(uid)
+    assert len(h) == 2 and {w["modul"] for w in h} == {"gramatyka", "pisanie"}
+
+
 # ------------------------------------------------------------------ initData
 
 
@@ -261,7 +299,7 @@ def klient(test):
     from aiohttp.test_utils import TestClient, TestServer
 
     async def run():
-        app = api.zbuduj_api(TOKEN, OWNER, {"gramatyka": 50, "sluchanie": 36, "otwarte": 15})
+        app = api.zbuduj_api(TOKEN, OWNER)
         client = TestClient(TestServer(app))
         await client.start_server()
         try:
@@ -276,7 +314,7 @@ def test_api_bez_auth_401(baza):
         for sciezka in ("/api/dashboard", "/api/wyniki", "/api/powtorki"):
             r = await cl.get(sciezka)
             assert r.status == 401, sciezka
-        r = await cl.post("/api/odpowiedz", json={"item_id": "x", "kategoria": "GRAM-I", "ok": True})
+        r = await cl.post("/api/odpowiedz", json={"item_id": "x", "odpowiedz": "y"})
         assert r.status == 401
     klient(scenariusz)
 
@@ -300,13 +338,41 @@ def test_api_config_publiczny(baza):
     klient(scenariusz)
 
 
-def test_api_dashboard_i_zapisy(baza):
+def test_api_odpowiedz_prawde_ustala_serwer(baza):
+    """Клиент шлёт только id и ответ — верность, ключ и категорию решает сервер."""
     naglowki = {"Authorization": "tma " + init_data_dla(OWNER)}
+    p = content.pozycje_gramatyka()[0]
+    o = content.pozycje_czasy()[0]
 
     async def scenariusz(cl):
-        # ответ тренажёра пишется и попадает в агрегаты
+        # неверный ответ: сервер говорит ok=False и возвращает ключ
         r = await cl.post("/api/odpowiedz", headers=naglowki,
-                          json={"item_id": "G1-1", "kategoria": "GRAM-I", "ok": False})
+                          json={"item_id": p.id, "odpowiedz": "coś-złego"})
+        assert r.status == 200
+        d = await r.json()
+        assert d["ok"] is False and d["klucz"] == p.klucz and d["kategoria"] == p.kategoria
+        # верный ответ убирает позицию из due
+        r = await cl.post("/api/odpowiedz", headers=naglowki,
+                          json={"item_id": p.id, "odpowiedz": p.klucz})
+        assert (await r.json())["ok"] is True
+        # открытый вопрос проверяется нормализацией и akceptowane
+        r = await cl.post("/api/odpowiedz", headers=naglowki,
+                          json={"item_id": o.id, "odpowiedz": "  " + o.klucz.upper() + " "})
+        assert (await r.json())["ok"] is True
+        # незнакомая позиция — 404, ничего не пишется
+        r = await cl.post("/api/odpowiedz", headers=naglowki,
+                          json={"item_id": "NIE-MA-TAKIEJ", "odpowiedz": "x"})
+        assert r.status == 404
+    klient(scenariusz)
+
+
+def test_api_dashboard_i_zapisy(baza):
+    naglowki = {"Authorization": "tma " + init_data_dla(OWNER)}
+    p = content.pozycje_gramatyka()[0]
+
+    async def scenariusz(cl):
+        r = await cl.post("/api/odpowiedz", headers=naglowki,
+                          json={"item_id": p.id, "odpowiedz": "źle"})
         assert r.status == 200
         r = await cl.post("/api/wynik", headers=naglowki,
                           json={"sesja": "2021-11", "modul": "gramatyka", "punkty": 18})
@@ -323,8 +389,41 @@ def test_api_dashboard_i_zapisy(baza):
         assert d["modules"]["gramatyka"]["ostatni"]["punkty"] == 18
         assert d["readiness"]["moduly"]["gramatyka"]["zmierzony"] is True
         assert d["today"]["target"] == len(content.PLAN_DNIA[date.today().weekday()])
+        assert d["pisanie_objetosc"] == {"prace": 0, "trafienia": 0}
         r = await cl.get("/api/powtorki", headers=naglowki)
-        assert (await r.json())["due"] == ["G1-1"]
+        assert (await r.json())["due"] == [p.id]
+    klient(scenariusz)
+
+
+def test_api_mok_atomowy_i_werdykt(baza):
+    naglowki = {"Authorization": "tma " + init_data_dla(OWNER)}
+
+    async def scenariusz(cl):
+        # невалидный модуль в наборе → 400 и НИЧЕГО не записано
+        r = await cl.post("/api/mok", headers=naglowki, json={
+            "sesja": "2021-11",
+            "wyniki": {"gramatyka": 18, "nieznany-modul": 5}})
+        assert r.status == 400
+        r = await cl.get("/api/wyniki", headers=naglowki)
+        assert (await r.json())["sesje"] == []
+        # баллы за пределами максимума → 400, тоже ничего
+        r = await cl.post("/api/mok", headers=naglowki, json={
+            "sesja": "2021-11", "wyniki": {"gramatyka": 99}})
+        assert r.status == 400
+        # полный мок с одним модулем ниже порога → NIEZDANY
+        r = await cl.post("/api/mok", headers=naglowki, json={
+            "sesja": "2021-11",
+            "wyniki": {"sluchanie": 21, "czytanie": 24, "gramatyka": 14.5,
+                       "pisanie": 19, "mowienie": 25}})
+        assert r.status == 200
+        d = await r.json()
+        assert d["zdany"] is False and d["oblane"] == ["gramatyka"]
+        assert d["statusy"]["gramatyka"]["zdal"] is False
+        # неполный мок → вердикта нет
+        r = await cl.post("/api/mok", headers=naglowki, json={
+            "sesja": "6_B1_PG", "wyniki": {"gramatyka": 22}})
+        d = await r.json()
+        assert d["zdany"] is None
     klient(scenariusz)
 
 

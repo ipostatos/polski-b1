@@ -273,12 +273,16 @@ def test_srs_blad_wraca_na_dzis(baza):
 
 
 def test_srs_liczy_bledy_po_kategoriach(baza):
-    for _ in range(3):
-        storage.zapisz_odpowiedz(1, "A-1", "GRAM-VII", False)
-    storage.zapisz_odpowiedz(1, "B-1", "GRAM-II", True)
+    # GRAM-VII: 10 показов, 3 ошибки (30%); GRAM-II: 10 показов, 1 ошибка (10%)
+    for i in range(10):
+        storage.zapisz_odpowiedz(1, "A-1", "GRAM-VII", i >= 3)
+        storage.zapisz_odpowiedz(1, "B-1", "GRAM-II", i >= 1)
     slabe = storage.slabe_kategorie(1)
     assert slabe[0][0] == "GRAM-VII"
     assert slabe[0][1] == 3
+    # категории с < min_pokazow показов не судим — мало данных
+    storage.zapisz_odpowiedz(1, "C-1", "GRAM-V", False)
+    assert all(k != "GRAM-V" for k, _, _ in storage.slabe_kategorie(1))
 
 
 def test_uzytkownicy_nie_mieszaja_sie(baza):

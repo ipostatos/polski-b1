@@ -130,13 +130,20 @@ def widziane(user_id: int) -> set[str]:
     return {r["item_id"] for r in rows}
 
 
-def slabe_kategorie(user_id: int, limit: int = 5) -> list[tuple[str, int, int]]:
-    """Категории с наибольшим числом ошибок: (категория, ошибок, показов)."""
+def slabe_kategorie(user_id: int, limit: int = 5,
+                    min_pokazow: int = 10) -> list[tuple[str, int, int]]:
+    """Категории с наибольшим ПРОЦЕНТОМ ошибок: (категория, ошибок, показов).
+
+    Сортировка по доле, а не по абсолюту: старая категория с сотней показов
+    и десятком давних ошибок не должна затмевать свежую, где мимо каждый
+    второй ответ. Категории с < min_pokazow показов не судим — мало данных.
+    """
     with _conn() as c:
         rows = c.execute(
             "SELECT kategoria, SUM(bledy) b, SUM(powtorki) p FROM srs "
-            "WHERE user_id=? GROUP BY kategoria HAVING b>0 ORDER BY b DESC LIMIT ?",
-            (user_id, limit),
+            "WHERE user_id=? GROUP BY kategoria "
+            "HAVING b>0 AND p>=? ORDER BY CAST(b AS REAL)/p DESC LIMIT ?",
+            (user_id, min_pokazow, limit),
         ).fetchall()
     return [(r["kategoria"], r["b"], r["p"]) for r in rows]
 
@@ -154,12 +161,21 @@ def dodaj_blad(user_id: int, kod: str, zle: str, dobrze: str = "",
         return int(cur.lastrowid or 0)
 
 
-def mapa_bledow(user_id: int) -> list[tuple[str, int]]:
+def mapa_bledow(user_id: int, dni: int | None = None) -> list[tuple[str, int]]:
+    """Ошибки по категориям; `dni` ограничивает свежим окном — категория,
+    закрытая месяц назад, не должна вечно значиться «повторяющейся»."""
     with _conn() as c:
-        rows = c.execute(
-            "SELECT kod, COUNT(*) n FROM bledy WHERE user_id=? GROUP BY kod ORDER BY n DESC",
-            (user_id,),
-        ).fetchall()
+        if dni is not None:
+            od = (date.today() - timedelta(days=dni)).isoformat()
+            rows = c.execute(
+                "SELECT kod, COUNT(*) n FROM bledy WHERE user_id=? AND kiedy>=? "
+                "GROUP BY kod ORDER BY n DESC", (user_id, od),
+            ).fetchall()
+        else:
+            rows = c.execute(
+                "SELECT kod, COUNT(*) n FROM bledy WHERE user_id=? "
+                "GROUP BY kod ORDER BY n DESC", (user_id,),
+            ).fetchall()
     return [(r["kod"], r["n"]) for r in rows]
 
 
@@ -184,6 +200,19 @@ def zapisz_wynik(user_id: int, sesja: str, modul: str, punkty: float, maks: floa
         c.execute(
             "INSERT INTO wyniki (user_id,sesja,modul,punkty,maks,kiedy) VALUES (?,?,?,?,?,?)",
             (user_id, sesja, modul, punkty, maks, datetime.now().isoformat(" ", "seconds")),
+        )
+
+
+def zapisz_wyniki_moka(user_id: int, sesja: str,
+                       wyniki: list[tuple[str, float, float]]) -> None:
+    """Все модули мока одной транзакцией: либо записан весь мок, либо ничего.
+    `wyniki` — [(модуль, баллы, макс)]."""
+    kiedy = datetime.now().isoformat(" ", "seconds")
+    with _conn() as c:
+        c.executemany(
+            "INSERT INTO wyniki (user_id,sesja,modul,punkty,maks,kiedy) VALUES (?,?,?,?,?,?)",
+            [(user_id, sesja, modul, punkty, maks, kiedy)
+             for modul, punkty, maks in wyniki],
         )
 
 
