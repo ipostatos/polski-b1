@@ -23,13 +23,14 @@ systemctl daemon-reload && systemctl enable --now polski-b1
 
 ## API дашборда + Mini App с сервера (дополнение)
 
-В `.env` добавить `API_PORT=4300` (localhost-only, наружу — Caddy).
+В `.env` добавить `API_PORT=4600` (localhost-only, наружу — Caddy).
+4300 НЕ брать: занят соседним ботом флота (obshak, node, слушает 0.0.0.0).
 В `/etc/caddy/Caddyfile` добавить сайт (и `systemctl reload caddy`):
 
 ```caddyfile
 polski-b1-46-224-220-94.sslip.io {
         handle /api/* {
-                reverse_proxy 127.0.0.1:4300
+                reverse_proxy 127.0.0.1:4600
         }
         # статика Mini App: ТОЛЬКО webapp и data — .env и moje наружу не смотрят
         handle /webapp/* {
