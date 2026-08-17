@@ -1,0 +1,45 @@
+{
+  "opis": "Комплекты для тренировки письма. Формат экзаменационный: три комплекта, в каждом короткая работа (a) и длинная (b). Темы авторские, но взяты из тематического инвентаря B1.",
+  "zestawy": [
+    {
+      "id": "P-01",
+      "a": {"polecenie": "Sprzedaje Pani/Pan rower, którego już nie używa. Proszę napisać ogłoszenie, które zamieści Pani/Pan w internecie.", "slow": 30, "gatunek": "ogłoszenie"},
+      "b": {"polecenie": "Proszę napisać opowiadanie, które zaczyna się od zdania: „Kiedy otworzyłem drzwi, nikogo już tam nie było.”", "slow": 170, "gatunek": "opowiadanie"}
+    },
+    {
+      "id": "P-02",
+      "a": {"polecenie": "Przeprowadziła się Pani / Przeprowadził się Pan do nowego mieszkania. Proszę napisać zaproszenie na parapetówkę do polskich znajomych.", "slow": 30, "gatunek": "zaproszenie"},
+      "b": {"polecenie": "Była Pani / Był Pan na festiwalu kulinarnym w swoim mieście. Proszę napisać sprawozdanie z tego wydarzenia do lokalnej gazety, z którą Pani/Pan współpracuje.", "slow": 170, "gatunek": "sprawozdanie"}
+    },
+    {
+      "id": "P-03",
+      "a": {"polecenie": "Kolega z pracy awansował na stanowisko kierownika. Proszę napisać życzenia z tej okazji.", "slow": 30, "gatunek": "życzenia"},
+      "b": {"polecenie": "Proszę napisać esej (wypracowanie szkolne) pt. „Praca zdalna zmieniła nasze życie bardziej, niż nam się wydaje”.", "slow": 170, "gatunek": "esej"}
+    },
+    {
+      "id": "P-04",
+      "a": {"polecenie": "Jest Pani/Pan na wakacjach w Zakopanem. Proszę napisać pozdrowienia do polskiej koleżanki/polskiego kolegi.", "slow": 35, "gatunek": "pozdrowienia"},
+      "b": {"polecenie": "Kupiła Pani / Kupił Pan przez internet urządzenie, które okazało się uszkodzone. Proszę napisać list do sklepu z reklamacją.", "slow": 170, "gatunek": "list formalny"}
+    },
+    {
+      "id": "P-05",
+      "a": {"polecenie": "Zgubiła Pani / Zgubił Pan w autobusie teczkę z dokumentami. Proszę napisać ogłoszenie.", "slow": 30, "gatunek": "ogłoszenie"},
+      "b": {"polecenie": "Proszę opisać miejsce w Polsce, które zrobiło na Pani/Panu największe wrażenie, i wyjaśnić dlaczego.", "slow": 170, "gatunek": "opis"}
+    },
+    {
+      "id": "P-06",
+      "a": {"polecenie": "Chce Pani/Pan zapisać się na kurs języka polskiego. Proszę napisać e-mail z prośbą o informacje o terminach i cenie.", "slow": 35, "gatunek": "e-mail formalny"},
+      "b": {"polecenie": "Proszę napisać opowiadanie, które kończy się zdaniem: „Od tamtego dnia nigdy więcej się nie spóźniłem.”", "slow": 170, "gatunek": "opowiadanie"}
+    },
+    {
+      "id": "P-07",
+      "a": {"polecenie": "Szuka Pani/Pan współlokatora do wynajmowanego mieszkania. Proszę napisać ogłoszenie.", "slow": 30, "gatunek": "ogłoszenie"},
+      "b": {"polecenie": "Proszę napisać esej pt. „Czy warto uczyć się języka kraju, w którym się mieszka?”", "slow": 170, "gatunek": "esej"}
+    },
+    {
+      "id": "P-08",
+      "a": {"polecenie": "Sąsiedzi zapraszają Panią/Pana na kolację, ale nie może Pani/Pan przyjść. Proszę napisać krótką notatkę z podziękowaniem i wyjaśnieniem.", "slow": 30, "gatunek": "notatka"},
+      "b": {"polecenie": "Brała Pani / Brał Pan udział w otwarciu nowej biblioteki miejskiej. Proszę napisać relację z tego wydarzenia.", "slow": 165, "gatunek": "relacja"}
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "opis": "Тренажёр под задание I модуля Rozumienie ze słuchu: 14 микровысказываний, 7 баллов, одно прослушивание. Реплики авторские, интенции — те, что реально спрашивают.",
+  "kategorie": [
+    "zgoda", "odmowa", "prośba", "propozycja", "rada", "zaproszenie",
+    "gratulacje", "życzenia", "przeprosiny", "podziękowanie", "skarga",
+    "krytyka", "pochwała", "zdziwienie", "obojętność", "wątpliwość",
+    "ostrzeżenie", "zakaz", "pozwolenie", "obietnica"
+  ],
+  "pozycje": [
+    {"tekst": "No dobrze, niech będzie. Zrobię to, ale ostatni raz.", "klucz": "zgoda", "dystraktory": ["odmowa", "obietnica"], "wskazowka": "„niech będzie” to niechętna zgoda, nie odmowa"},
+    {"tekst": "Wolałbym nie, mam w tym tygodniu naprawdę dużo pracy.", "klucz": "odmowa", "dystraktory": ["wątpliwość", "prośba"], "wskazowka": "grzeczna odmowa z uzasadnieniem"},
+    {"tekst": "Czy mógłbyś przesunąć trochę ten stół? Sam nie dam rady.", "klucz": "prośba", "dystraktory": ["propozycja", "rozkaz"], "wskazowka": "„czy mógłbyś” + tryb przypuszczający to typowa prośba"},
+    {"tekst": "A może pojechalibyśmy w ten weekend nad jezioro?", "klucz": "propozycja", "dystraktory": ["zaproszenie", "prośba"], "wskazowka": "„a może” + tryb przypuszczający w 1 os. l. mn."},
+    {"tekst": "Na twoim miejscu poszedłbym z tym do lekarza.", "klucz": "rada", "dystraktory": ["ostrzeżenie", "krytyka"], "wskazowka": "„na twoim miejscu” to formuła rady"},
+    {"tekst": "Będzie mi bardzo miło, jeśli wpadniesz do nas w sobotę.", "klucz": "zaproszenie", "dystraktory": ["propozycja", "prośba"], "wskazowka": "gospodarz zaprasza do siebie"},
+    {"tekst": "Słyszałam, że zdałeś! To naprawdę wielki sukces.", "klucz": "gratulacje", "dystraktory": ["pochwała", "zdziwienie"], "wskazowka": "reakcja na cudze osiągnięcie"},
+    {"tekst": "Dużo zdrowia i samych pogodnych dni w nadchodzącym roku.", "klucz": "życzenia", "dystraktory": ["gratulacje", "pochwała"], "wskazowka": "mówimy o przyszłości, nie o osiągnięciu"},
+    {"tekst": "Bardzo mi przykro, że tak wyszło. To moja wina.", "klucz": "przeprosiny", "dystraktory": ["skarga", "wątpliwość"], "wskazowka": "przyznanie się do winy"},
+    {"tekst": "Nie wiem, co bym bez ciebie zrobiła. Naprawdę mi pomogłeś.", "klucz": "podziękowanie", "dystraktory": ["pochwała", "gratulacje"], "wskazowka": "wdzięczność za konkretną pomoc"},
+    {"tekst": "To już trzeci raz w tym miesiącu, kiedy winda nie działa.", "klucz": "skarga", "dystraktory": ["zdziwienie", "krytyka"], "wskazowka": "powtarzający się problem, mówiący jest poszkodowany"},
+    {"tekst": "Szczerze mówiąc, spodziewałem się po tobie czegoś więcej.", "klucz": "krytyka", "dystraktory": ["skarga", "wątpliwość"], "wskazowka": "ocena cudzego działania jako niewystarczającego"},
+    {"tekst": "Muszę przyznać, że zrobiłeś to naprawdę porządnie.", "klucz": "pochwała", "dystraktory": ["gratulacje", "podziękowanie"], "wskazowka": "ocena jakości pracy, nie sukcesu"},
+    {"tekst": "Serio? Nigdy bym nie pomyślał, że on się na to zdecyduje.", "klucz": "zdziwienie", "dystraktory": ["wątpliwość", "krytyka"], "wskazowka": "reakcja na niespodziewaną informację"},
+    {"tekst": "Wszystko mi jedno, róbcie jak chcecie.", "klucz": "obojętność", "dystraktory": ["zgoda", "odmowa"], "wskazowka": "brak preferencji, nie zgoda"},
+    {"tekst": "Nie jestem pewien, czy to na pewno dobry pomysł.", "klucz": "wątpliwość", "dystraktory": ["odmowa", "krytyka"], "wskazowka": "nie odmowa, tylko niepewność"},
+    {"tekst": "Uważaj, ta podłoga jest jeszcze mokra.", "klucz": "ostrzeżenie", "dystraktory": ["zakaz", "rada"], "wskazowka": "informacja o niebezpieczeństwie"},
+    {"tekst": "W tej sali nie wolno używać telefonów.", "klucz": "zakaz", "dystraktory": ["ostrzeżenie", "rada"], "wskazowka": "„nie wolno” to zakaz"},
+    {"tekst": "Oczywiście, może pan tu zaparkować, nie ma problemu.", "klucz": "pozwolenie", "dystraktory": ["zgoda", "propozycja"], "wskazowka": "ktoś ma władzę i jej udziela"},
+    {"tekst": "Na pewno oddam ci pieniądze do końca miesiąca.", "klucz": "obietnica", "dystraktory": ["zgoda", "prośba"], "wskazowka": "zobowiązanie na przyszłość"},
+    {"tekst": "Niestety, w tym terminie nie mamy już wolnych miejsc.", "klucz": "odmowa", "dystraktory": ["skarga", "wątpliwość"], "wskazowka": "odmowa instytucjonalna, uprzejma"},
+    {"tekst": "Może warto byłoby najpierw sprawdzić rozkład jazdy.", "klucz": "rada", "dystraktory": ["propozycja", "wątpliwość"], "wskazowka": "„warto byłoby” to sugestia dla rozmówcy"},
+    {"tekst": "Przepraszam, czy mógłby pan powiedzieć, gdzie jest dworzec?", "klucz": "prośba", "dystraktory": ["wątpliwość", "propozycja"], "wskazowka": "pytanie o drogę to prośba o informację"},
+    {"tekst": "To niesamowite, że udało wam się to zrobić w tydzień.", "klucz": "pochwała", "dystraktory": ["zdziwienie", "gratulacje"], "wskazowka": "ocena efektu pracy z podziwem"}
+  ],
+  "sytuacje": {
+    "opis": "Второй тип задания I: где звучит эта реплика.",
+    "pozycje": [
+      {"tekst": "Proszę otworzyć usta i powiedzieć „aaa”.", "klucz": "u lekarza", "dystraktory": ["u fryzjera", "w aptece"]},
+      {"tekst": "Czy życzy pan sobie krótko z tyłu, czy zostawiamy?", "klucz": "u fryzjera", "dystraktory": ["u krawca", "u szewca"]},
+      {"tekst": "To bez recepty, ale proszę nie brać więcej niż trzy dziennie.", "klucz": "w aptece", "dystraktory": ["u lekarza", "w sklepie"]},
+      {"tekst": "Pociąg opóźniony o dwadzieścia minut, przepraszamy za utrudnienia.", "klucz": "na dworcu", "dystraktory": ["na lotnisku", "w autobusie"]},
+      {"tekst": "Poproszę o paragon, będę chciała to zwrócić.", "klucz": "w sklepie", "dystraktory": ["w restauracji", "w banku"]},
+      {"tekst": "Danie dnia dziś to rosół i pierogi ruskie.", "klucz": "w restauracji", "dystraktory": ["w sklepie", "w hotelu"]},
+      {"tekst": "Proszę podpisać tutaj i wpisać PESEL w rubryce obok.", "klucz": "w urzędzie", "dystraktory": ["w banku", "w szkole"]},
+      {"tekst": "Zadanie domowe na przyszły tydzień: strona czterdziesta druga.", "klucz": "w szkole", "dystraktory": ["na uczelni", "w bibliotece"]},
+      {"tekst": "Tę książkę trzeba oddać do trzeciego, potem naliczamy karę.", "klucz": "w bibliotece", "dystraktory": ["w szkole", "w księgarni"]},
+      {"tekst": "Pokój numer dwieście dwa, śniadanie od siódmej do dziesiątej.", "klucz": "w hotelu", "dystraktory": ["w restauracji", "w akademiku"]},
+      {"tekst": "Proszę zapiąć pasy, za chwilę startujemy.", "klucz": "w samolocie", "dystraktory": ["w pociągu", "w autobusie"]},
+      {"tekst": "Buty będą gotowe w środę, obcasy wymienię na nowe.", "klucz": "u szewca", "dystraktory": ["u krawca", "w sklepie obuwniczym"]}
+    ]
+  }
+}

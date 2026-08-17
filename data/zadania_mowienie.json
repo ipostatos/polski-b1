@@ -1,0 +1,41 @@
+{
+  "opis": "Комплекты для устной части: три задания в каждом (opis ilustracji, monolog, sytuacja komunikacyjna), до 15 минут. Формат по официальному сборнику 6_B1_M, темы авторские в границах тематического инвентаря B1.",
+  "zestawy": [
+    {
+      "id": "M-01",
+      "z1": "Proszę opisać sytuację: rodzina z dziećmi robi zakupy w supermarkecie w sobotę przed południem. Proszę powiedzieć, kto to może być, co się dzieje i dlaczego tak Pani/Pan sądzi.",
+      "z2": "Proszę opowiedzieć o swoim ulubionym sposobie spędzania wolnego czasu. Dlaczego właśnie ten? Kiedy się nim Pani/Pan zainteresowała/zainteresował?",
+      "z3": "Chce Pani/Pan wynająć mieszkanie. Dzwoni Pani/Pan do właściciela: proszę zapytać o cenę, warunki i termin, a następnie umówić się na obejrzenie."
+    },
+    {
+      "id": "M-02",
+      "z1": "Proszę opisać sytuację: grupa ludzi czeka na peronie, jest zima, widać opóźnienie na tablicy. Kim mogą być te osoby i co czują?",
+      "z2": "Proszę opowiedzieć o mieście, w którym Pani/Pan mieszka. Co warto w nim zobaczyć, a co chciałaby Pani / chciałby Pan zmienić?",
+      "z3": "Zamówiła Pani / Zamówił Pan w restauracji danie, które przyszło zimne. Proszę porozmawiać z kelnerem i rozwiązać sytuację."
+    },
+    {
+      "id": "M-03",
+      "z1": "Proszę opisać sytuację: kilka osób w różnym wieku pracuje razem przy jednym stole w przestrzeni coworkingowej.",
+      "z2": "Proszę opowiedzieć o swojej pracy albo studiach: co Pani/Pan robi, co lubi najbardziej, a co jest najtrudniejsze.",
+      "z3": "Kolega prosi Panią/Pana o pożyczenie samochodu na weekend. Nie chce Pani/Pan tego zrobić. Proszę odmówić tak, żeby go nie urazić."
+    },
+    {
+      "id": "M-04",
+      "z1": "Proszę opisać sytuację: starsza osoba karmi gołębie w parku, obok przechodzi dwoje młodych ludzi z telefonami.",
+      "z2": "Proszę opowiedzieć o wydarzeniu z ostatniego roku, które dobrze Pani/Pan zapamiętała/zapamiętał.",
+      "z3": "Jest Pani/Pan w przychodni. Proszę umówić wizytę u specjalisty i wyjaśnić, dlaczego termin jest pilny."
+    },
+    {
+      "id": "M-05",
+      "z1": "Proszę opisać sytuację: ludzie sprzątają las w ramach akcji ekologicznej, są w rękawiczkach i mają worki.",
+      "z2": "Proszę powiedzieć, czy w Pani/Pana kraju dba się o środowisko. Proszę uzasadnić swoje zdanie przykładami.",
+      "z3": "Sąsiad regularnie hałasuje późnym wieczorem. Proszę z nim porozmawiać i doprowadzić do rozwiązania."
+    },
+    {
+      "id": "M-06",
+      "z1": "Proszę opisać sytuację: dwie osoby oglądają mieszkanie z pośrednikiem, jedna robi zdjęcia telefonem.",
+      "z2": "Proszę opowiedzieć o planach na najbliższy rok. Co chce Pani/Pan osiągnąć i co może w tym przeszkodzić?",
+      "z3": "Chce Pani/Pan zapisać dziecko albo siebie na zajęcia sportowe. Proszę zapytać w klubie o grupy, terminy i koszty."
+    }
+  ]
+}
