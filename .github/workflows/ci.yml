@@ -25,14 +25,23 @@ jobs:
       - name: Тесты бота и содержания
         run: python -m pytest bot/test_bot.py -q
 
-      - name: Рабочая тетрадь собирается
+      - name: Рабочая тетрадь собирается и читается
         run: |
           python workbook/build_workbook.py
-          test -s workbook/Zeszyt_B1.pdf
+          python tools/check_pdf.py
 
       - name: В репозитории нет экзаменационных материалов
         run: |
-          if git ls-files | grep -iE '(arkusz|transkrypcja|dzwiekowy)|\.mp3$'; then
+          if git ls-files | grep -iE '(arkusz|transkrypcja|dzwiekowy)|\.mp3$' | grep -v '^data/audio/'; then
             echo "Официальные материалы не должны попадать в репозиторий"
+            exit 1
+          fi
+
+      - name: Нет следов чужих проектов
+        run: |
+          # содержимое репозитория — только про экзамен B1; -I: бинарники
+          # (mp3, pdf) не смотрим — случайные байты дают ложные срабатывания
+          if git grep -InE '\b(jacht|skipper|żegl[a-ząęółśćżźń]*|rejs|marina|VHF|ISSA)\b' -- . ':!.github/workflows/ci.yml'; then
+            echo "Найдены посторонние слова из других проектов"
             exit 1
           fi

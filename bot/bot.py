@@ -1,18 +1,22 @@
 """Бот подготовки к государственному экзамену B1 (17.10.2026).
 
-Личный бот на одного владельца: чужим не отвечает.
+Личный бот на одного владельца: чужим не отвечает. OWNER_ID обязателен —
+без него бот не стартует (публичный бот без владельца мог бы быть захвачен
+первым нажавшим /start).
 
 Команды:
-  /start      меню
-  /dzis       что делать сегодня
-  /gramatyka  тренировка грамматики с интервальным повторением
-  /intencje   тренажёр задания I аудирования (одно прослушивание)
-  /pisanie    комплект для письма, приём работы и проверка объёма
-  /mowienie   комплект для устной части, 15 минут
-  /blad       записать ошибку в Error Map
-  /mapa       карта ошибок
-  /wynik      записать результат мока
-  /stan       статус по модулям и дни до экзамена
+  /start          меню
+  /dzis           что делать сегодня
+  /gramatyka      тренировка грамматики с интервальным повторением (I, II, III, VII, VIII)
+  /czasy          задание IV: формы глагола, ответ текстом
+  /transformacje  задание VI: перестроить предложение, ответ текстом
+  /intencje       тренажёр задания I аудирования: запись голосом, один раз
+  /pisanie        комплект для письма, приём работы и проверка объёма
+  /mowienie       комплект для устной части + розыгрыш задания 3 в диалоге
+  /blad           записать ошибку в Error Map
+  /mapa           карта ошибок
+  /wynik          записать результат мока
+  /stan           статус по модулям и дни до экзамена
 """
 from __future__ import annotations
 
@@ -20,7 +24,6 @@ import asyncio
 import logging
 import os
 import random
-import re
 import sys
 from pathlib import Path
 
@@ -29,9 +32,12 @@ from aiogram.enums import ParseMode
 from aiogram.filters import Command, CommandStart
 from aiogram.types import (
     CallbackQuery,
+    FSInputFile,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
+    MenuButtonWebApp,
     Message,
+    WebAppInfo,
 )
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -63,32 +69,42 @@ def wczytaj_env() -> dict[str, str]:
 
 ENV = wczytaj_env()
 OWNER_ID = int(ENV.get("OWNER_ID") or 0)
+WEBAPP_URL = (ENV.get("WEBAPP_URL") or "").strip()
 
 GRAMATYKA = content.pozycje_gramatyka()
 INTENCJE = content.pozycje_intencje()
 WSZYSTKIE = {p.id: p for p in GRAMATYKA + INTENCJE}
+OTWARTE = {o.id: o for o in content.pozycje_czasy() + content.pozycje_transformacje()}
 
-# что бот сейчас ждёт от владельца: ("pisanie", zestaw_id, "a") или ("blad", kod)
+# что бот сейчас ждёт от владельца:
+#   ("pisanie", zestaw_id, "a"|"b")  — текст работы
+#   ("otwarte", item_id)             — ответ на вопрос задания IV/VI
+#   ("mow3", zestaw_id, krok)        — реплика в диалоге задания 3
 OCZEKIWANIE: dict[int, tuple] = {}
 
 dp = Dispatcher()
 
 
 def swoj(msg_or_cb) -> bool:
-    """Личный бот: отвечаем только владельцу."""
-    uid = msg_or_cb.from_user.id
-    return OWNER_ID == 0 or uid == OWNER_ID
+    """Личный бот: отвечаем только владельцу, без исключений."""
+    return msg_or_cb.from_user.id == OWNER_ID
 
 
 def menu() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(inline_keyboard=[
+    rows = [
         [InlineKeyboardButton(text="🧩 Грамматика", callback_data="go:gram"),
          InlineKeyboardButton(text="🎧 Задание I", callback_data="go:int")],
+        [InlineKeyboardButton(text="⏱ Czasy (IV)", callback_data="go:cz"),
+         InlineKeyboardButton(text="🔁 Transformacje (VI)", callback_data="go:tr")],
         [InlineKeyboardButton(text="✍️ Письмо", callback_data="go:pis"),
          InlineKeyboardButton(text="🗣 Говорение", callback_data="go:mow")],
         [InlineKeyboardButton(text="📅 Сегодня", callback_data="go:dzis"),
          InlineKeyboardButton(text="📊 Статус", callback_data="go:stan")],
-    ])
+    ]
+    if WEBAPP_URL:
+        rows.append([InlineKeyboardButton(
+            text="📱 Mini App", web_app=WebAppInfo(url=WEBAPP_URL))])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
 # ------------------------------------------------------------------ старт
@@ -96,12 +112,6 @@ def menu() -> InlineKeyboardMarkup:
 
 @dp.message(CommandStart())
 async def cmd_start(m: Message) -> None:
-    global OWNER_ID
-    if OWNER_ID == 0:
-        OWNER_ID = m.from_user.id
-        _zapisz_owner(OWNER_ID)
-        await m.answer(f"Владелец записан: <code>{OWNER_ID}</code>. "
-                       "Больше бот никому не отвечает.", parse_mode=ParseMode.HTML)
     if not swoj(m):
         return
     dni = content.dni_do_egzaminu()
@@ -113,23 +123,15 @@ async def cmd_start(m: Message) -> None:
         parse_mode=ParseMode.HTML, reply_markup=menu())
 
 
-def _zapisz_owner(uid: int) -> None:
-    f = ROOT / ".env"
-    if not f.exists():
-        return
-    txt = f.read_text(encoding="utf-8")
-    if re.search(r"^OWNER_ID=.*$", txt, re.M):
-        txt = re.sub(r"^OWNER_ID=.*$", f"OWNER_ID={uid}", txt, flags=re.M)
-    else:
-        txt += f"\nOWNER_ID={uid}\n"
-    f.write_text(txt, encoding="utf-8")
-
-
 # ------------------------------------------------------------------ тренировка
 
 
-def wybierz(pozycje: list[content.Pozycja], uid: int) -> content.Pozycja | None:
-    """Сначала то, что пора повторить, затем новое, затем случайное."""
+def wybierz(pozycje, uid: int):
+    """Сначала то, что пора повторить, затем новое, затем случайное.
+
+    Работает и для Pozycja (кнопки), и для Otwarte (ответ текстом) —
+    важно только наличие стабильного .id.
+    """
     do_powt = storage.do_powtorki(uid)
     widz = storage.widziane(uid)
     zapas = [p for p in pozycje if p.id in do_powt]
@@ -147,9 +149,26 @@ def klawiatura(p: content.Pozycja) -> InlineKeyboardMarkup:
 
 
 async def pokaz(target: Message, p: content.Pozycja) -> None:
+    if p.audio:
+        # режим аудирования: запись голосом, транскрипция откроется после ответа
+        await target.answer_voice(
+            FSInputFile(p.audio),
+            caption="🎧 Nagranie zostanie odtworzone tylko jeden raz — "
+                    "słuchaj od razu, nie odtwarzaj powtórnie.")
+        await target.answer(
+            f"<i>{p.naglowek}</i>\n\n{p.pytanie_audio}",
+            parse_mode=ParseMode.HTML, reply_markup=klawiatura(p))
+        return
     await target.answer(
         f"<i>{p.naglowek}</i>\n\n{p.pytanie}",
         parse_mode=ParseMode.HTML, reply_markup=klawiatura(p))
+
+
+async def pokaz_otwarte(target: Message, uid: int, o: content.Otwarte) -> None:
+    OCZEKIWANIE[uid] = ("otwarte", o.id)
+    await target.answer(
+        f"<i>{o.naglowek}</i>\n\n{o.pytanie}\n\nНапиши ответ сообщением.",
+        parse_mode=ParseMode.HTML)
 
 
 @dp.message(Command("gramatyka"))
@@ -170,6 +189,26 @@ async def cmd_intencje(m: Message) -> None:
         await pokaz(m, p)
 
 
+@dp.message(Command("czasy"))
+async def cmd_czasy(m: Message) -> None:
+    if not swoj(m):
+        return
+    o = wybierz([o for o in OTWARTE.values() if o.kategoria == "GRAM-IV"],
+                m.from_user.id)
+    if o:
+        await pokaz_otwarte(m, m.from_user.id, o)
+
+
+@dp.message(Command("transformacje"))
+async def cmd_transformacje(m: Message) -> None:
+    if not swoj(m):
+        return
+    o = wybierz([o for o in OTWARTE.values() if o.kategoria == "GRAM-VI"],
+                m.from_user.id)
+    if o:
+        await pokaz_otwarte(m, m.from_user.id, o)
+
+
 @dp.callback_query(F.data.startswith("odp:"))
 async def cb_odpowiedz(cb: CallbackQuery) -> None:
     if not swoj(cb):
@@ -188,11 +227,14 @@ async def cb_odpowiedz(cb: CallbackQuery) -> None:
         tekst = f"✅ <b>{p.klucz}</b>"
     else:
         tekst = f"❌ ты выбрал <s>{wybor}</s>\n✅ правильно: <b>{p.klucz}</b>"
+    if p.audio and p.transkrypcja:
+        tekst += f"\n\nTranskrypcja:\n„{p.transkrypcja}”"
     if p.wyjasnienie:
         tekst += f"\n\n<i>{p.wyjasnienie}</i>"
 
+    pytanie = p.pytanie_audio if p.audio else p.pytanie
     await cb.message.edit_text(
-        f"<i>{p.naglowek}</i>\n\n{p.pytanie}\n\n{tekst}", parse_mode=ParseMode.HTML)
+        f"<i>{p.naglowek}</i>\n\n{pytanie}\n\n{tekst}", parse_mode=ParseMode.HTML)
     await cb.answer("верно" if ok else "мимо")
 
     pula = GRAMATYKA if p.kategoria.startswith("GRAM") else INTENCJE
@@ -223,13 +265,46 @@ async def cmd_mowienie(m: Message) -> None:
     if not swoj(m):
         return
     z = random.choice(content.zestawy_mowienie())
+    foto = content.obrazek_dla(z["id"])
+    if foto:
+        await m.answer_photo(FSInputFile(foto),
+                             caption=f"Zadanie 1 — opis ilustracji ({z['id']})")
+        z1 = "Proszę opisać zdjęcie i przedstawić sytuację na nim."
+    else:
+        z1 = (f"{z['z1']}\n<i>(на экзамене здесь настоящая фотография; "
+              "пока её нет — сцена описана словами)</i>")
+    kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(
+        text="▶️ Zadanie 3 — розыгрыш диалога", callback_data=f"mow3:{z['id']}")]])
     await m.answer(
         f"<b>Zestaw {z['id']}</b> · до 15 минут на всё\n\n"
-        f"<b>Zadanie 1 — opis ilustracji</b>\n{z['z1']}\n\n"
+        f"<b>Zadanie 1 — opis ilustracji</b>\n{z1}\n\n"
         f"<b>Zadanie 2 — monolog</b>\n{z['z2']}\n\n"
         f"<b>Zadanie 3 — sytuacja komunikacyjna</b>\n{z['z3']}\n\n"
-        "Говори вслух и запиши на диктофон: без записи разбор произношения невозможен. "
-        "Подготовки заранее нет — на экзамене её тоже нет.",
+        "Перед ответом потрать минуту-две на короткий план монолога — официальный "
+        "сборник комиссии прямо это рекомендует. Говори вслух и запиши на диктофон: "
+        "без записи разбор произношения невозможен.\n\n"
+        "Задание 3 на экзамене — диалог с экзаменатором, а не монолог. "
+        "Нажми кнопку и отыграй его репликами.",
+        parse_mode=ParseMode.HTML, reply_markup=kb)
+
+
+@dp.callback_query(F.data.startswith("mow3:"))
+async def cb_mow3(cb: CallbackQuery) -> None:
+    if not swoj(cb) or not cb.message:
+        await cb.answer()
+        return
+    zestaw_id = cb.data.split(":", 1)[1]
+    zestawy = {z["id"]: z for z in content.zestawy_mowienie()}
+    z = zestawy.get(zestaw_id)
+    if not z or not z.get("z3_dialog"):
+        await cb.answer("диалог не найден")
+        return
+    await cb.answer()
+    OCZEKIWANIE[cb.from_user.id] = ("mow3", zestaw_id, 1)
+    await cb.message.answer(
+        f"<b>Rozmowa · {zestaw_id}</b>\n{z['z3']}\n\n"
+        "Отвечай на каждую реплику сообщением (лучше — проговаривая вслух то, "
+        "что пишешь).\n\n🗣 " + z["z3_dialog"][0],
         parse_mode=ParseMode.HTML)
 
 
@@ -382,6 +457,16 @@ async def cb_menu(cb: CallbackQuery) -> None:
         p = wybierz(INTENCJE, cb.from_user.id)
         if p:
             await pokaz(cb.message, p)
+    elif co == "cz":
+        o = wybierz([o for o in OTWARTE.values() if o.kategoria == "GRAM-IV"],
+                    cb.from_user.id)
+        if o:
+            await pokaz_otwarte(cb.message, cb.from_user.id, o)
+    elif co == "tr":
+        o = wybierz([o for o in OTWARTE.values() if o.kategoria == "GRAM-VI"],
+                    cb.from_user.id)
+        if o:
+            await pokaz_otwarte(cb.message, cb.from_user.id, o)
     elif co == "pis":
         await cmd_pisanie(cb.message.model_copy(update={"from_user": cb.from_user}))
     elif co == "mow":
@@ -396,11 +481,20 @@ async def cb_menu(cb: CallbackQuery) -> None:
 
 
 @dp.message(F.text & ~F.text.startswith("/"))
-async def przyjmij_prace(m: Message) -> None:
+async def przyjmij_tekst(m: Message) -> None:
     if not swoj(m):
         return
     stan = OCZEKIWANIE.get(m.from_user.id)
-    if not stan or stan[0] != "pisanie":
+    if not stan:
+        await m.answer("Не понял. /start — меню, /dzis — план на сегодня.")
+        return
+    if stan[0] == "otwarte":
+        await przyjmij_otwarte(m, stan[1])
+        return
+    if stan[0] == "mow3":
+        await przyjmij_mow3(m, stan[1], stan[2])
+        return
+    if stan[0] != "pisanie":
         await m.answer("Не понял. /start — меню, /dzis — план на сегодня.")
         return
     _, zestaw_id, czesc = stan
@@ -426,6 +520,49 @@ async def przyjmij_prace(m: Message) -> None:
                    parse_mode=ParseMode.HTML)
 
 
+async def przyjmij_otwarte(m: Message, item_id: str) -> None:
+    """Ответ текстом на вопрос задания IV или VI."""
+    OCZEKIWANIE.pop(m.from_user.id, None)
+    o = OTWARTE.get(item_id)
+    if not o:
+        return
+    ok = o.poprawna(m.text or "")
+    storage.zapisz_odpowiedz(m.from_user.id, o.id, o.kategoria, ok)
+    if ok:
+        tekst = f"✅ <b>{o.klucz}</b>"
+    else:
+        tekst = f"❌\n✅ правильно: <b>{o.klucz}</b>"
+        if o.akceptowane:
+            tekst += "\nтакже принимается: " + " · ".join(o.akceptowane)
+    if o.wyjasnienie:
+        tekst += f"\n\n<i>{o.wyjasnienie}</i>"
+    await m.answer(tekst, parse_mode=ParseMode.HTML)
+
+    pula = [x for x in OTWARTE.values() if x.kategoria == o.kategoria]
+    nast = wybierz(pula, m.from_user.id)
+    if nast:
+        await pokaz_otwarte(m, m.from_user.id, nast)
+
+
+async def przyjmij_mow3(m: Message, zestaw_id: str, krok: int) -> None:
+    """Очередная реплика владельца в диалоге задания 3."""
+    zestawy = {z["id"]: z for z in content.zestawy_mowienie()}
+    z = zestawy.get(zestaw_id)
+    if not z:
+        OCZEKIWANIE.pop(m.from_user.id, None)
+        return
+    dialog = z.get("z3_dialog", [])
+    if krok < len(dialog):
+        OCZEKIWANIE[m.from_user.id] = ("mow3", zestaw_id, krok + 1)
+        await m.answer("🗣 " + dialog[krok])
+    if krok >= len(dialog) - 1:
+        OCZEKIWANIE.pop(m.from_user.id, None)
+        await m.answer(
+            "Rozmowa zakończona. Проверь себя: были ли вопросы к собеседнику, "
+            "реакция на возражение и договорённость о конкретике? "
+            "Это ровно то, что оценивают в задании 3.")
+
+
 # ------------------------------------------------------------------ запуск
 
 
@@ -433,12 +570,24 @@ async def main() -> None:
     token = ENV.get("BOT_TOKEN")
     if not token:
         raise SystemExit("Нет BOT_TOKEN: заполни .env")
+    if not OWNER_ID:
+        raise SystemExit(
+            "Нет OWNER_ID: заполни .env (или переменную окружения). "
+            "Без владельца бот не стартует — иначе публичного бота мог бы "
+            "присвоить первый нажавший /start.")
     storage.init()
-    log.info("позиций для тренировки: грамматика %d, задание I %d",
-             len(GRAMATYKA), len(INTENCJE))
+    z_audio = sum(1 for p in INTENCJE if p.audio)
+    log.info("позиций: грамматика %d, задание I %d (с аудио %d), открытых %d",
+             len(GRAMATYKA), len(INTENCJE), z_audio, len(OTWARTE))
+    if z_audio == 0:
+        log.warning("нет записей в data/audio — задание I работает в текстовом "
+                    "режиме; сгенерируй их: python tools/make_audio.py")
     bot = Bot(token)
     me = await bot.get_me()
-    log.info("бот @%s запущен, владелец %s", me.username, OWNER_ID or "ещё не задан")
+    log.info("бот @%s запущен, владелец %s", me.username, OWNER_ID)
+    if WEBAPP_URL:
+        await bot.set_chat_menu_button(menu_button=MenuButtonWebApp(
+            text="B1", web_app=WebAppInfo(url=WEBAPP_URL)))
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 

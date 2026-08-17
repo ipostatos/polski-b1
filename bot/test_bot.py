@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import content  # noqa: E402
 import storage  # noqa: E402
 
-DATA = Path(__file__).resolve().parent.parent / "data"
+ROOT = Path(__file__).resolve().parent.parent
+DATA = ROOT / "data"
 
 
 # ------------------------------------------------------------------ содержание
@@ -68,6 +69,119 @@ def test_struktura_egzaminu_zgadza_sie_z_moduami():
     assert s["moduly"]["sluchanie"]["zadania"][0]["odtworzenia"] == {"jeden raz": 15}
     for z in s["moduly"]["sluchanie"]["zadania"][1:]:
         assert z["odtworzenia"] == {"dwa razy": 15}
+
+
+def test_skelet_gramatyki_w_strukturze():
+    """Каждое задание грамматики стоит одинаково во всех 15 сессиях, сумма 30.
+
+    Ловит регресс парсера: раньше regex промахивался мимо строки баллов
+    задания VIII и записывал ему итог модуля (30 p.) в 12 сессиях из 15.
+    """
+    s = json.loads((DATA / "exam_structure.json").read_text(encoding="utf-8"))
+    oczekiwane = {"I": "5.0", "II": "2.5", "III": "2.5", "IV": "5.0",
+                  "V": "2.5", "VI": "5.0", "VII": "5.0", "VIII": "2.5"}
+    for z in s["moduly"]["gramatyka"]["zadania"]:
+        assert z["punkty_rozklad"] == {oczekiwane[z["nr"]]: 15}, \
+            f"zadanie {z['nr']}: {z['punkty_rozklad']}"
+    assert sum(float(k) for z in s["moduly"]["gramatyka"]["zadania"]
+               for k in z["punkty_rozklad"]) == pytest.approx(30.0)
+
+
+def test_tajming_egzaminu_2026():
+    """Актуальная письменная часть: 25 + 45 + 45 + 75 = 190 минут."""
+    s = json.loads((DATA / "exam_structure.json").read_text(encoding="utf-8"))
+    e = s["egzamin_2026"]
+    assert e["sluchanie"] + e["czytanie"] + e["gramatyka"] + e["pisanie"] == 190
+    assert e["razem_pisemna"] == 190
+
+
+def test_ramka_ma_dokladnie_jeden_zbedny_wyraz():
+    """Если polecenie обещает «jeden wyraz zbędny», лишним должно быть ровно одно слово."""
+    cw = json.loads((DATA / "cwiczenia_gramatyka.json").read_text(encoding="utf-8"))
+    for z in cw["zadania"]:
+        if "jeden wyraz zbędny" not in z.get("format", ""):
+            continue
+        for zestaw in z["zestawy"]:
+            ramka = [w.lower() for w in zestaw["ramka"]]
+            klucze = [zd["klucz"].lower() for zd in zestaw["zdania"]]
+            assert len(ramka) == len(klucze) + 1, \
+                f"{zestaw['id']}: {len(ramka)} слов в рамке при {len(klucze)} пропусках"
+            for k in klucze:
+                assert k in ramka, f"{zestaw['id']}: ключ {k!r} не в рамке"
+            zbedne = set(ramka) - set(klucze)
+            assert len(zbedne) == 1, f"{zestaw['id']}: лишние {zbedne}"
+            assert zestaw["zbedny"].lower() in zbedne
+
+
+def test_otwarte_pozycje_sa_kompletne():
+    czasy = content.pozycje_czasy()
+    trans = content.pozycje_transformacje()
+    assert len(czasy) == 10 and len(trans) == 5
+    for o in czasy + trans:
+        assert o.klucz
+        assert o.poprawna(o.klucz), f"{o.id}: собственный ключ не принимается"
+        for wariant in o.akceptowane:
+            assert o.poprawna(wariant), f"{o.id}: вариант {wariant!r} не принимается"
+
+
+def test_normalizuj_ignoruje_wielkosc_i_interpunkcje():
+    assert content.normalizuj("  Warto, przeczytać tę książkę! ") == \
+        content.normalizuj("warto przeczytać tę książkę")
+    assert content.normalizuj("A") != content.normalizuj("B")
+
+
+def test_intencje_maja_transkrypcje_i_pytanie_audio():
+    for p in content.pozycje_intencje():
+        assert p.transkrypcja
+        assert p.pytanie_audio
+        # если аудио сгенерировано — файл существует и не пуст
+        if p.audio is not None:
+            assert p.audio.exists() and p.audio.stat().st_size > 0
+
+
+def test_zestawy_mowienia_maja_dialog_zadania_3():
+    for z in content.zestawy_mowienie():
+        assert len(z.get("z3_dialog", [])) >= 3, f"{z['id']}: нет диалога задания 3"
+
+
+# ------------------------------------------------------------------ документация
+
+
+def _sciezki_z_dokumentow() -> list[tuple[str, str]]:
+    """Все упоминания путей репозитория в docs/*.md и README."""
+    import re
+    wynik = []
+    for md in [ROOT / "README.md", *sorted((ROOT / "docs").glob("*.md"))]:
+        text = md.read_text(encoding="utf-8")
+        # markdown-ссылки [x](path) и пути в `backticks`
+        for m in re.finditer(r"\]\(([^)#\s]+)\)|`((?:docs|data|tools|bot|workbook|webapp)/[^`\s]+)`", text):
+            path = m.group(1) or m.group(2)
+            if path and not path.startswith(("http", "mailto")):
+                wynik.append((md.name, path))
+    return wynik
+
+
+def test_dokumentacja_nie_ma_martwych_sciezek():
+    """Каждый упомянутый в документации файл репозитория обязан существовать.
+
+    Исключение — то, что по правилам живёт только локально (архив, ключи,
+    личный прогресс): его в CI нет и не должно быть.
+    """
+    lokalne = ("archive", "archive_text", "klucze", "moje", "data/exam_map.json",
+               "data/audio", "data/obrazki")
+    for zrodlo, path in _sciezki_z_dokumentow():
+        if path.startswith(lokalne):
+            continue
+        assert (ROOT / path).exists(), f"{zrodlo}: битая ссылка {path}"
+
+
+def test_dokumentacja_bez_ustawy_2016_jako_aktualnej():
+    """Акт 2016 года можно упоминать только как исторический/утративший силу."""
+    for md in sorted((ROOT / "docs").glob("*.md")):
+        text = md.read_text(encoding="utf-8")
+        if "2016 poz. 405" in text or "poz. 405" in text:
+            assert "утрат" in text or "историч" in text, \
+                f"{md.name}: ссылка на отменённый акт 2016 без оговорки"
 
 
 def test_zestawy_pisania_maja_obie_prace():

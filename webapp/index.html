@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Polski B1</title>
+<link rel="stylesheet" href="theme.css?v=1">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  /* ── страница ── */
+  header.top{ display:flex; align-items:center; gap:var(--sp-3); margin-bottom:var(--sp-2) }
+  header.top .back{ background:none; border:none; color:var(--link); font-size:15px;
+    font-weight:700; cursor:pointer; padding:4px 8px 4px 0 }
+  .chips{ display:flex; gap:6px; flex-wrap:wrap; margin:0 0 var(--sp-4) }
+
+  /* ── тренировка ── */
+  .q-head{ color:var(--hint); font-size:var(--fs-sm); font-style:italic; margin:0 0 var(--sp-2) }
+  .q-text{ font-size:var(--fs-body); margin:0 0 var(--sp-4); white-space:pre-wrap }
+  .opts{ display:flex; flex-direction:column; gap:var(--sp-2) }
+  .opts .btn.opt{ background:transparent; color:var(--text); border:1px solid var(--border);
+    justify-content:flex-start; font-weight:600 }
+  .opts .btn.opt.good{ background:color-mix(in srgb, var(--ok) 22%, transparent);
+    border-color:var(--ok) }
+  .opts .btn.opt.badly{ background:color-mix(in srgb, var(--bad) 22%, transparent);
+    border-color:var(--bad) }
+  .expl{ margin-top:var(--sp-3); padding-top:var(--sp-3); border-top:1px solid var(--border);
+    color:var(--hint); font-size:var(--fs-sm); white-space:pre-wrap }
+  .expl b{ color:var(--text) }
+  textarea, input[type=text]{
+    width:100%; padding:12px; font-size:16px; font-family:inherit;
+    border-radius:var(--r-sm); border:1px solid var(--border);
+    background:var(--bg); color:var(--text) }
+  textarea:focus, input:focus{ outline:none; border-color:var(--accent) }
+  textarea{ min-height:180px; resize:vertical }
+  .stack{ display:flex; flex-direction:column; gap:var(--sp-3) }
+  .split{ display:flex; gap:var(--sp-2) }
+  .split .btn{ flex:1 }
+  .timer{ font-variant-numeric:tabular-nums; font-size:30px; font-weight:800;
+    text-align:center; margin:var(--sp-2) 0 }
+  .dialog-line{ background:var(--card); border:1px solid var(--border);
+    border-radius:var(--r-md); padding:var(--sp-3) var(--sp-4); margin-bottom:var(--sp-2);
+    font-size:var(--fs-body) }
+  .dialog-line.me{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, transparent) }
+  .statgrid{ display:grid; grid-template-columns:1fr auto; gap:var(--sp-2) var(--sp-3);
+    align-items:center; font-size:var(--fs-sm) }
+  .wc{ font-size:var(--fs-h2); font-weight:800; text-align:center; margin:var(--sp-2) 0 }
+  .plan-week{ display:flex; gap:var(--sp-3); padding:var(--sp-2) 0;
+    border-bottom:1px solid var(--border); font-size:var(--fs-sm) }
+  .plan-week:last-child{ border-bottom:none }
+  .plan-week .nr{ flex:0 0 22px; font-weight:800; color:var(--hint) }
+  .plan-week.now .nr{ color:var(--accent) }
+  .plan-week.now{ font-weight:700 }
+</style>
+</head>
+<body>
+  <div id="app"><div class="state">Ładowanie…</div></div>
+  <script src="app.js?v=1"></script>
+</body>
+</html>

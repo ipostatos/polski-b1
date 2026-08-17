@@ -18,9 +18,18 @@
     "2024-04",
     "2024-06"
   ],
+  "egzamin_2026": {
+    "sluchanie": 25,
+    "czytanie": 45,
+    "gramatyka": 45,
+    "pisanie": 75,
+    "razem_pisemna": 190,
+    "mowienie": "do 15 minut",
+    "przerwy": "między modułami części pisemnej co najmniej 10 minut"
+  },
   "moduly": {
     "sluchanie": {
-      "czas": "do 30 minut",
+      "czas": "do 30 minut (na arkuszach 2021–2024; egzamin 2026: 25 minut)",
       "punkty": 30,
       "zadania": [
         {
@@ -192,8 +201,7 @@
           "nr": "VIII",
           "typ": "uzupelnianie_ramka",
           "punkty_rozklad": {
-            "2.5": 3,
-            "30.0": 12
+            "2.5": 15
           },
           "sprawdza": "przyimki"
         }

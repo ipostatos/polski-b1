@@ -13,7 +13,7 @@
     },
     {
       "id": "P-03",
-      "a": {"polecenie": "Kolega z pracy awansował na stanowisko kierownika. Proszę napisać życzenia z tej okazji.", "slow": 30, "gatunek": "życzenia"},
+      "a": {"polecenie": "Kolega z pracy awansował na stanowisko kierownika. Proszę napisać krótkie gratulacje z tej okazji.", "slow": 30, "gatunek": "gratulacje"},
       "b": {"polecenie": "Proszę napisać esej (wypracowanie szkolne) pt. „Praca zdalna zmieniła nasze życie bardziej, niż nam się wydaje”.", "slow": 170, "gatunek": "esej"}
     },
     {
@@ -40,6 +40,21 @@
       "id": "P-08",
       "a": {"polecenie": "Sąsiedzi zapraszają Panią/Pana na kolację, ale nie może Pani/Pan przyjść. Proszę napisać krótką notatkę z podziękowaniem i wyjaśnieniem.", "slow": 30, "gatunek": "notatka"},
       "b": {"polecenie": "Brała Pani / Brał Pan udział w otwarciu nowej biblioteki miejskiej. Proszę napisać relację z tego wydarzenia.", "slow": 165, "gatunek": "relacja"}
+    },
+    {
+      "id": "P-09",
+      "a": {"polecenie": "Nie może Pani/Pan przyjść na jutrzejsze spotkanie zespołu. Proszę napisać krótką wiadomość do koleżanki/kolegi z prośbą o notatki.", "slow": 30, "gatunek": "e-mail nieformalny"},
+      "b": {"polecenie": "Obejrzała Pani / Obejrzał Pan film, który zrobił na Pani/Panu duże wrażenie. Proszę napisać recenzję tego filmu na blog o kulturze.", "slow": 170, "gatunek": "recenzja"}
+    },
+    {
+      "id": "P-10",
+      "a": {"polecenie": "Znalazła Pani / Znalazł Pan telefon na przystanku autobusowym. Proszę napisać ogłoszenie.", "slow": 30, "gatunek": "ogłoszenie"},
+      "b": {"polecenie": "Proszę napisać charakterystykę osoby, która jest dla Pani/Pana wzorem, i wyjaśnić, dlaczego właśnie ona.", "slow": 170, "gatunek": "charakterystyka osoby"}
+    },
+    {
+      "id": "P-11",
+      "a": {"polecenie": "Polska koleżanka wychodzi za mąż. Proszę napisać życzenia z okazji ślubu.", "slow": 30, "gatunek": "życzenia"},
+      "b": {"polecenie": "Proszę napisać list do polskiej przyjaciółki / polskiego przyjaciela i opowiedzieć, jak zmieniło się Pani/Pana życie po przeprowadzce do nowego miasta.", "slow": 170, "gatunek": "list prywatny"}
     }
   ]
 }

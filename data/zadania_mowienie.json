@@ -1,41 +1,77 @@
 {
-  "opis": "Комплекты для устной части: три задания в каждом (opis ilustracji, monolog, sytuacja komunikacyjna), до 15 минут. Формат по официальному сборнику 6_B1_M, темы авторские в границах тематического инвентаря B1.",
+  "opis": "Комплекты для устной части: три задания в каждом (opis ilustracji, monolog, sytuacja komunikacyjna), до 15 минут. Формат по официальному сборнику 6_B1_M, темы авторские в границах тематического инвентаря B1. z3_dialog — реплики собеседника для интерактивного розыгрыша задания 3: на экзамене это диалог с экзаменатором, а не монолог. Перед ответом можно и нужно потратить минуту на короткий план — официальный сборник прямо это рекомендует.",
   "zestawy": [
     {
       "id": "M-01",
       "z1": "Proszę opisać sytuację: rodzina z dziećmi robi zakupy w supermarkecie w sobotę przed południem. Proszę powiedzieć, kto to może być, co się dzieje i dlaczego tak Pani/Pan sądzi.",
       "z2": "Proszę opowiedzieć o swoim ulubionym sposobie spędzania wolnego czasu. Dlaczego właśnie ten? Kiedy się nim Pani/Pan zainteresowała/zainteresował?",
-      "z3": "Chce Pani/Pan wynająć mieszkanie. Dzwoni Pani/Pan do właściciela: proszę zapytać o cenę, warunki i termin, a następnie umówić się na obejrzenie."
+      "z3": "Chce Pani/Pan wynająć mieszkanie. Dzwoni Pani/Pan do właściciela: proszę zapytać o cenę, warunki i termin, a następnie umówić się na obejrzenie.",
+      "z3_dialog": [
+        "Dzień dobry, słucham?",
+        "Tak, mieszkanie jest jeszcze wolne. Czynsz to 2800 złotych plus media. A na jak długo chce Pani/Pan wynająć?",
+        "Rozumiem. Obejrzeć można w tym tygodniu, ale tylko wieczorem. Który dzień Pani/Panu pasuje?",
+        "Dobrze, w takim razie do zobaczenia. Proszę zadzwonić, gdyby coś się zmieniło. Do widzenia!"
+      ]
     },
     {
       "id": "M-02",
       "z1": "Proszę opisać sytuację: grupa ludzi czeka na peronie, jest zima, widać opóźnienie na tablicy. Kim mogą być te osoby i co czują?",
       "z2": "Proszę opowiedzieć o mieście, w którym Pani/Pan mieszka. Co warto w nim zobaczyć, a co chciałaby Pani / chciałby Pan zmienić?",
-      "z3": "Zamówiła Pani / Zamówił Pan w restauracji danie, które przyszło zimne. Proszę porozmawiać z kelnerem i rozwiązać sytuację."
+      "z3": "Zamówiła Pani / Zamówił Pan w restauracji danie, które przyszło zimne. Proszę porozmawiać z kelnerem i rozwiązać sytuację.",
+      "z3_dialog": [
+        "Dzień dobry, czy wszystko w porządku?",
+        "Bardzo przepraszam. Mogę zanieść danie z powrotem do kuchni, ale to potrwa około piętnastu minut. Co Pani/Pan woli?",
+        "Oczywiście, już to załatwiam. Czy w ramach przeprosin mogę zaproponować deser na koszt restauracji?",
+        "Jeszcze raz przepraszam za tę sytuację. Smacznego!"
+      ]
     },
     {
       "id": "M-03",
       "z1": "Proszę opisać sytuację: kilka osób w różnym wieku pracuje razem przy jednym stole w przestrzeni coworkingowej.",
       "z2": "Proszę opowiedzieć o swojej pracy albo studiach: co Pani/Pan robi, co lubi najbardziej, a co jest najtrudniejsze.",
-      "z3": "Kolega prosi Panią/Pana o pożyczenie samochodu na weekend. Nie chce Pani/Pan tego zrobić. Proszę odmówić tak, żeby go nie urazić."
+      "z3": "Kolega prosi Panią/Pana o pożyczenie samochodu na weekend. Nie chce Pani/Pan tego zrobić. Proszę odmówić tak, żeby go nie urazić.",
+      "z3_dialog": [
+        "Cześć! Słuchaj, mam wielką prośbę — pożyczysz mi samochód na weekend?",
+        "No weź, to tylko dwa dni. Obiecuję, że będę jeździł ostrożnie.",
+        "Hmm, rozumiem… A może chociaż w niedzielę rano? Muszę odebrać szafę z drugiego końca miasta.",
+        "No dobra, nie ma sprawy. Wymyślę coś innego. Dzięki, że mówisz szczerze."
+      ]
     },
     {
       "id": "M-04",
       "z1": "Proszę opisać sytuację: starsza osoba karmi gołębie w parku, obok przechodzi dwoje młodych ludzi z telefonami.",
       "z2": "Proszę opowiedzieć o wydarzeniu z ostatniego roku, które dobrze Pani/Pan zapamiętała/zapamiętał.",
-      "z3": "Jest Pani/Pan w przychodni. Proszę umówić wizytę u specjalisty i wyjaśnić, dlaczego termin jest pilny."
+      "z3": "Jest Pani/Pan w przychodni. Proszę umówić wizytę u specjalisty i wyjaśnić, dlaczego termin jest pilny.",
+      "z3_dialog": [
+        "Dzień dobry, rejestracja, w czym mogę pomóc?",
+        "Najbliższy wolny termin u tego specjalisty jest za trzy tygodnie. Czy to Pani/Panu odpowiada?",
+        "Rozumiem, że sprawa jest pilna. Mogę wpisać Panią/Pana na listę rezerwową albo zaproponować innego lekarza w piątek. Co Pani/Pan wybiera?",
+        "Zapisane. Proszę przyjść piętnaście minut wcześniej z dokumentem. Do widzenia!"
+      ]
     },
     {
       "id": "M-05",
       "z1": "Proszę opisać sytuację: ludzie sprzątają las w ramach akcji ekologicznej, są w rękawiczkach i mają worki.",
       "z2": "Proszę powiedzieć, czy w Pani/Pana kraju dba się o środowisko. Proszę uzasadnić swoje zdanie przykładami.",
-      "z3": "Sąsiad regularnie hałasuje późnym wieczorem. Proszę z nim porozmawiać i doprowadzić do rozwiązania."
+      "z3": "Sąsiad regularnie hałasuje późnym wieczorem. Proszę z nim porozmawiać i doprowadzić do rozwiązania.",
+      "z3_dialog": [
+        "Dobry wieczór, coś się stało?",
+        "Naprawdę? Nie sądziłem, że tak dobrze to słychać. Przecież to tylko muzyka…",
+        "No dobrze, rozumiem. A do której godziny by Pani/Panu nie przeszkadzało?",
+        "W porządku, umowa stoi. Przepraszam za kłopot i dobranoc!"
+      ]
     },
     {
       "id": "M-06",
       "z1": "Proszę opisać sytuację: dwie osoby oglądają mieszkanie z pośrednikiem, jedna robi zdjęcia telefonem.",
       "z2": "Proszę opowiedzieć o planach na najbliższy rok. Co chce Pani/Pan osiągnąć i co może w tym przeszkodzić?",
-      "z3": "Chce Pani/Pan zapisać dziecko albo siebie na zajęcia sportowe. Proszę zapytać w klubie o grupy, terminy i koszty."
+      "z3": "Chce Pani/Pan zapisać dziecko albo siebie na zajęcia sportowe. Proszę zapytać w klubie o grupy, terminy i koszty.",
+      "z3_dialog": [
+        "Dzień dobry, klub sportowy, słucham.",
+        "Mamy grupy dla początkujących i zaawansowanych, zajęcia we wtorki i czwartki. Dla kogo szuka Pani/Pan zajęć?",
+        "Karnet miesięczny kosztuje 160 złotych, pierwsze zajęcia są bezpłatne. Chce się Pani/Pan zapisać na próbę?",
+        "Świetnie, zapisuję na wtorek na osiemnastą. Proszę zabrać strój sportowy. Do zobaczenia!"
+      ]
     }
   ]
 }
