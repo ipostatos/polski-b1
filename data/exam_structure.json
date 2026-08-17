@@ -1,0 +1,253 @@
+{
+  "poziom": "B1",
+  "grupa": "dorośli",
+  "sesje_przeanalizowane": [
+    "2021-01",
+    "2021-05",
+    "2021-06",
+    "2021-11",
+    "2022-02",
+    "2022-03",
+    "2022-06",
+    "2022-11",
+    "2023-02",
+    "2023-04",
+    "2023-06",
+    "2023-11",
+    "2024-02",
+    "2024-04",
+    "2024-06"
+  ],
+  "moduly": {
+    "sluchanie": {
+      "czas": "do 30 minut",
+      "punkty": 30,
+      "zadania": [
+        {
+          "nr": "I",
+          "typ": "inne",
+          "punkty_rozklad": {
+            "7.0": 15
+          },
+          "odtworzenia": {
+            "jeden raz": 15
+          }
+        },
+        {
+          "nr": "II",
+          "typ": "inne",
+          "punkty_rozklad": {
+            "5.0": 2,
+            "6.0": 5,
+            "8.0": 8
+          },
+          "odtworzenia": {
+            "dwa razy": 15
+          }
+        },
+        {
+          "nr": "III",
+          "typ": "inne",
+          "punkty_rozklad": {
+            "5.0": 12,
+            "7.0": 1,
+            "8.0": 2
+          },
+          "odtworzenia": {
+            "dwa razy": 15
+          }
+        },
+        {
+          "nr": "IV",
+          "typ": "inne",
+          "punkty_rozklad": {
+            "5.0": 11,
+            "6.0": 4
+          },
+          "odtworzenia": {
+            "dwa razy": 15
+          }
+        },
+        {
+          "nr": "V",
+          "typ": "inne",
+          "punkty_rozklad": {
+            "5.0": 11,
+            "6.0": 4
+          },
+          "odtworzenia": {
+            "dwa razy": 15
+          }
+        }
+      ]
+    },
+    "czytanie": {
+      "czas": "45 minut",
+      "punkty": 30,
+      "zadania": [
+        {
+          "nr": "I",
+          "typ": "wybor_wielokrotny",
+          "punkty_rozklad": {
+            "4.0": 1,
+            "5.0": 13,
+            "6.0": 1
+          }
+        },
+        {
+          "nr": "II",
+          "typ": "prawda_falsz_bi",
+          "punkty_rozklad": {
+            "6.0": 12,
+            "7.0": 3
+          }
+        },
+        {
+          "nr": "III",
+          "typ": "dopasowanie",
+          "punkty_rozklad": {
+            "7.0": 13,
+            "8.0": 2
+          }
+        },
+        {
+          "nr": "IV",
+          "typ": "dopasowanie",
+          "punkty_rozklad": {
+            "6.0": 3,
+            "7.0": 12
+          }
+        },
+        {
+          "nr": "V",
+          "typ": "podkreslanie_leksyka",
+          "punkty_rozklad": {
+            "4.0": 2,
+            "5.0": 13
+          }
+        }
+      ]
+    },
+    "gramatyka": {
+      "czas": "45 minut",
+      "punkty": 30,
+      "zadania": [
+        {
+          "nr": "I",
+          "typ": "podkreslanie_formy",
+          "punkty_rozklad": {
+            "5.0": 15
+          },
+          "sprawdza": "odmiana rzeczowników, przymiotników i zaimków"
+        },
+        {
+          "nr": "II",
+          "typ": "uzupelnianie_ramka",
+          "punkty_rozklad": {
+            "2.5": 15
+          },
+          "sprawdza": "spójniki / wskaźniki zespolenia"
+        },
+        {
+          "nr": "III",
+          "typ": "podkreslanie_formy",
+          "punkty_rozklad": {
+            "2.5": 15
+          },
+          "sprawdza": "stopniowanie przymiotników i przysłówków"
+        },
+        {
+          "nr": "IV",
+          "typ": "uzupelnianie_formy",
+          "punkty_rozklad": {
+            "5.0": 15
+          },
+          "sprawdza": "czasy (teraźniejszy + przeszły albo przyszły)"
+        },
+        {
+          "nr": "V",
+          "typ": "pytanie_do_czesci",
+          "punkty_rozklad": {
+            "2.5": 15
+          },
+          "sprawdza": "pytanie o podkreśloną część zdania"
+        },
+        {
+          "nr": "VI",
+          "typ": "transformacja",
+          "punkty_rozklad": {
+            "5.0": 15
+          },
+          "sprawdza": "transformacja zdania"
+        },
+        {
+          "nr": "VII",
+          "typ": "podkreslanie_formy",
+          "punkty_rozklad": {
+            "5.0": 15
+          },
+          "sprawdza": "aspekt i tryby"
+        },
+        {
+          "nr": "VIII",
+          "typ": "uzupelnianie_ramka",
+          "punkty_rozklad": {
+            "2.5": 3,
+            "30.0": 12
+          },
+          "sprawdza": "przyimki"
+        }
+      ]
+    },
+    "pisanie": {
+      "czas": "75 minut",
+      "punkty": 30,
+      "uklad": "3 zestawy do wyboru, w wybranym wykonać obie prace (a i b)",
+      "praca_a_slow": "30–35",
+      "praca_b_slow": "165–170",
+      "ocena": {
+        "oceniajacy": [
+          "A",
+          "B"
+        ],
+        "max_na_oceniajacego": 15,
+        "kryteria": {
+          "wykonanie_zadania": {
+            "tresc": 2.5,
+            "forma": 1.5,
+            "objetosc": 1.0
+          },
+          "srodki_jezykowe": {
+            "leksyka": 2.0,
+            "skladnia": 2.0,
+            "styl": 1.0
+          },
+          "poprawnosc": {
+            "gramatyka": 3.5,
+            "ortografia_interpunkcja": 1.5
+          }
+        }
+      }
+    },
+    "mowienie": {
+      "czas": "do 15 minut",
+      "punkty": 40,
+      "zadania": [
+        {
+          "nr": 1,
+          "typ": "opis_ilustracji"
+        },
+        {
+          "nr": 2,
+          "typ": "monolog"
+        },
+        {
+          "nr": 3,
+          "typ": "sytuacja_komunikacyjna"
+        }
+      ],
+      "uwaga": "materiały części ustnej nie są publikowane; źródło — zbiór 6_B1_M"
+    }
+  },
+  "prog_zdania": "co najmniej 50% z każdego modułu części pisemnej oraz z części ustnej"
+}

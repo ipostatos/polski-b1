@@ -1,0 +1,33 @@
+# Официальные материалы PKdsPZJPjO — НЕ коммитим (чужие авторские материалы).
+# Тянутся локально скриптом tools/fetch_archive.sh
+archive/
+archive_text/
+
+# Мои работы и личные данные подготовки
+moje/
+*.env
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Сборка
+build/
+dist/
+*.aux
+*.log
+*.out
+
+# ОС и редакторы
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
+
+# подробный разбор с цитатами исходников — только локально
+data/exam_map.json
