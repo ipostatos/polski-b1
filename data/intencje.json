@@ -41,7 +41,7 @@
       {"tekst": "Pociąg opóźniony o dwadzieścia minut, przepraszamy za utrudnienia.", "klucz": "na dworcu", "dystraktory": ["na lotnisku", "w autobusie"]},
       {"tekst": "Poproszę o paragon, będę chciała to zwrócić.", "klucz": "w sklepie", "dystraktory": ["w restauracji", "w banku"]},
       {"tekst": "Danie dnia dziś to rosół i pierogi ruskie.", "klucz": "w restauracji", "dystraktory": ["w sklepie", "w hotelu"]},
-      {"tekst": "Proszę podpisać tutaj i wpisać PESEL w rubryce obok.", "klucz": "w urzędzie", "dystraktory": ["w banku", "w szkole"]},
+      {"tekst": "Proszę złożyć wypełniony wniosek w okienku numer pięć i wpisać PESEL w rubryce obok.", "klucz": "w urzędzie", "dystraktory": ["w banku", "w szkole"]},
       {"tekst": "Zadanie domowe na przyszły tydzień: strona czterdziesta druga.", "klucz": "w szkole", "dystraktory": ["na uczelni", "w bibliotece"]},
       {"tekst": "Tę książkę trzeba oddać do trzeciego, potem naliczamy karę.", "klucz": "w bibliotece", "dystraktory": ["w szkole", "w księgarni"]},
       {"tekst": "Pokój numer dwieście dwa, śniadanie od siódmej do dziesiątej.", "klucz": "w hotelu", "dystraktory": ["w restauracji", "w akademiku"]},

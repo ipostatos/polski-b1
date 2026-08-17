@@ -31,8 +31,13 @@ MODULES = [
 
 # "III. Proszę ... (stopniowanie przymiotników i przysłówków)."
 TASK_RE = re.compile(r"^\s*(?P<num>[IVX]{1,5})\.\s+(?P<body>.+)$", re.M)
-# "_____ / 2,5 p. (5 x 0,5 p.)"
-PTS_RE = re.compile(r"_+\s*/\s*(?P<pts>[\d,]+)\s*p\.\s*(?:\((?P<detail>[^)]*)\))?")
+# "_____ / 2,5 p. (5 x 0,5 p.)"  либо  "_____ / 2,5 (5 x 0,5 p.)" — «p.» после числа
+# печатают не во всех сессиях; без необязательного p. regex промахивался и хватал
+# итог модуля «/ 30 p.», отчего задание VIII получало 30 баллов в 12 сессиях из 15
+PTS_RE = re.compile(r"_+\s*/\s*(?P<pts>[\d,]+)\s*(?:p\.)?\s*(?:\((?P<detail>[^)]*)\))?")
+
+# балл одного задания не бывает больше 8: всё крупнее — это итог модуля
+MAX_TASK_PTS = 8.0
 # тема задания — последняя скобка в формулировке полецения
 TOPIC_RE = re.compile(r"\(([^()]{4,120})\)\s*\.?\s*$")
 
@@ -74,8 +79,12 @@ def parse_tasks(chunk: str) -> list[dict]:
         start = m.start()
         end = hits[i + 1].start() if i + 1 < len(hits) else len(chunk)
         block = chunk[start:end]
-        # полецение = первые строки до строки с баллами
-        head_end = PTS_RE.search(block)
+        # полецение = первые строки до строки с баллами; итог модуля (30 p.) пропускаем
+        head_end = None
+        for cand in PTS_RE.finditer(block):
+            if float(cand.group("pts").replace(",", ".")) <= MAX_TASK_PTS:
+                head_end = cand
+                break
         head = block[: head_end.start()] if head_end else block[:400]
         head = norm(" ".join(l for l in head.splitlines() if not NOISE.match(l.strip())))
         if len(head) < 20:

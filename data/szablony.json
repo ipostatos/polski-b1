@@ -44,6 +44,20 @@
         "pulapka": "mianownik zamiast wołacza: „Droga Ania” zamiast „Droga Aniu”"
       },
       {
+        "gatunek": "Gratulacje",
+        "slow": "30",
+        "kiedy": "awans, zdany egzamin, sukces — reakcja na cudze osiągnięcie (życzenia mówią o przyszłości, gratulacje o tym, co już się udało)",
+        "szkielet": ["zwrot w wołaczu", "z jakiej okazji gratuluję", "docenienie wysiłku", "podpis"],
+        "zwroty": [
+          "Drogi Marku! / Szanowny Panie Dyrektorze!",
+          "Serdecznie gratuluję awansu / zdanego egzaminu!",
+          "To zasłużony sukces — wiem, ile pracy Cię to kosztowało.",
+          "Życzę powodzenia na nowym stanowisku.",
+          "Pozdrawiam serdecznie, …"
+        ],
+        "pulapka": "pomylenie z życzeniami: gratulujemy osiągnięcia, a nie życzymy „dużo zdrowia”"
+      },
+      {
         "gatunek": "Pozdrowienia / kartka",
         "slow": "30–35",
         "kiedy": "z podróży, z nowego miasta",
@@ -129,6 +143,48 @@
         "pulapka": "formy grzecznościowe: „Pana”, „Państwa” wielką literą"
       },
       {
+        "gatunek": "Recenzja",
+        "slow": "170",
+        "kiedy": "film, książka, spektakl, restauracja — ocena z uzasadnieniem",
+        "szkielet": ["co recenzuję (tytuł, autor/reżyser, gatunek)", "krótko o treści bez zdradzania zakończenia", "co się udało + przykład", "co się nie udało albo zastrzeżenie", "ocena i komu polecam"],
+        "zwroty": [
+          "Niedawno obejrzałem film… w reżyserii…",
+          "Akcja rozgrywa się w…",
+          "Największym atutem jest… / Na szczególną uwagę zasługuje…",
+          "Nieco gorzej wypada… / Zabrakło mi…",
+          "Mimo drobnych wad polecam ten film każdemu, kto…"
+        ],
+        "pulapka": "streszczenie zamiast oceny: recenzja bez opinii i argumentów to nie recenzja"
+      },
+      {
+        "gatunek": "Charakterystyka osoby",
+        "slow": "170",
+        "kiedy": "osoba, którą podziwiam, wzór do naśladowania, przyjaciel",
+        "szkielet": ["kto to jest i skąd go/ją znam", "wygląd w dwóch zdaniach", "cechy charakteru + przykład zachowania", "co robi, czym się interesuje", "dlaczego jest dla mnie ważna/ważny"],
+        "zwroty": [
+          "Osobą, którą najbardziej podziwiam, jest…",
+          "Jest wysoki, ma krótkie ciemne włosy i zawsze się uśmiecha.",
+          "To człowiek bardzo cierpliwy — nigdy nie widziałem, żeby…",
+          "W wolnym czasie zajmuje się…",
+          "Dzięki niej/niemu nauczyłem się, że…"
+        ],
+        "pulapka": "sama lista przymiotników; każda cecha charakteru potrzebuje przykładu z życia"
+      },
+      {
+        "gatunek": "List prywatny (nieformalny)",
+        "slow": "165–170",
+        "kiedy": "do przyjaciela, do rodziny — opowieść, zaproszenie, nowiny",
+        "szkielet": ["zwrot w wołaczu + nawiązanie kontaktu", "podziękowanie za list / powód pisania", "nowiny po kolei", "pytania do adresata", "pozdrowienia i podpis"],
+        "zwroty": [
+          "Kochana Aniu! / Cześć Marku!",
+          "Dzięki za Twój list — bardzo się ucieszyłem.",
+          "U mnie sporo się zmieniło: …",
+          "A co u Ciebie? Jak praca?",
+          "Napisz, kiedy będziesz miał chwilę. Ściskam Cię mocno!"
+        ],
+        "pulapka": "rejestr: w liście prywatnym „Z poważaniem” brzmi jak urząd; kończymy „Pozdrawiam / Ściskam / Całuję”"
+      },
+      {
         "gatunek": "Opis",
         "slow": "170",
         "kiedy": "miejsce, osoba, przedmiot",
@@ -147,7 +203,7 @@
       "zasada": "Объём — это балл, который даётся даром: 1 из 15 у каждого экзаменатора, то есть 2 из 30 модуля.",
       "metoda": "Один раз посчитать, сколько слов помещается в твою строку от руки. Дальше считать строки, а не слова.",
       "orientacyjnie": "30 слов ≈ 3–4 строки. 170 слов ≈ 17–20 строк.",
-      "uwaga": "Слишком длинный текст тоже теряет балл. Ориентир: не более +10% от требуемого."
+      "uwaga": "Слишком длинный текст тоже рискует потерять балл и съедает время. Тренировочный ориентир — держаться в пределах ±10% от требуемого объёма; это наша эвристика для тренировок, а не официально объявленный экзаменационный порог."
     }
   },
   "mowienie": {

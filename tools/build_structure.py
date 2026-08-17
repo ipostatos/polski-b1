@@ -41,6 +41,24 @@ GRAM_SKELETON = {
     "VIII": "przyimki",
 }
 
+# ожидаемые баллы заданий грамматики — если хоть одна сессия разобрана иначе,
+# это ошибка парсера, а не «экзамен поменялся»: сборка падает и требует разбора
+GRAM_POINTS = {"I": 5.0, "II": 2.5, "III": 2.5, "IV": 5.0,
+               "V": 2.5, "VI": 5.0, "VII": 5.0, "VIII": 2.5}
+
+# актуальная структура экзамена (certyfikatpolski.pl, B1 dorośli, 2026):
+# у архивных аркушей 2021–2024 тайминг может отличаться (например, słuchanie
+# «do 30 minut» на самом аркуше) — при прогонах архива верить напечатанному
+EGZAMIN_2026 = {
+    "sluchanie": 25,
+    "czytanie": 45,
+    "gramatyka": 45,
+    "pisanie": 75,
+    "razem_pisemna": 190,
+    "mowienie": "do 15 minut",
+    "przerwy": "między modułami części pisemnej co najmniej 10 minut",
+}
+
 
 def classify(polecenie: str) -> str:
     for name, rx in TYPES:
@@ -62,11 +80,12 @@ def main() -> int:
         "poziom": "B1",
         "grupa": "dorośli",
         "sesje_przeanalizowane": sorted(data),
+        "egzamin_2026": EGZAMIN_2026,
         "moduly": {},
     }
 
     for mod, limit, total in (
-        ("sluchanie", "do 30 minut", 30),
+        ("sluchanie", "do 30 minut (na arkuszach 2021–2024; egzamin 2026: 25 minut)", 30),
         ("czytanie", "45 minut", 30),
         ("gramatyka", "45 minut", 30),
     ):
@@ -90,6 +109,12 @@ def main() -> int:
             }
             if mod == "gramatyka":
                 entry["sprawdza"] = GRAM_SKELETON.get(rzym or "")
+                oczekiwane = GRAM_POINTS.get(rzym or "")
+                zle = [p for p in pts if p != oczekiwane]
+                if zle:
+                    raise SystemExit(
+                        f"gramatyka {rzym}: ожидалось {oczekiwane} p., парсер увидел "
+                        f"{dict(pts)} — ошибка разбора, разберись перед пересборкой")
             if mod == "sluchanie":
                 cnt = Counter(p[pos] for p in plays.values() if len(p) > pos)
                 entry["odtworzenia"] = dict(cnt)

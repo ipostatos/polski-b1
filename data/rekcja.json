@@ -1,0 +1,72 @@
+{
+  "opis": "Глагольное управление в границах инвентаря B1: глагол → падеж (и предлог). Это самый частый источник ошибок в заданиях I, V, VI, VIII и в письме.",
+  "grupy": [
+    {
+      "przypadek": "dopełniacz (kogo? czego?)",
+      "czasowniki": [
+        {"czasownik": "szukać", "wzor": "szukać czego", "przyklad": "Szukam większego mieszkania."},
+        {"czasownik": "potrzebować", "wzor": "potrzebować czego", "przyklad": "Potrzebuję nowych butów."},
+        {"czasownik": "uczyć się", "wzor": "uczyć się czego", "przyklad": "Uczę się polskiego."},
+        {"czasownik": "słuchać", "wzor": "słuchać czego", "przyklad": "Słucham muzyki."},
+        {"czasownik": "bać się", "wzor": "bać się kogo/czego", "przyklad": "Boję się egzaminu."},
+        {"czasownik": "życzyć", "wzor": "życzyć komuś czego", "przyklad": "Życzę Ci zdrowia."},
+        {"czasownik": "zapomnieć", "wzor": "zapomnieć czego (przy zaprzeczeniu też)", "przyklad": "Zapomniałem parasola."},
+        {"czasownik": "brakować", "wzor": "brakuje czego", "przyklad": "Brakuje mi czasu."}
+      ]
+    },
+    {
+      "przypadek": "dopełniacz z przyimkiem",
+      "czasowniki": [
+        {"czasownik": "wracać", "wzor": "wracać z czego / do czego", "przyklad": "Wracam z pracy do domu."},
+        {"czasownik": "korzystać", "wzor": "korzystać z czego", "przyklad": "Korzystam ze słownika."},
+        {"czasownik": "dostać", "wzor": "dostać coś od kogo", "przyklad": "Dostałem list od babci."},
+        {"czasownik": "zależeć", "wzor": "zależeć od czego", "przyklad": "To zależy od pogody."}
+      ]
+    },
+    {
+      "przypadek": "celownik (komu? czemu?)",
+      "czasowniki": [
+        {"czasownik": "pomagać / pomóc", "wzor": "pomagać komu", "przyklad": "Pomagam mamie."},
+        {"czasownik": "dziękować", "wzor": "dziękować komu za co", "przyklad": "Dziękuję Ci za pomoc."},
+        {"czasownik": "podobać się", "wzor": "podobać się komu", "przyklad": "Ten film mi się podobał."},
+        {"czasownik": "ufać", "wzor": "ufać komu", "przyklad": "Ufam przyjaciołom."},
+        {"czasownik": "przeszkadzać", "wzor": "przeszkadzać komu", "przyklad": "Hałas przeszkadza sąsiadom."},
+        {"czasownik": "pożyczać / pożyczyć", "wzor": "pożyczyć komuś coś", "przyklad": "Pożyczyłem koledze rower."}
+      ]
+    },
+    {
+      "przypadek": "biernik (kogo? co?)",
+      "czasowniki": [
+        {"czasownik": "czekać", "wzor": "czekać na kogo/co", "przyklad": "Czekam na autobus."},
+        {"czasownik": "prosić / poprosić", "wzor": "prosić o co", "przyklad": "Poprosiłam o rachunek."},
+        {"czasownik": "pytać / zapytać", "wzor": "pytać o co", "przyklad": "Zapytał o cenę."},
+        {"czasownik": "dbać", "wzor": "dbać o kogo/co", "przyklad": "Dbam o zdrowie."},
+        {"czasownik": "martwić się", "wzor": "martwić się o kogo/co", "przyklad": "Martwię się o egzamin."},
+        {"czasownik": "zapraszać / zaprosić", "wzor": "zaprosić kogoś na co", "przyklad": "Zapraszam Cię na kolację."}
+      ]
+    },
+    {
+      "przypadek": "narzędnik (kim? czym?)",
+      "czasowniki": [
+        {"czasownik": "interesować się", "wzor": "interesować się czym", "przyklad": "Interesuję się historią."},
+        {"czasownik": "zajmować się", "wzor": "zajmować się czym", "przyklad": "Zajmuję się dziećmi."},
+        {"czasownik": "opiekować się", "wzor": "opiekować się kim", "przyklad": "Opiekuje się babcią."},
+        {"czasownik": "być", "wzor": "być kim/czym (orzecznik)", "przyklad": "Piotr jest lekarzem."},
+        {"czasownik": "zostać", "wzor": "zostać kim", "przyklad": "Chcę zostać tłumaczem."},
+        {"czasownik": "jechać", "wzor": "jechać czym", "przyklad": "Jadę pociągiem."},
+        {"czasownik": "spotykać się", "wzor": "spotykać się z kim", "przyklad": "Spotykam się z przyjaciółmi."},
+        {"czasownik": "rozmawiać", "wzor": "rozmawiać z kim o czym", "przyklad": "Rozmawiam z bratem o planach."}
+      ]
+    },
+    {
+      "przypadek": "miejscownik (o kim? o czym? / w, na, przy, po)",
+      "czasowniki": [
+        {"czasownik": "myśleć", "wzor": "myśleć o kim/czym", "przyklad": "Myślę o wakacjach."},
+        {"czasownik": "marzyć", "wzor": "marzyć o czym", "przyklad": "Marzę o podróży do Japonii."},
+        {"czasownik": "opowiadać", "wzor": "opowiadać o czym", "przyklad": "Opowiedz o swojej pracy."},
+        {"czasownik": "mieszkać", "wzor": "mieszkać w czym / przy czym / na czym", "przyklad": "Mieszkam w Warszawie przy ulicy Długiej."},
+        {"czasownik": "spacerować", "wzor": "spacerować po czym", "przyklad": "Spacerujemy po parku."}
+      ]
+    }
+  ]
+}

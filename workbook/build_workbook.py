@@ -45,24 +45,36 @@ LINE = colors.HexColor("#D8D8DE")
 BAND = colors.HexColor("#F4F1F2")
 GREEN = colors.HexColor("#2E6B4F")
 
-FONTS = Path("C:/Windows/Fonts")
+# каталоги шрифтов Windows и Linux (CI собирает тетрадь на Ubuntu; откат на
+# Helvetica недопустим — она молча теряет польскую диакритику и кириллицу)
+FONT_DIRS = [
+    Path("C:/Windows/Fonts"),
+    Path("/usr/share/fonts/truetype/dejavu"),
+    Path("/usr/share/fonts/truetype/liberation"),
+    Path("/usr/share/fonts/TTF"),
+]
 
 
 def register_fonts() -> tuple[str, str, str]:
-    """Регистрирует шрифт с полной польской диакритикой."""
+    """Регистрирует шрифт с полной польской диакритикой и кириллицей."""
     for base, bold, italic, name in (
         ("calibri.ttf", "calibrib.ttf", "calibrii.ttf", "Calibri"),
         ("arial.ttf", "arialbd.ttf", "ariali.ttf", "Arial"),
+        ("DejaVuSans.ttf", "DejaVuSans-Bold.ttf", "DejaVuSans-Oblique.ttf", "DejaVuSans"),
+        ("LiberationSans-Regular.ttf", "LiberationSans-Bold.ttf",
+         "LiberationSans-Italic.ttf", "LiberationSans"),
     ):
-        if (FONTS / base).exists():
-            pdfmetrics.registerFont(TTFont(name, str(FONTS / base)))
-            pdfmetrics.registerFont(TTFont(name + "-B", str(FONTS / bold)))
-            pdfmetrics.registerFont(TTFont(name + "-I", str(FONTS / italic)))
-            # без этого теги <b> и <i> внутри Paragraph молча игнорируются
-            pdfmetrics.registerFontFamily(name, normal=name, bold=name + "-B",
-                                          italic=name + "-I", boldItalic=name + "-B")
-            return name, name + "-B", name + "-I"
-    return "Helvetica", "Helvetica-Bold", "Helvetica-Oblique"
+        for fonts in FONT_DIRS:
+            if (fonts / base).exists():
+                pdfmetrics.registerFont(TTFont(name, str(fonts / base)))
+                pdfmetrics.registerFont(TTFont(name + "-B", str(fonts / bold)))
+                pdfmetrics.registerFont(TTFont(name + "-I", str(fonts / italic)))
+                # без этого теги <b> и <i> внутри Paragraph молча игнорируются
+                pdfmetrics.registerFontFamily(name, normal=name, bold=name + "-B",
+                                              italic=name + "-I", boldItalic=name + "-B")
+                return name, name + "-B", name + "-I"
+    raise SystemExit("не найден TTF-шрифт с польской диакритикой и кириллицей — "
+                     "Helvetica молча испортила бы текст; установи DejaVu Sans")
 
 
 REG, BOLD, ITAL = register_fonts()
@@ -197,7 +209,7 @@ def cover(story: list) -> None:
         Spacer(1, 55 * mm),
         para("ZESZYT B1", "cover"),
         Spacer(1, 4 * mm),
-        para("Rabочая тетрадь к государственному экзамену<br/>"
+        para("Рабочая тетрадь к государственному экзамену<br/>"
              "z języka polskiego jako obcego", "coversub"),
         Spacer(1, 14 * mm),
     ]
@@ -223,16 +235,16 @@ def cover(story: list) -> None:
 
 def mapa_egzaminu(story: list, struct: dict) -> None:
     story += [band("Карта экзамена", "Одна страница, которую надо знать наизусть")]
-    rows = [[para("Модуль", "cellb"), para("Время", "cellb"), para("Заданий", "cellb"),
+    e26 = struct["egzamin_2026"]
+    rows = [[para("Модуль", "cellb"), para("Время (2026)", "cellb"), para("Заданий", "cellb"),
              para("Баллов", "cellb"), para("Порог", "cellb"), para("Цель", "cellb")]]
-    for name, key, zad, pts, prog, cel in (
-        ("Rozumienie ze słuchu", "sluchanie", "5", "30", "15", "22"),
-        ("Rozumienie tekstów pisanych", "czytanie", "5", "30", "15", "23"),
-        ("Poprawność gramatyczna", "gramatyka", "8", "30", "15", "22"),
-        ("Pisanie", "pisanie", "1 zestaw = 2 prace", "30", "15", "21"),
-        ("Mówienie", "mowienie", "3", "40", "20", "28"),
+    for name, czas, zad, pts, prog, cel in (
+        ("Rozumienie ze słuchu", f"{e26['sluchanie']} minut", "4–5", "30", "15", "22"),
+        ("Rozumienie tekstów pisanych", f"{e26['czytanie']} minut", "5", "30", "15", "23"),
+        ("Poprawność gramatyczna", f"{e26['gramatyka']} minut", "8", "30", "15", "22"),
+        ("Pisanie", f"{e26['pisanie']} minut", "1 zestaw = 2 prace", "30", "15", "21"),
+        ("Mówienie", e26["mowienie"], "3", "40", "20", "28"),
     ):
-        czas = struct["moduly"][key]["czas"]
         rows.append([para(name, "cell"), para(czas, "cell"), para(zad, "cell"),
                      para(pts, "cell"), para(prog, "cell"),
                      Paragraph(f"<font color='#2E6B4F'><b>{cel}</b></font>", S["cell"])])
@@ -244,19 +256,21 @@ def mapa_egzaminu(story: list, struct: dict) -> None:
 
     story += [para("Три вещи, которые решают больше всего", "h3")]
     for txt in (
-        "<b>Аудирование, задание I звучит ОДИН раз.</b> Это 14 микровысказываний и "
-        "7 баллов из 30. Остальные четыре задания — дважды. Проверено во всех 15 сессиях.",
+        "<b>Аудирование: во всех 15 сессиях 2021–2024 задание I звучало ОДИН раз.</b> "
+        "Это 14 микровысказываний и 7 баллов из 30. Остальные четыре задания — дважды. "
+        "Гарантий на 2026 нет, но паттерн держался четыре года без исключений.",
         "<b>Грамматика предсказуема полностью.</b> С 2021 года те же 8 заданий, в том же "
         "порядке, с теми же баллами. Четыре из них дают 20 баллов из 30.",
         "<b>В письме объём — это балл.</b> Попадание в 30 и 170 слов оценивается отдельным "
-        "подкритерием: 2 балла из 30 модуля просто за длину.",
+        "подкритерием: 2 балла из 30 модуля просто за длину (±10% — наш тренировочный "
+        "ориентир, официального допуска в процентах не объявлено).",
     ):
         story += [para("• " + txt, "p")]
 
-    story += [para("Порядок и тайминг письменной части", "h3"),
+    story += [para("Порядок и тайминг письменной части (экзамен 2026 — 190 минут)", "h3"),
               grid([[para("Модуль", "cellb"), para("Лимит", "cellb"),
                      para("Сколько на задание", "cellb")],
-                    [para("Rozumienie ze słuchu", "cell"), para("do 30 minut", "cell"),
+                    [para("Rozumienie ze słuchu", "cell"), para("25 minut", "cell"),
                      para("темп задаёт запись", "cell")],
                     [para("Rozumienie tekstów", "cell"), para("45 minut", "cell"),
                      para("≈ 9 минут на задание", "cell")],
@@ -265,6 +279,10 @@ def mapa_egzaminu(story: list, struct: dict) -> None:
                     [para("Pisanie", "cell"), para("75 minut", "cell"),
                      para("15 мин короткая + 50 длинная + 10 проверка", "cell")]],
                    [50 * mm, 30 * mm, 90 * mm]),
+              Spacer(1, 2 * mm),
+              para("Между модулями — перерывы не менее 10 минут. Архивные аркуши "
+                   "2021–2024 печатают свой тайминг (słuchanie «do 30 minut») — при "
+                   "прогонах архива верь напечатанному на аркуше.", "note"),
               PageBreak()]
 
 
@@ -543,6 +561,10 @@ def karta_pisania(story: list) -> None:
 def error_map(story: list) -> None:
     story += [band("Error Map", "Журнал ошибок. Категория, повторившаяся трижды, "
                                 "получает больше упражнений.")]
+    story += [para("ORTH: с 01.01.2026 действуют новые правила орфографии, но на "
+                   "экзаменах 2026–2030 принимаются и прежние, и новые написания — "
+                   "старые материалы не устарели, специально переучиваться не надо.",
+                   "note")]
     kody = [("CASE-GEN", "dopełniacz"), ("CASE-DAT", "celownik"), ("CASE-ACC", "biernik"),
             ("CASE-INS", "narzędnik"), ("CASE-LOC", "miejscownik"), ("ASP", "aspekt"),
             ("TENSE", "czasy"), ("MOOD", "tryby"), ("PREP", "przyimki"),
@@ -571,7 +593,7 @@ def error_map(story: list) -> None:
 
 
 def plan(story: list) -> None:
-    story += [band("План на 8 недель", "17.08 → 17.10.2026")]
+    story += [band("План: 61 день, 9 недель", "17.08 → 17.10.2026")]
     rows = [[para("Неделя", "cellb"), para("Даты", "cellb"), para("Фокус", "cellb"),
              para("Экзамен из архива", "cellb"), para("✓", "cellb")]]
     for w, d, f, e in (

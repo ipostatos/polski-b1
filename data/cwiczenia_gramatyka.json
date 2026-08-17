@@ -51,7 +51,7 @@
       "zestawy": [
         {
           "id": "II-A",
-          "ramka": ["ponieważ", "który", "żeby", "chociaż", "albo", "dlatego", "kiedy"],
+          "ramka": ["ponieważ", "który", "żeby", "chociaż", "albo", "kiedy"],
           "zdania": [
             {"nr": 1, "tekst": "Nie poszedłem wczoraj na trening, ……… bardzo bolała mnie noga.", "klucz": "ponieważ", "dlaczego": "zdanie podrzędne przyczyny"},
             {"nr": 2, "tekst": "To jest ten kolega, ……… pomógł mi w przeprowadzce.", "klucz": "który", "dlaczego": "zdanie przydawkowe: odnosi się do rzeczownika „kolega”"},
@@ -63,7 +63,7 @@
         },
         {
           "id": "II-B",
-          "ramka": ["że", "jeśli", "ale", "gdy", "oraz", "bo", "im"],
+          "ramka": ["że", "jeśli", "ale", "gdy", "oraz", "im"],
           "zdania": [
             {"nr": 1, "tekst": "Wydaje mi się, ……… ten film już kiedyś widziałem.", "klucz": "że", "dlaczego": "zdanie dopełnieniowe po czasowniku mówienia lub myślenia"},
             {"nr": 2, "tekst": "……… będzie padać, zostaniemy w domu.", "klucz": "Jeśli", "dlaczego": "warunek realny"},
@@ -113,7 +113,7 @@
             {"nr": 5, "podstawa": "szukać", "klucz": "szuka", "dlaczego": "czas teraźniejszy, 3 os. l. poj."},
             {"nr": 6, "podstawa": "przeprowadzić się", "klucz": "przeprowadzimy się", "dlaczego": "czas przyszły prosty od czasownika dokonanego"},
             {"nr": 7, "podstawa": "zacząć", "klucz": "zacznie", "dlaczego": "czas przyszły prosty, 3 os. l. poj."},
-            {"nr": 8, "podstawa": "pracować", "klucz": "będę pracował", "dlaczego": "czas przyszły złożony od czasownika niedokonanego; dopuszczalne też: będę pracować"},
+            {"nr": 8, "podstawa": "pracować", "klucz": "będę pracował", "akceptowane": ["będę pracować"], "dlaczego": "czas przyszły złożony od czasownika niedokonanego; dopuszczalne też: będę pracować"},
             {"nr": 9, "podstawa": "być", "klucz": "będzie", "dlaczego": "konstrukcja bezosobowa: będzie nam trudno"},
             {"nr": 10, "podstawa": "przyzwyczaić się", "klucz": "przyzwyczaimy się", "dlaczego": "czas przyszły prosty, 1 os. l. mn."}
           ]
@@ -149,11 +149,11 @@
         {
           "id": "VI-A",
           "zdania": [
-            {"nr": 1, "zdanie": "Nie mam czasu, więc nie pójdę na spotkanie.", "wyraz": "gdybym", "klucz": "Gdybym miał czas, poszedłbym na spotkanie.", "dlaczego": "tryb przypuszczający: warunek nierzeczywisty"},
-            {"nr": 2, "zdanie": "Musisz koniecznie przeczytać tę książkę.", "wyraz": "warto", "klucz": "Warto przeczytać tę książkę.", "dlaczego": "konstrukcja bezosobowa z bezokolicznikiem"},
-            {"nr": 3, "zdanie": "Zaczęło padać, dlatego wróciliśmy do domu.", "wyraz": "ponieważ", "klucz": "Wróciliśmy do domu, ponieważ zaczęło padać.", "dlaczego": "zamiana zdania współrzędnego na podrzędne przyczyny"},
+            {"nr": 1, "zdanie": "Nie mam czasu, więc nie pójdę na spotkanie.", "wyraz": "gdybym", "klucz": "Gdybym miał czas, poszedłbym na spotkanie.", "akceptowane": ["Gdybym miała czas, poszłabym na spotkanie.", "Poszedłbym na spotkanie, gdybym miał czas.", "Poszłabym na spotkanie, gdybym miała czas."], "dlaczego": "tryb przypuszczający: warunek nierzeczywisty"},
+            {"nr": 2, "zdanie": "Dobrze byłoby przeczytać tę książkę.", "wyraz": "warto", "klucz": "Warto przeczytać tę książkę.", "akceptowane": ["Tę książkę warto przeczytać."], "dlaczego": "konstrukcja bezosobowa z bezokolicznikiem; „dobrze byłoby” i „warto” wyrażają tę samą rekomendację"},
+            {"nr": 3, "zdanie": "Zaczęło padać, dlatego wróciliśmy do domu.", "wyraz": "ponieważ", "klucz": "Wróciliśmy do domu, ponieważ zaczęło padać.", "akceptowane": ["Ponieważ zaczęło padać, wróciliśmy do domu."], "dlaczego": "zamiana zdania współrzędnego na podrzędne przyczyny"},
             {"nr": 4, "zdanie": "Proszę zamknąć okno.", "wyraz": "zamknij", "klucz": "Zamknij okno.", "dlaczego": "tryb rozkazujący, forma nieoficjalna"},
-            {"nr": 5, "zdanie": "On jest zbyt zmęczony i nie może prowadzić samochodu.", "wyraz": "żeby", "klucz": "Jest zbyt zmęczony, żeby prowadzić samochód.", "dlaczego": "konstrukcja zbyt… żeby + bezokolicznik"}
+            {"nr": 5, "zdanie": "On jest zbyt zmęczony i nie może prowadzić samochodu.", "wyraz": "żeby", "klucz": "Jest zbyt zmęczony, żeby prowadzić samochód.", "akceptowane": ["On jest zbyt zmęczony, żeby prowadzić samochód."], "dlaczego": "konstrukcja zbyt… żeby + bezokolicznik"}
           ]
         }
       ]
@@ -167,18 +167,18 @@
       "zestawy": [
         {
           "id": "VII-A",
-          "tekst": "Wczoraj cały wieczór {1} zupę na dzisiejszą kolację i w końcu ją {2}. Zwykle {3} takie rzeczy szybciej, ale tym razem przepis był trudny. Jutro rano {4} jeszcze sałatkę. Mamo, {5} mi, proszę, jaki sos do niej pasuje! Gdybym {6} więcej czasu, {7} też ciasto. Kiedy goście {8}, wszystko będzie już gotowe. Nie {9} się, na pewno zdążę. {10} spokojnie i przyjdźcie o siódmej.",
+          "tekst": "Wczoraj cały wieczór {1} zupę na dzisiejszą kolację i w końcu ją {2}. Zwykle {3} takie rzeczy szybciej, ale tym razem przepis był trudny. Jutro rano w kwadrans {4} jeszcze sałatkę. Mamo, {5} mi, proszę, jaki sos do niej pasuje! Gdybym {6} jeszcze godzinę, na pewno {7} też ciasto. Zanim goście {8}, wszystko będzie już gotowe. Nie {9} się, na pewno zdążę. {10} spokojnie przez całe popołudnie i przyjdźcie o siódmej.",
           "luki": [
             {"nr": 1, "opcje": ["gotowałam", "ugotowałam"], "klucz": "gotowałam", "dlaczego": "„cały wieczór” — czynność trwająca, aspekt niedokonany"},
             {"nr": 2, "opcje": ["kończyłam", "skończyłam"], "klucz": "skończyłam", "dlaczego": "„w końcu” — rezultat, aspekt dokonany"},
             {"nr": 3, "opcje": ["robię", "zrobię"], "klucz": "robię", "dlaczego": "„zwykle” — czynność powtarzalna, czas teraźniejszy niedokonany"},
-            {"nr": 4, "opcje": ["będę robić", "zrobię"], "klucz": "zrobię", "dlaczego": "jednorazowa czynność zakończona rezultatem"},
-            {"nr": 5, "opcje": ["mów", "powiedz"], "klucz": "powiedz", "dlaczego": "tryb rozkazujący, jednorazowa prośba — aspekt dokonany"},
-            {"nr": 6, "opcje": ["miał", "miała"], "klucz": "miała", "dlaczego": "tryb przypuszczający, rodzaj żeński: gdybym miała"},
-            {"nr": 7, "opcje": ["upiekłabym", "piekłabym"], "klucz": "upiekłabym", "dlaczego": "rezultat w trybie przypuszczającym — aspekt dokonany"},
-            {"nr": 8, "opcje": ["będą przychodzić", "przyjdą"], "klucz": "przyjdą", "dlaczego": "jednorazowe zdarzenie w przyszłości"},
-            {"nr": 9, "opcje": ["martwcie", "zmartwcie"], "klucz": "martwcie", "dlaczego": "zakaz w trybie rozkazującym zawsze z aspektem niedokonanym: nie martwcie się"},
-            {"nr": 10, "opcje": ["Odpoczywajcie", "Odpocznijcie"], "klucz": "Odpoczywajcie", "dlaczego": "zachęta do czynności trwającej, aspekt niedokonany"}
+            {"nr": 4, "opcje": ["będę robić", "zrobię"], "klucz": "zrobię", "dlaczego": "„w kwadrans” — ile czasu zajmie osiągnięcie rezultatu; taka rama czasowa wymaga aspektu dokonanego"},
+            {"nr": 5, "opcje": ["mów", "powiedz"], "klucz": "powiedz", "dlaczego": "tryb rozkazujący, jednorazowa prośba o konkretną informację — aspekt dokonany"},
+            {"nr": 6, "opcje": ["miał", "miała"], "klucz": "miała", "dlaczego": "tryb przypuszczający, rodzaj żeński (mówi ta sama osoba, która „gotowała”): gdybym miała"},
+            {"nr": 7, "opcje": ["upiekłabym", "piekłabym"], "klucz": "upiekłabym", "dlaczego": "„gdybym miała jeszcze godzinę” — hipotetyczny rezultat w ograniczonym czasie, aspekt dokonany"},
+            {"nr": 8, "opcje": ["będą przychodzić", "przyjdą"], "klucz": "przyjdą", "dlaczego": "po „zanim” jednorazowe zdarzenie zamykające ramę czasową — aspekt dokonany"},
+            {"nr": 9, "opcje": ["martwcie", "zmartwcie"], "klucz": "martwcie", "dlaczego": "zakaz trwałego stanu — zwykle aspekt niedokonany: nie martwcie się („nie zmartwcie się” istnieje, ale znaczy co innego: ostrzeżenie przed jednorazową reakcją)"},
+            {"nr": 10, "opcje": ["Odpoczywajcie", "Odpocznijcie"], "klucz": "Odpoczywajcie", "dlaczego": "„przez całe popołudnie” — czynność trwająca w podanym przedziale, aspekt niedokonany"}
           ]
         }
       ]
@@ -192,7 +192,7 @@
       "zestawy": [
         {
           "id": "VIII-A",
-          "ramka": ["do", "na", "z", "o", "przez", "od", "bez"],
+          "ramka": ["na", "z", "o", "przez", "od", "bez"],
           "zdania": [
             {"nr": 1, "tekst": "Czekam ……… ciebie już pół godziny przed kinem.", "klucz": "na", "dlaczego": "czekać na kogo? — rekcja z biernikiem"},
             {"nr": 2, "tekst": "Wróciłem ……… pracy dopiero o dziewiątej.", "klucz": "z", "dlaczego": "kierunek „skąd” od miejsca, do którego idzie się „do”"},
