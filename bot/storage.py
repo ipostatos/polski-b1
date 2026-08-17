@@ -36,13 +36,14 @@ CREATE TABLE IF NOT EXISTS bledy (
 );
 
 CREATE TABLE IF NOT EXISTS wyniki (
-    id      INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    sesja   TEXT    NOT NULL,
-    modul   TEXT    NOT NULL,
-    punkty  REAL    NOT NULL,
-    maks    REAL    NOT NULL,
-    kiedy   TEXT    NOT NULL
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL,
+    sesja      TEXT    NOT NULL,
+    modul      TEXT    NOT NULL,
+    punkty     REAL    NOT NULL,
+    maks       REAL    NOT NULL,
+    kiedy      TEXT    NOT NULL,
+    attempt_id TEXT
 );
 
 CREATE TABLE IF NOT EXISTS prace (
@@ -55,7 +56,20 @@ CREATE TABLE IF NOT EXISTS prace (
     tekst     TEXT    NOT NULL,
     kiedy     TEXT    NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS aktywnosc (
+    user_id INTEGER NOT NULL,
+    dzien   TEXT    NOT NULL,
+    typ     TEXT    NOT NULL,
+    ile     INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (user_id, dzien, typ)
+);
 """
+
+# типы учебной активности; heatmap и серия считаются только по ним,
+# «открыл приложение» активностью не является
+TYPY_AKTYWNOSCI = {"gramatyka", "sluchanie", "czytanie", "pisanie",
+                   "mowienie", "powtorka", "mok", "blad"}
 
 # интервалы повторения в днях: чем увереннее ответ, тем дальше отодвигаем
 INTERWALY = [0, 1, 3, 7, 16, 35]
@@ -65,12 +79,23 @@ def _conn() -> sqlite3.Connection:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     c = sqlite3.connect(DB_PATH)
     c.row_factory = sqlite3.Row
+    # WAL: бот и API живут в одном процессе, но пишут из разных задач
+    c.execute("PRAGMA journal_mode=WAL")
+    c.execute("PRAGMA busy_timeout=3000")
     return c
 
 
 def init() -> None:
     with _conn() as c:
         c.executescript(SCHEMA)
+        # миграция прод-базы: attempt_id появился после первых выкладок
+        kolumny = {r["name"] for r in c.execute("PRAGMA table_info(wyniki)")}
+        if "attempt_id" not in kolumny:
+            c.execute("ALTER TABLE wyniki ADD COLUMN attempt_id TEXT")
+        # страховочный уникальный индекс поверх явной проверки в zapisz_wyniki_moka
+        c.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS wyniki_attempt "
+            "ON wyniki(user_id, attempt_id, modul) WHERE attempt_id IS NOT NULL")
 
 
 # ------------------------------------------------------------------ SRS
@@ -114,13 +139,20 @@ def widziane(user_id: int) -> set[str]:
     return {r["item_id"] for r in rows}
 
 
-def slabe_kategorie(user_id: int, limit: int = 5) -> list[tuple[str, int, int]]:
-    """Категории с наибольшим числом ошибок: (категория, ошибок, показов)."""
+def slabe_kategorie(user_id: int, limit: int = 5,
+                    min_pokazow: int = 10) -> list[tuple[str, int, int]]:
+    """Категории с наибольшим ПРОЦЕНТОМ ошибок: (категория, ошибок, показов).
+
+    Сортировка по доле, а не по абсолюту: старая категория с сотней показов
+    и десятком давних ошибок не должна затмевать свежую, где мимо каждый
+    второй ответ. Категории с < min_pokazow показов не судим — мало данных.
+    """
     with _conn() as c:
         rows = c.execute(
             "SELECT kategoria, SUM(bledy) b, SUM(powtorki) p FROM srs "
-            "WHERE user_id=? GROUP BY kategoria HAVING b>0 ORDER BY b DESC LIMIT ?",
-            (user_id, limit),
+            "WHERE user_id=? GROUP BY kategoria "
+            "HAVING b>0 AND p>=? ORDER BY CAST(b AS REAL)/p DESC LIMIT ?",
+            (user_id, min_pokazow, limit),
         ).fetchall()
     return [(r["kategoria"], r["b"], r["p"]) for r in rows]
 
@@ -138,12 +170,21 @@ def dodaj_blad(user_id: int, kod: str, zle: str, dobrze: str = "",
         return int(cur.lastrowid or 0)
 
 
-def mapa_bledow(user_id: int) -> list[tuple[str, int]]:
+def mapa_bledow(user_id: int, dni: int | None = None) -> list[tuple[str, int]]:
+    """Ошибки по категориям; `dni` ограничивает свежим окном — категория,
+    закрытая месяц назад, не должна вечно значиться «повторяющейся»."""
     with _conn() as c:
-        rows = c.execute(
-            "SELECT kod, COUNT(*) n FROM bledy WHERE user_id=? GROUP BY kod ORDER BY n DESC",
-            (user_id,),
-        ).fetchall()
+        if dni is not None:
+            od = (date.today() - timedelta(days=dni)).isoformat()
+            rows = c.execute(
+                "SELECT kod, COUNT(*) n FROM bledy WHERE user_id=? AND kiedy>=? "
+                "GROUP BY kod ORDER BY n DESC", (user_id, od),
+            ).fetchall()
+        else:
+            rows = c.execute(
+                "SELECT kod, COUNT(*) n FROM bledy WHERE user_id=? "
+                "GROUP BY kod ORDER BY n DESC", (user_id,),
+            ).fetchall()
     return [(r["kod"], r["n"]) for r in rows]
 
 
@@ -169,6 +210,45 @@ def zapisz_wynik(user_id: int, sesja: str, modul: str, punkty: float, maks: floa
             "INSERT INTO wyniki (user_id,sesja,modul,punkty,maks,kiedy) VALUES (?,?,?,?,?,?)",
             (user_id, sesja, modul, punkty, maks, datetime.now().isoformat(" ", "seconds")),
         )
+
+
+def zapisz_wyniki_moka(user_id: int, sesja: str,
+                       wyniki: list[tuple[str, float, float]],
+                       attempt_id: str | None = None) -> bool:
+    """Все модули мока одной транзакцией: либо записан весь мок, либо ничего.
+    `wyniki` — [(модуль, баллы, макс)].
+
+    `attempt_id` делает запись идемпотентной: если соединение оборвалось после
+    COMMIT, но до ответа клиенту, повторный POST той же попытки ничего не
+    дублирует — возвращаем False, а записанное достаётся wyniki_proby().
+    BEGIN IMMEDIATE держит проверку и вставку в одной транзакции."""
+    kiedy = datetime.now().isoformat(" ", "seconds")
+    with _conn() as c:
+        c.execute("BEGIN IMMEDIATE")
+        if attempt_id and c.execute(
+                "SELECT 1 FROM wyniki WHERE user_id=? AND attempt_id=? LIMIT 1",
+                (user_id, attempt_id)).fetchone():
+            return False
+        c.executemany(
+            "INSERT INTO wyniki (user_id,sesja,modul,punkty,maks,kiedy,attempt_id) "
+            "VALUES (?,?,?,?,?,?,?)",
+            [(user_id, sesja, modul, punkty, maks, kiedy, attempt_id)
+             for modul, punkty, maks in wyniki],
+        )
+    return True
+
+
+def wyniki_proby(user_id: int, attempt_id: str,
+                 ) -> tuple[str, list[tuple[str, float, float]]] | None:
+    """Ранее записанная попытка мока: (сессия, [(модуль, баллы, макс)]) или None."""
+    with _conn() as c:
+        rows = c.execute(
+            "SELECT sesja, modul, punkty, maks FROM wyniki "
+            "WHERE user_id=? AND attempt_id=? ORDER BY id",
+            (user_id, attempt_id)).fetchall()
+    if not rows:
+        return None
+    return rows[0]["sesja"], [(r["modul"], r["punkty"], r["maks"]) for r in rows]
 
 
 def ostatnie_wyniki(user_id: int) -> dict[str, tuple[float, float, str]]:
@@ -202,3 +282,90 @@ def liczba_prac(user_id: int) -> int:
     with _conn() as c:
         r = c.execute("SELECT COUNT(*) n FROM prace WHERE user_id=?", (user_id,)).fetchone()
     return int(r["n"])
+
+
+def objetosc_ostatnich_prac(user_id: int, limit: int = 10) -> list[tuple[int, int]]:
+    """(слов, требовалось) последних работ — для тренировочной точности письма."""
+    with _conn() as c:
+        rows = c.execute(
+            "SELECT slow, wymagane FROM prace WHERE user_id=? ORDER BY id DESC LIMIT ?",
+            (user_id, limit),
+        ).fetchall()
+    return [(r["slow"], r["wymagane"]) for r in rows]
+
+
+# ------------------------------------------------------------------ активность
+
+
+def zaloguj_aktywnosc(user_id: int, typ: str, ile: int = 1,
+                      dzien: str | None = None) -> None:
+    """Учебное действие в счётчик дня. Неизвестные типы игнорируются молча —
+    активность вторична и не должна ронять тренировку."""
+    if typ not in TYPY_AKTYWNOSCI or ile <= 0:
+        return
+    d = dzien or date.today().isoformat()
+    with _conn() as c:
+        c.execute(
+            "INSERT INTO aktywnosc (user_id,dzien,typ,ile) VALUES (?,?,?,?) "
+            "ON CONFLICT(user_id,dzien,typ) DO UPDATE SET ile = ile + excluded.ile",
+            (user_id, d, typ, ile),
+        )
+
+
+def aktywnosc_dni(user_id: int, dni: int = 84) -> dict[str, int]:
+    """{ISO-день: сумма действий} за последние `dni` дней — heatmap и серия."""
+    od = (date.today() - timedelta(days=dni - 1)).isoformat()
+    with _conn() as c:
+        rows = c.execute(
+            "SELECT dzien, SUM(ile) n FROM aktywnosc "
+            "WHERE user_id=? AND dzien>=? GROUP BY dzien",
+            (user_id, od),
+        ).fetchall()
+    return {r["dzien"]: int(r["n"]) for r in rows}
+
+
+def aktywnosc_dzis(user_id: int, dzien: str | None = None) -> dict[str, int]:
+    """{тип: сколько сегодня} — для плана дня."""
+    d = dzien or date.today().isoformat()
+    with _conn() as c:
+        rows = c.execute(
+            "SELECT typ, ile FROM aktywnosc WHERE user_id=? AND dzien=?",
+            (user_id, d),
+        ).fetchall()
+    return {r["typ"]: int(r["ile"]) for r in rows}
+
+
+# ------------------------------------------------------------------ сводки
+
+
+def podsumowanie_srs(user_id: int) -> dict:
+    """Сводка SRS: всего изучено, к повторению, закреплено (интервал ≥ 7 дней),
+    и точность по категориям (показы/ошибки)."""
+    today = date.today().isoformat()
+    with _conn() as c:
+        rows = c.execute(
+            "SELECT kategoria, powtorki, bledy, interwal, nastepnie "
+            "FROM srs WHERE user_id=?", (user_id,),
+        ).fetchall()
+    kategorie: dict[str, dict[str, int]] = {}
+    due = zakr = 0
+    for r in rows:
+        if r["nastepnie"] <= today:
+            due += 1
+        if r["interwal"] >= 3:        # шаг 3 лестницы = интервал 7 дней
+            zakr += 1
+        k = kategorie.setdefault(r["kategoria"], {"powtorki": 0, "bledy": 0})
+        k["powtorki"] += r["powtorki"]
+        k["bledy"] += r["bledy"]
+    return {"znane": len(rows), "due": due, "zakreplone": zakr,
+            "kategorie": kategorie}
+
+
+def historia_wynikow(user_id: int) -> list[dict]:
+    """Все моки в хронологии — история и тренды."""
+    with _conn() as c:
+        rows = c.execute(
+            "SELECT sesja, modul, punkty, maks, kiedy FROM wyniki "
+            "WHERE user_id=? ORDER BY id", (user_id,),
+        ).fetchall()
+    return [dict(r) for r in rows]

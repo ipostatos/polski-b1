@@ -4,14 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Polski B1</title>
-<link rel="stylesheet" href="theme.css?v=1">
+<link rel="stylesheet" href="theme.css?v=2">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-  /* ── страница ── */
+  /* ── каркас ── */
   header.top{ display:flex; align-items:center; gap:var(--sp-3); margin-bottom:var(--sp-2) }
-  header.top .back{ background:none; border:none; color:var(--link); font-size:15px;
-    font-weight:700; cursor:pointer; padding:4px 8px 4px 0 }
-  .chips{ display:flex; gap:6px; flex-wrap:wrap; margin:0 0 var(--sp-4) }
+  header.top .back{ background:none; border:none; color:var(--accent); font-size:15px;
+    font-weight:700; cursor:pointer; padding:8px 12px 8px 0; min-height:44px }
+  .hero{ display:flex; align-items:center; gap:var(--sp-2); margin-bottom:2px }
+  .hero .mark{ width:30px; height:30px; flex:0 0 auto }
 
   /* ── тренировка ── */
   .q-head{ color:var(--hint); font-size:var(--fs-sm); font-style:italic; margin:0 0 var(--sp-2) }
@@ -26,34 +27,59 @@
   .expl{ margin-top:var(--sp-3); padding-top:var(--sp-3); border-top:1px solid var(--border);
     color:var(--hint); font-size:var(--fs-sm); white-space:pre-wrap }
   .expl b{ color:var(--text) }
-  textarea, input[type=text]{
+  textarea, input[type=text], input[type=number], select{
     width:100%; padding:12px; font-size:16px; font-family:inherit;
     border-radius:var(--r-sm); border:1px solid var(--border);
     background:var(--bg); color:var(--text) }
-  textarea:focus, input:focus{ outline:none; border-color:var(--accent) }
+  textarea:focus, input:focus, select:focus{ outline:none; border-color:var(--accent) }
   textarea{ min-height:180px; resize:vertical }
   .stack{ display:flex; flex-direction:column; gap:var(--sp-3) }
   .split{ display:flex; gap:var(--sp-2) }
   .split .btn{ flex:1 }
-  .timer{ font-variant-numeric:tabular-nums; font-size:30px; font-weight:800;
-    text-align:center; margin:var(--sp-2) 0 }
-  .dialog-line{ background:var(--card); border:1px solid var(--border);
+  .timer{ font-variant-numeric:tabular-nums; font-size:42px; font-weight:800;
+    text-align:center; margin:var(--sp-3) 0 }
+  .timer.mini{ font-size:26px; margin:var(--sp-1) 0 }
+  .dialog-line{ background:var(--card-2); border:1px solid var(--border);
     border-radius:var(--r-md); padding:var(--sp-3) var(--sp-4); margin-bottom:var(--sp-2);
     font-size:var(--fs-body) }
-  .dialog-line.me{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, transparent) }
-  .statgrid{ display:grid; grid-template-columns:1fr auto; gap:var(--sp-2) var(--sp-3);
-    align-items:center; font-size:var(--fs-sm) }
+  .dialog-line.me{ border-color:var(--accent);
+    background:color-mix(in srgb, var(--accent) 10%, transparent) }
   .wc{ font-size:var(--fs-h2); font-weight:800; text-align:center; margin:var(--sp-2) 0 }
+
+  /* ── план ── */
   .plan-week{ display:flex; gap:var(--sp-3); padding:var(--sp-2) 0;
     border-bottom:1px solid var(--border); font-size:var(--fs-sm) }
   .plan-week:last-child{ border-bottom:none }
   .plan-week .nr{ flex:0 0 22px; font-weight:800; color:var(--hint) }
   .plan-week.now .nr{ color:var(--accent) }
   .plan-week.now{ font-weight:700 }
+  .todo{ display:flex; align-items:center; gap:var(--sp-3); padding:10px 0;
+    border-bottom:1px solid var(--border); font-size:var(--fs-body) }
+  .todo:last-child{ border-bottom:none }
+  .todo .st{ flex:0 0 22px; text-align:center }
+  .todo .lbl{ flex:1 } .todo .min{ color:var(--hint); font-size:var(--fs-sm) }
+  .todo.done .lbl{ color:var(--hint) }
+
+  /* ── результаты ── */
+  .wyn-row{ padding:var(--sp-3) 0; border-bottom:1px solid var(--border) }
+  .wyn-row:last-child{ border-bottom:none }
+  .wyn-head{ display:flex; align-items:baseline; gap:var(--sp-2); margin-bottom:6px }
+  .wyn-head .d{ color:var(--hint); font-size:var(--fs-xs); margin-left:auto }
+  .wyn-mods{ display:flex; flex-wrap:wrap; gap:6px }
+  .trendline{ font-variant-numeric:tabular-nums; font-size:var(--fs-sm) }
+
+  /* ── экзамен ── */
+  .exam-table{ width:100%; font-size:var(--fs-body); border-collapse:collapse }
+  .exam-table td{ padding:7px 0; border-bottom:1px solid var(--border) }
+  .exam-table tr:last-child td{ border-bottom:none; font-weight:800 }
+  .exam-table td:last-child{ text-align:right; font-variant-numeric:tabular-nums }
+  .warnbox{ border:1px solid var(--red); border-radius:var(--r-md);
+    padding:var(--sp-3) var(--sp-4); font-size:var(--fs-sm); margin:var(--sp-3) 0 }
+  .warnbox b{ color:var(--red) }
 </style>
 </head>
 <body>
   <div id="app"><div class="state">Ładowanie…</div></div>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>

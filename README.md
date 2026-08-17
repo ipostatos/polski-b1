@@ -6,7 +6,7 @@
 <p align="center">
   <a href="https://ipostatos.github.io/polski-b1/webapp/">Mini App</a> ·
   <a href="https://t.me/Pl_B1_bot">@Pl_B1_bot</a> ·
-  <a href="docs/PROGRAM.md">программа 8 недель</a> ·
+  <a href="docs/PROGRAM.md">программа 9 недель</a> ·
   <a href="docs/EXAM_SPEC.md">спецификация экзамена</a>
 </p>
 
@@ -69,11 +69,15 @@ python bot/bot.py
 мог бы присвоить первый нажавший `/start`). Прогресс лежит в `moje/postep.db`
 (не коммитится).
 
-**Mini App** — [ipostatos.github.io/polski-b1/webapp](https://ipostatos.github.io/polski-b1/webapp/):
-полностью статическое приложение в нативном стиле Telegram. Хаб плашек, те же
-тренажёры, что в боте, счётчик объёма письма, таймер устной части, план
-и статистика (localStorage). После деплоя Pages адрес вписывается в `WEBAPP_URL`
-в `.env` — бот добавит кнопку меню.
+**Mini App** — личный дашборд подготовки: индекс готовности с прозрачной
+формулой (`bot/gotowosc.py`), пять модулей с порогами и трендами, очередь
+повторения SRS, план дня с отметками, heatmap активности за 12 недель,
+Error Map, история моков и режим реального экзамена (тайминги 25/45/45/75,
+перерывы, вердикт по каждому модулю отдельно). Источник прогресса один —
+SQLite бота: Mini App ходит в API (`bot/api.py`), подпись initData проверяется
+на сервере. Вне Telegram приложение открывается, но прогресс не сохраняется.
+Адрес вписывается в `WEBAPP_URL` в `.env`, API включается `API_PORT`
+(см. `deploy/SETUP.md`).
 
 ## Команды бота
 
@@ -114,6 +118,6 @@ python bot/bot.py
 | [`docs/GRAMATYKA_B1.md`](docs/GRAMATYKA_B1.md) | официальный инвентарь грамматики B1 — граница «что учить, чтобы не учить лишнее» |
 | [`docs/SOURCES.md`](docs/SOURCES.md) | источники и правовая рамка |
 
-Тесты: `python -m pytest bot/test_bot.py -q` — 37 штук, сеть не трогают.
+Тесты: `python -m pytest bot/ -q` — 78 штук (бот + дашборд/API), сеть не трогают.
 CI дополнительно собирает тетрадь и проверяет извлекаемый из PDF текст
 (кириллица и диакритика).

@@ -15,9 +15,41 @@ python3 -m venv /opt/polski-b1/venv
 # секреты: скопировать локальный .env, вписать WEBAPP_URL, права root:polskib1 640
 # база прогресса: scp moje/postep.db на сервер в app/moje/ (владелец polskib1)
 
-# служба
+# служба (первый запуск; дальше unit переустанавливает каждый release.sh,
+# так что правки deploy/polski-b1.service доезжают обычной выкладкой)
 cp /opt/polski-b1/app/deploy/polski-b1.service /etc/systemd/system/
 systemctl daemon-reload && systemctl enable --now polski-b1
+```
+
+## API дашборда + Mini App с сервера (дополнение)
+
+В `.env` добавить `API_PORT=4300` (localhost-only, наружу — Caddy).
+В `/etc/caddy/Caddyfile` добавить сайт (и `systemctl reload caddy`):
+
+```caddyfile
+polski-b1-46-224-220-94.sslip.io {
+        handle /api/* {
+                reverse_proxy 127.0.0.1:4300
+        }
+        # статика Mini App: ТОЛЬКО webapp и data — .env и moje наружу не смотрят
+        handle /webapp/* {
+                root * /opt/polski-b1/app
+                header Cache-Control "no-cache"
+                file_server
+        }
+        handle /data/* {
+                root * /opt/polski-b1/app
+                file_server
+        }
+        respond 404
+}
+```
+
+После этого `WEBAPP_URL=https://polski-b1-46-224-220-94.sslip.io/webapp/`
+(same-origin с API). Вариант GitHub Pages остаётся рабочим: адрес Pages
+разрешён в CORS API.
+
+```bash
 
 # бэкап (root-крон)
 ( crontab -l; echo '8 3 * * * /opt/polski-b1/app/deploy/backup.sh >> /var/log/polski-b1-backup.log 2>&1' ) | crontab -
