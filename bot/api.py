@@ -233,10 +233,15 @@ def zbuduj_api(bot_token: str, owner_id: int) -> web.Application:
     async def api_mok(request: web.Request) -> web.Response:
         """Мок целиком: валидация всех модулей → одна транзакция → вердикт
         сервера. Штамп ZDANY/NIEZDANY фронт показывает только из этого ответа —
-        никаких локальных вердиктов поверх наполовину записанных данных."""
+        никаких локальных вердиктов поверх наполовину записанных данных.
+
+        `attempt_id` (UUID попытки от клиента) делает retry безопасным: если
+        ответ потерялся в сети после COMMIT, повторный POST не создаёт вторую
+        попытку, а возвращает вердикт по уже записанным строкам."""
         uid = autoryzuj(request)
         cialo = await request.json()
         sesja = str(cialo.get("sesja", ""))[:32] or date.today().isoformat()
+        attempt_id = str(cialo.get("attempt_id", ""))[:64] or None
         surowe = cialo.get("wyniki")
         if not isinstance(surowe, dict) or not surowe:
             raise web.HTTPBadRequest(text="wyniki: {modul: punkty} wymagane")
@@ -252,8 +257,14 @@ def zbuduj_api(bot_token: str, owner_id: int) -> web.Application:
             if not 0 <= punkty <= maks:
                 raise web.HTTPBadRequest(text=f"{modul}: punkty poza zakresem 0–{maks}")
             wiersze.append((modul, punkty, maks))
-        storage.zapisz_wyniki_moka(uid, sesja, wiersze)     # одна транзакция
-        storage.zaloguj_aktywnosc(uid, "mok")
+        if storage.zapisz_wyniki_moka(uid, sesja, wiersze, attempt_id):
+            storage.zaloguj_aktywnosc(uid, "mok")
+        else:
+            # повтор попытки после потерянного ответа: вердикт строим из того,
+            # что уже лежит в базе, и активность второй раз не увеличиваем
+            zapisana = storage.wyniki_proby(uid, attempt_id)
+            if zapisana:
+                sesja, wiersze = zapisana
         statusy = {}
         for modul, punkty, maks in wiersze:
             _, _, prog, cel = content.MODULY[modul]

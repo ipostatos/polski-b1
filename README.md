@@ -6,7 +6,7 @@
 <p align="center">
   <a href="https://ipostatos.github.io/polski-b1/webapp/">Mini App</a> ·
   <a href="https://t.me/Pl_B1_bot">@Pl_B1_bot</a> ·
-  <a href="docs/PROGRAM.md">программа 8 недель</a> ·
+  <a href="docs/PROGRAM.md">программа 9 недель</a> ·
   <a href="docs/EXAM_SPEC.md">спецификация экзамена</a>
 </p>
 
@@ -118,6 +118,6 @@ SQLite бота: Mini App ходит в API (`bot/api.py`), подпись initD
 | [`docs/GRAMATYKA_B1.md`](docs/GRAMATYKA_B1.md) | официальный инвентарь грамматики B1 — граница «что учить, чтобы не учить лишнее» |
 | [`docs/SOURCES.md`](docs/SOURCES.md) | источники и правовая рамка |
 
-Тесты: `python -m pytest bot/test_bot.py -q` — 37 штук, сеть не трогают.
+Тесты: `python -m pytest bot/ -q` — 78 штук (бот + дашборд/API), сеть не трогают.
 CI дополнительно собирает тетрадь и проверяет извлекаемый из PDF текст
 (кириллица и диакритика).

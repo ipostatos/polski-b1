@@ -15,7 +15,8 @@ python3 -m venv /opt/polski-b1/venv
 # секреты: скопировать локальный .env, вписать WEBAPP_URL, права root:polskib1 640
 # база прогресса: scp moje/postep.db на сервер в app/moje/ (владелец polskib1)
 
-# служба
+# служба (первый запуск; дальше unit переустанавливает каждый release.sh,
+# так что правки deploy/polski-b1.service доезжают обычной выкладкой)
 cp /opt/polski-b1/app/deploy/polski-b1.service /etc/systemd/system/
 systemctl daemon-reload && systemctl enable --now polski-b1
 ```

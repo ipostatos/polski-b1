@@ -36,13 +36,14 @@ CREATE TABLE IF NOT EXISTS bledy (
 );
 
 CREATE TABLE IF NOT EXISTS wyniki (
-    id      INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    sesja   TEXT    NOT NULL,
-    modul   TEXT    NOT NULL,
-    punkty  REAL    NOT NULL,
-    maks    REAL    NOT NULL,
-    kiedy   TEXT    NOT NULL
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL,
+    sesja      TEXT    NOT NULL,
+    modul      TEXT    NOT NULL,
+    punkty     REAL    NOT NULL,
+    maks       REAL    NOT NULL,
+    kiedy      TEXT    NOT NULL,
+    attempt_id TEXT
 );
 
 CREATE TABLE IF NOT EXISTS prace (
@@ -87,6 +88,14 @@ def _conn() -> sqlite3.Connection:
 def init() -> None:
     with _conn() as c:
         c.executescript(SCHEMA)
+        # миграция прод-базы: attempt_id появился после первых выкладок
+        kolumny = {r["name"] for r in c.execute("PRAGMA table_info(wyniki)")}
+        if "attempt_id" not in kolumny:
+            c.execute("ALTER TABLE wyniki ADD COLUMN attempt_id TEXT")
+        # страховочный уникальный индекс поверх явной проверки в zapisz_wyniki_moka
+        c.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS wyniki_attempt "
+            "ON wyniki(user_id, attempt_id, modul) WHERE attempt_id IS NOT NULL")
 
 
 # ------------------------------------------------------------------ SRS
@@ -204,16 +213,42 @@ def zapisz_wynik(user_id: int, sesja: str, modul: str, punkty: float, maks: floa
 
 
 def zapisz_wyniki_moka(user_id: int, sesja: str,
-                       wyniki: list[tuple[str, float, float]]) -> None:
+                       wyniki: list[tuple[str, float, float]],
+                       attempt_id: str | None = None) -> bool:
     """Все модули мока одной транзакцией: либо записан весь мок, либо ничего.
-    `wyniki` — [(модуль, баллы, макс)]."""
+    `wyniki` — [(модуль, баллы, макс)].
+
+    `attempt_id` делает запись идемпотентной: если соединение оборвалось после
+    COMMIT, но до ответа клиенту, повторный POST той же попытки ничего не
+    дублирует — возвращаем False, а записанное достаётся wyniki_proby().
+    BEGIN IMMEDIATE держит проверку и вставку в одной транзакции."""
     kiedy = datetime.now().isoformat(" ", "seconds")
     with _conn() as c:
+        c.execute("BEGIN IMMEDIATE")
+        if attempt_id and c.execute(
+                "SELECT 1 FROM wyniki WHERE user_id=? AND attempt_id=? LIMIT 1",
+                (user_id, attempt_id)).fetchone():
+            return False
         c.executemany(
-            "INSERT INTO wyniki (user_id,sesja,modul,punkty,maks,kiedy) VALUES (?,?,?,?,?,?)",
-            [(user_id, sesja, modul, punkty, maks, kiedy)
+            "INSERT INTO wyniki (user_id,sesja,modul,punkty,maks,kiedy,attempt_id) "
+            "VALUES (?,?,?,?,?,?,?)",
+            [(user_id, sesja, modul, punkty, maks, kiedy, attempt_id)
              for modul, punkty, maks in wyniki],
         )
+    return True
+
+
+def wyniki_proby(user_id: int, attempt_id: str,
+                 ) -> tuple[str, list[tuple[str, float, float]]] | None:
+    """Ранее записанная попытка мока: (сессия, [(модуль, баллы, макс)]) или None."""
+    with _conn() as c:
+        rows = c.execute(
+            "SELECT sesja, modul, punkty, maks FROM wyniki "
+            "WHERE user_id=? AND attempt_id=? ORDER BY id",
+            (user_id, attempt_id)).fetchall()
+    if not rows:
+        return None
+    return rows[0]["sesja"], [(r["modul"], r["punkty"], r["maks"]) for r in rows]
 
 
 def ostatnie_wyniki(user_id: int) -> dict[str, tuple[float, float, str]]:

@@ -243,6 +243,36 @@ def test_mok_atomowy(baza):
     assert len(h) == 2 and {w["modul"] for w in h} == {"gramatyka", "pisanie"}
 
 
+def test_mok_idempotentny_po_attempt_id(baza):
+    """Повторная запись той же попытки (retry после потерянного ответа)
+    не дублирует строки; без attempt_id поведение прежнее."""
+    uid = baza
+    wiersze = [("gramatyka", 18, 30), ("pisanie", 20, 30)]
+    assert storage.zapisz_wyniki_moka(uid, "2021-11", wiersze, attempt_id="p-1") is True
+    assert storage.zapisz_wyniki_moka(uid, "2021-11", wiersze, attempt_id="p-1") is False
+    assert len(storage.historia_wynikow(uid)) == 2
+    assert storage.wyniki_proby(uid, "p-1") == ("2021-11", wiersze)
+    assert storage.wyniki_proby(uid, "nieznana") is None
+    storage.zapisz_wyniki_moka(uid, "2021-11", wiersze)
+    storage.zapisz_wyniki_moka(uid, "2021-11", wiersze)
+    assert len(storage.historia_wynikow(uid)) == 6
+
+
+def test_migracja_dodaje_attempt_id(tmp_path, monkeypatch):
+    """init() дотягивает прод-базу, созданную до появления attempt_id."""
+    monkeypatch.setattr(storage, "DB_PATH", tmp_path / "postep.db")
+    with storage._conn() as c:
+        c.execute("CREATE TABLE wyniki (id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                  "user_id INTEGER NOT NULL, sesja TEXT NOT NULL, modul TEXT NOT NULL, "
+                  "punkty REAL NOT NULL, maks REAL NOT NULL, kiedy TEXT NOT NULL)")
+        c.execute("INSERT INTO wyniki (user_id,sesja,modul,punkty,maks,kiedy) "
+                  "VALUES (7,'2021-11','gramatyka',18,30,'2026-08-01 10:00:00')")
+    storage.init()
+    assert storage.zapisz_wyniki_moka(7, "2024-06", [("pisanie", 20, 30)],
+                                      attempt_id="p-2") is True
+    assert len(storage.historia_wynikow(7)) == 2
+
+
 # ------------------------------------------------------------------ initData
 
 
@@ -424,6 +454,27 @@ def test_api_mok_atomowy_i_werdykt(baza):
             "sesja": "6_B1_PG", "wyniki": {"gramatyka": 22}})
         d = await r.json()
         assert d["zdany"] is None
+    klient(scenariusz)
+
+
+def test_api_mok_retry_po_utracie_odpowiedzi(baza):
+    """Сеть умерла после COMMIT, но до ответа: браузер шлёт тот же POST ещё
+    раз. Второй раз — тот же вердикт, строк по-прежнему 5, активность не ×2."""
+    naglowki = {"Authorization": "tma " + init_data_dla(OWNER)}
+    cialo = {"sesja": "2021-11",
+             "attempt_id": "550e8400-e29b-41d4-a716-446655440000",
+             "wyniki": {"sluchanie": 21, "czytanie": 23, "gramatyka": 14.5,
+                        "pisanie": 20, "mowienie": 25}}
+
+    async def scenariusz(cl):
+        r1 = await cl.post("/api/mok", headers=naglowki, json=cialo)
+        assert r1.status == 200
+        d1 = await r1.json()
+        r2 = await cl.post("/api/mok", headers=naglowki, json=cialo)
+        assert r2.status == 200
+        assert await r2.json() == d1
+        assert len(storage.historia_wynikow(OWNER)) == 5      # не 10
+        assert storage.aktywnosc_dzis(OWNER).get("mok") == 1  # не 2
     klient(scenariusz)
 
 

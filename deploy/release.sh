@@ -25,9 +25,14 @@ ssh "$HOST" "
     chown -R root:root $APP
     chown root:polskib1 $APP/.env && chmod 640 $APP/.env
     chown -R polskib1:polskib1 $APP/moje
+    # юнит из репо — source of truth: без установки правка unit-файла
+    # молча не доезжала бы (systemd читает /etc/systemd/system, не \$APP)
+    install -m 644 $APP/deploy/polski-b1.service /etc/systemd/system/polski-b1.service
+    systemctl daemon-reload
     systemctl restart polski-b1
     sleep 3
     systemctl is-active polski-b1
+    systemctl show polski-b1 -p Environment | grep -F 'TZ=Europe/Warsaw'
     journalctl -u polski-b1 -n 5 --no-pager
 "
 

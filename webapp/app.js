@@ -719,6 +719,12 @@ function egzaminStan() {
 function egzaminZapisz(stan) {
   sessionStorage.setItem(EXAM_KLUCZ_SS, JSON.stringify(stan));
 }
+/* id попытки: сервер по нему отличает retry от новой попытки, когда ответ
+   на POST /api/mok потерялся в сети уже после записи */
+function idProby() {
+  return crypto.randomUUID ? crypto.randomUUID()
+    : Date.now().toString(36) + "-" + Math.random().toString(36).slice(2);
+}
 function egzaminWyczysc() {
   sessionStorage.removeItem(EXAM_KLUCZ_SS);
   if (tg) tg.disableClosingConfirmation();
@@ -728,7 +734,7 @@ function egzaminWyczysc() {
 function egzaminWznow() {
   const stan = egzaminStan();
   if (!stan || !S.cfg) return false;
-  if (stan.faza === "wynik") { egzaminWynik(stan.sesja); return true; }
+  if (stan.faza === "wynik") { egzaminWynik(stan); return true; }
   if (tg) tg.enableClosingConfirmation();
   if (stan.faza === "modul") {
     if (Date.now() < stan.koniec) egzaminModul(stan);
@@ -773,7 +779,8 @@ function widokEgzamin() {
         const sesja = document.getElementById("sesja").value.trim()
           || isoLokalne(new Date());
         if (tg) tg.enableClosingConfirmation();
-        const stan = { sesja, idx: 0, faza: "modul", start: Date.now(),
+        const stan = { sesja, proba: idProby(),
+                       idx: 0, faza: "modul", start: Date.now(),
                        koniec: Date.now() + S.cfg.timing[EXAM_KOLEJNOSC[0]] * 60000,
                        oddany: false };
         egzaminZapisz(stan);
@@ -855,7 +862,7 @@ function egzaminPoModule(stan) {
   } else {
     const nowy = { ...stan, faza: "wynik" };
     egzaminZapisz(nowy);
-    egzaminWynik(stan.sesja);
+    egzaminWynik(nowy);
   }
 }
 
@@ -890,8 +897,11 @@ function egzaminPrzerwa(stan) {
     }});
 }
 
-function egzaminWynik(sesja) {
+function egzaminWynik(stan) {
   const cfg = S.cfg;
+  const sesja = stan.sesja;
+  /* чекпоинт, созданный до появления id попытки, дополняем на месте */
+  if (!stan.proba) { stan.proba = idProby(); egzaminZapisz(stan); }
   const pola = Object.entries(cfg.moduly).map(([k, m]) => `
     <label style="display:block; margin-bottom:var(--sp-3); font-size:var(--fs-sm)">
       ${esc(m.nazwa)} <span class="muted">/ ${m.maks}${k === "mowienie" ? " · опционально" : ""}</span>
@@ -915,9 +925,11 @@ function egzaminWynik(sesja) {
         if (!Object.keys(wpisane).length) { this.disabled = false; return; }
         const w = document.getElementById("werdykt");
         if (S.authed) {
-          /* мок пишется атомарно; штамп — ТОЛЬКО из ответа сервера */
+          /* мок пишется атомарно; штамп — ТОЛЬКО из ответа сервера;
+             attempt_id делает повторное нажатие после обрыва сети безопасным */
           try {
-            const r = await api("/api/mok", { sesja, wyniki: wpisane });
+            const r = await api("/api/mok",
+              { sesja, attempt_id: stan.proba, wyniki: wpisane });
             egzaminWyczysc();
             pokazWerdykt(r);
           } catch (e) {
