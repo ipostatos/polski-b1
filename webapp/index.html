@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Polski B1</title>
-<link rel="stylesheet" href="theme.css?v=2">
+<link rel="stylesheet" href="theme.css?v=3">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   /* ── каркас ── */
@@ -59,6 +59,21 @@
   .todo .st{ flex:0 0 22px; text-align:center }
   .todo .lbl{ flex:1 } .todo .min{ color:var(--hint); font-size:var(--fs-sm) }
   .todo.done .lbl{ color:var(--hint) }
+  .todo.done .st{ color:var(--ok) }
+  .todo.tap{ cursor:pointer; min-height:44px }
+  .todo.tap .chev{ color:var(--hint); flex:0 0 auto }
+  .todo.tap:active{ opacity:.7 }
+
+  /* ── говорение ── */
+  .z1-img{ display:block; width:100%; height:auto; aspect-ratio:4/3;
+    object-fit:cover; border-radius:var(--r-md); background:var(--card-2);
+    margin:0 0 var(--sp-3) }
+  .task-steps{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:var(--sp-2) }
+
+  /* ── правила экзамена: компактный список вместо красного абзаца ── */
+  .rules .rule{ display:flex; gap:var(--sp-2); padding:5px 0;
+    font-size:var(--fs-sm); line-height:1.4 }
+  .rules .ok-mark{ color:var(--ok); flex:0 0 16px; font-weight:700 }
 
   /* ── результаты ── */
   .wyn-row{ padding:var(--sp-3) 0; border-bottom:1px solid var(--border) }
@@ -73,13 +88,10 @@
   .exam-table td{ padding:7px 0; border-bottom:1px solid var(--border) }
   .exam-table tr:last-child td{ border-bottom:none; font-weight:800 }
   .exam-table td:last-child{ text-align:right; font-variant-numeric:tabular-nums }
-  .warnbox{ border:1px solid var(--red); border-radius:var(--r-md);
-    padding:var(--sp-3) var(--sp-4); font-size:var(--fs-sm); margin:var(--sp-3) 0 }
-  .warnbox b{ color:var(--red) }
 </style>
 </head>
 <body>
   <div id="app"><div class="state">Ładowanie…</div></div>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

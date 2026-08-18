@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Ludzie czekają na peronie zimą">
+  <!-- Zadanie 1 · M-02: grupa ludzi czeka na peronie, zima, opóźnienie -->
+  <rect width="800" height="600" fill="#DDE6EF"/>
+  <rect y="470" width="800" height="130" fill="#EFF3F7"/>
+  <rect y="452" width="800" height="18" fill="#B9C4D0"/>
+  <!-- поезд -->
+  <rect x="470" y="180" width="330" height="250" rx="26" fill="#5B7089"/>
+  <rect x="470" y="180" width="330" height="60" rx="26" fill="#4A5D74"/>
+  <g fill="#C9D8E8">
+    <rect x="502" y="262" width="64" height="66" rx="10"/>
+    <rect x="586" y="262" width="64" height="66" rx="10"/>
+    <rect x="670" y="262" width="64" height="66" rx="10"/>
+  </g>
+  <rect x="482" y="404" width="306" height="14" rx="7" fill="#3A4B60"/>
+  <circle cx="560" cy="446" r="17" fill="#3A4B60"/>
+  <circle cx="700" cy="446" r="17" fill="#3A4B60"/>
+  <!-- табло с задержкой (нечитаемое) -->
+  <rect x="70" y="90" width="240" height="100" rx="12" fill="#2E3A4C"/>
+  <rect x="70" y="190" width="14" height="262" fill="#8B98AC"/>
+  <g fill="#E0A13A" opacity=".85">
+    <rect x="92" y="112" width="120" height="12" rx="6"/>
+    <rect x="92" y="140" width="86" height="12" rx="6"/>
+  </g>
+  <g fill="#C7495B" opacity=".9">
+    <rect x="92" y="168" width="150" height="12" rx="6"/>
+    <rect x="252" y="112" width="36" height="12" rx="6"/>
+  </g>
+  <!-- люди в пальто -->
+  <g>
+    <circle cx="160" cy="268" r="24" fill="#E8C49C"/>
+    <path d="M138 258 a24 24 0 0 1 44 -2 z" fill="#2E3A4C"/>
+    <rect x="132" y="294" width="56" height="118" rx="22" fill="#7A4B5A"/>
+    <rect x="140" y="406" width="17" height="60" rx="8" fill="#2E3A4C"/>
+    <rect x="163" y="406" width="17" height="60" rx="8" fill="#2E3A4C"/>
+    <rect x="126" y="300" width="14" height="26" rx="7" fill="#C9D8E8"/>
+  </g>
+  <g>
+    <circle cx="262" cy="276" r="24" fill="#E8C49C"/>
+    <path d="M240 268 a24 24 0 0 1 44 -4 z" fill="#6B4A2F"/>
+    <rect x="234" y="302" width="56" height="112" rx="22" fill="#41597A"/>
+    <rect x="242" y="408" width="17" height="58" rx="8" fill="#2E3A4C"/>
+    <rect x="265" y="408" width="17" height="58" rx="8" fill="#2E3A4C"/>
+    <rect x="252" y="252" width="22" height="8" rx="4" fill="#41597A"/>
+  </g>
+  <g>
+    <circle cx="368" cy="284" r="22" fill="#E8C49C"/>
+    <path d="M348 276 a22 22 0 0 1 40 -3 z" fill="#2E3A4C"/>
+    <rect x="342" y="308" width="52" height="104" rx="21" fill="#4E7D5B"/>
+    <rect x="349" y="406" width="16" height="58" rx="8" fill="#2E3A4C"/>
+    <rect x="371" y="406" width="16" height="58" rx="8" fill="#2E3A4C"/>
+    <rect x="386" y="356" width="34" height="44" rx="8" fill="#8B6B4A"/>
+  </g>
+  <!-- снег -->
+  <g fill="#FFFFFF" opacity=".85">
+    <circle cx="90" cy="60" r="5"/><circle cx="200" cy="40" r="4"/>
+    <circle cx="330" cy="70" r="5"/><circle cx="420" cy="36" r="4"/>
+    <circle cx="540" cy="80" r="5"/><circle cx="640" cy="46" r="4"/>
+    <circle cx="730" cy="100" r="5"/><circle cx="380" cy="140" r="4"/>
+    <circle cx="60 " cy="200" r="4"/><circle cx="440" cy="220" r="4"/>
+    <circle cx="300" cy="180" r="5"/><circle cx="700" cy="150" r="4"/>
+  </g>
+  <ellipse cx="400" cy="560" rx="360" ry="18" fill="#FFFFFF" opacity=".7"/>
+</svg>

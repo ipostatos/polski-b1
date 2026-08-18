@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Oglądanie mieszkania z pośrednikiem">
+  <!-- Zadanie 1 · M-06: dwie osoby oglądają mieszkanie z pośrednikiem, notatki -->
+  <rect width="800" height="600" fill="#EEE8DF"/>
+  <!-- пол -->
+  <rect y="440" width="800" height="160" fill="#D6B98C"/>
+  <g stroke="#C2A374" stroke-width="4">
+    <path d="M0 480 h800"/><path d="M0 530 h800"/>
+    <path d="M160 440 v160"/><path d="M400 440 v160"/><path d="M620 440 v160"/>
+  </g>
+  <!-- окно с видом -->
+  <rect x="470" y="80" width="240" height="220" rx="10" fill="#C9D8E8"/>
+  <path d="M470 240 l70 -50 60 34 60 -44 50 30 v90 h-240 z" fill="#A9C2D8"/>
+  <circle cx="530" cy="130" r="24" fill="#F2E3B8"/>
+  <g stroke="#EEE8DF" stroke-width="10"><path d="M590 80 v220"/></g>
+  <rect x="470" y="80" width="240" height="220" rx="10" fill="none" stroke="#B9AE99" stroke-width="8"/>
+  <!-- дверь -->
+  <rect x="70" y="120" width="130" height="330" rx="8" fill="#A8875A"/>
+  <rect x="88" y="140" width="94" height="130" rx="6" fill="#C9A876"/>
+  <rect x="88" y="290" width="94" height="130" rx="6" fill="#C9A876"/>
+  <circle cx="182" cy="292" r="8" fill="#5B4A3A"/>
+  <!-- агент: жестом показывает комнату -->
+  <circle cx="330" cy="222" r="26" fill="#E8C49C"/>
+  <path d="M306 214 a26 26 0 0 1 48 -4 z" fill="#2E3A4C"/>
+  <rect x="302" y="252" width="58" height="116" rx="24" fill="#3A4B60"/>
+  <rect x="316" y="252" width="30" height="52" rx="8" fill="#E7E2D2"/>
+  <rect x="354" y="270" width="56" height="14" rx="7" fill="#3A4B60"/>
+  <circle cx="416" cy="278" r="9" fill="#E8C49C"/>
+  <rect x="310" y="364" width="18" height="72" rx="8" fill="#2E3A4C"/>
+  <rect x="334" y="364" width="18" height="72" rx="8" fill="#2E3A4C"/>
+  <!-- посетитель с блокнотом -->
+  <circle cx="540" cy="352" r="24" fill="#D9A878"/>
+  <path d="M518 344 a24 24 0 0 1 44 -2 z" fill="#6B4A2F"/>
+  <rect x="512" y="378" width="56" height="100" rx="23" fill="#4CAF72"/>
+  <rect x="520" y="472" width="17" height="60" rx="8" fill="#3A4557"/>
+  <rect x="543" y="472" width="17" height="60" rx="8" fill="#3A4557"/>
+  <rect x="560" y="400" width="40" height="14" rx="7" fill="#4CAF72"/>
+  <rect x="592" y="384" width="40" height="52" rx="6" fill="#E7E2D2"/>
+  <path d="M600 396 h24 M600 408 h24 M600 420 h16" stroke="#8B98AC" stroke-width="4" stroke-linecap="round"/>
+  <!-- второй посетитель -->
+  <circle cx="676" cy="360" r="23" fill="#E8C49C"/>
+  <path d="M656 352 a23 23 0 0 1 42 -4 l0 10 z" fill="#2E3A4C"/>
+  <rect x="650" y="386" width="52" height="94" rx="22" fill="#C7495B"/>
+  <rect x="657" y="474" width="16" height="56" rx="8" fill="#2E3A4C"/>
+  <rect x="679" y="474" width="16" height="56" rx="8" fill="#2E3A4C"/>
+</svg>

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Starsza osoba karmi gołębie w parku">
+  <!-- Zadanie 1 · M-04: starsza osoba karmi gołębie, obok przechodzą dwie osoby -->
+  <rect width="800" height="600" fill="#D9E4EC"/>
+  <rect y="420" width="800" height="180" fill="#B9C09A"/>
+  <path d="M0 470 q400 -40 800 10 v120 H0 z" fill="#C8BC9C"/>
+  <!-- деревья -->
+  <g>
+    <rect x="96" y="250" width="20" height="130" fill="#7A5A3A"/>
+    <circle cx="106" cy="210" r="70" fill="#D98E4A"/>
+    <circle cx="60" cy="250" r="40" fill="#E0A13A"/>
+    <rect x="660" y="230" width="22" height="150" fill="#7A5A3A"/>
+    <circle cx="671" cy="190" r="76" fill="#E0A13A"/>
+    <circle cx="730" cy="240" r="42" fill="#D98E4A"/>
+  </g>
+  <!-- скамейка -->
+  <g fill="#8B6B4A">
+    <rect x="300" y="352" width="200" height="16" rx="6"/>
+    <rect x="300" y="316" width="200" height="12" rx="6"/>
+    <rect x="308" y="368" width="14" height="70"/>
+    <rect x="478" y="368" width="14" height="70"/>
+  </g>
+  <!-- пожилой человек на скамейке -->
+  <circle cx="380" cy="240" r="26" fill="#E8C49C"/>
+  <path d="M356 232 a26 26 0 0 1 48 -4 z" fill="#C9CBCF"/>
+  <rect x="352" y="268" width="58" height="90" rx="22" fill="#7A4B5A"/>
+  <rect x="358" y="352" width="46" height="18" rx="8" fill="#5B4A6B"/>
+  <rect x="360" y="366" width="16" height="66" rx="8" fill="#2E3A4C"/>
+  <rect x="386" y="366" width="16" height="66" rx="8" fill="#2E3A4C"/>
+  <!-- рука с зерном -->
+  <rect x="400" y="292" width="52" height="14" rx="7" fill="#7A4B5A"/>
+  <circle cx="458" cy="300" r="9" fill="#E8C49C"/>
+  <g fill="#E7E2D2">
+    <circle cx="476" cy="352" r="3"/><circle cx="492" cy="372" r="3"/>
+    <circle cx="470" cy="386" r="3"/><circle cx="502" cy="396" r="3"/>
+  </g>
+  <!-- голуби -->
+  <g fill="#8B98AC">
+    <ellipse cx="500" cy="452" rx="22" ry="14"/>
+    <circle cx="520" cy="440" r="8"/>
+    <ellipse cx="556" cy="470" rx="20" ry="13"/>
+    <circle cx="574" cy="459" r="7"/>
+    <ellipse cx="452" cy="480" rx="21" ry="13"/>
+    <circle cx="434" cy="470" r="7"/>
+  </g>
+  <g stroke="#5B6B7E" stroke-width="3" stroke-linecap="round">
+    <path d="M500 466 v10"/><path d="M556 483 v9"/><path d="M452 493 v9"/>
+  </g>
+  <!-- прохожие -->
+  <g>
+    <circle cx="128" cy="330" r="21" fill="#D9A878"/>
+    <path d="M110 322 a21 21 0 0 1 38 -2 z" fill="#2E3A4C"/>
+    <rect x="106" y="354" width="46" height="86" rx="19" fill="#5B9BD9"/>
+    <rect x="112" y="436" width="14" height="52" rx="7" fill="#2E3A4C"/>
+    <rect x="132" y="436" width="14" height="52" rx="7" fill="#2E3A4C"/>
+  </g>
+  <g>
+    <circle cx="196" cy="336" r="20" fill="#E8C49C"/>
+    <path d="M178 330 a20 20 0 0 1 36 -4 l0 10 z" fill="#6B4A2F"/>
+    <rect x="176" y="358" width="42" height="82" rx="18" fill="#4CAF72"/>
+    <rect x="181" y="436" width="13" height="50" rx="6" fill="#3A4557"/>
+    <rect x="200" y="436" width="13" height="50" rx="6" fill="#3A4557"/>
+  </g>
+</svg>

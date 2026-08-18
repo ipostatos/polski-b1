@@ -11,7 +11,8 @@
         "Tak, mieszkanie jest jeszcze wolne. Czynsz to 2800 złotych plus media. A na jak długo chce Pani/Pan wynająć?",
         "Rozumiem. Obejrzeć można w tym tygodniu, ale tylko wieczorem. Który dzień Pani/Panu pasuje?",
         "Dobrze, w takim razie do zobaczenia. Proszę zadzwonić, gdyby coś się zmieniło. Do widzenia!"
-      ]
+      ],
+      "z1_image": "M-01.svg"
     },
     {
       "id": "M-02",
@@ -23,7 +24,8 @@
         "Bardzo przepraszam. Mogę zanieść danie z powrotem do kuchni, ale to potrwa około piętnastu minut. Co Pani/Pan woli?",
         "Oczywiście, już to załatwiam. Czy w ramach przeprosin mogę zaproponować deser na koszt restauracji?",
         "Jeszcze raz przepraszam za tę sytuację. Smacznego!"
-      ]
+      ],
+      "z1_image": "M-02.svg"
     },
     {
       "id": "M-03",
@@ -35,7 +37,8 @@
         "No weź, to tylko dwa dni. Obiecuję, że będę jeździł ostrożnie.",
         "Hmm, rozumiem… A może chociaż w niedzielę rano? Muszę odebrać szafę z drugiego końca miasta.",
         "No dobra, nie ma sprawy. Wymyślę coś innego. Dzięki, że mówisz szczerze."
-      ]
+      ],
+      "z1_image": "M-03.svg"
     },
     {
       "id": "M-04",
@@ -47,7 +50,8 @@
         "Najbliższy wolny termin u tego specjalisty jest za trzy tygodnie. Czy to Pani/Panu odpowiada?",
         "Rozumiem, że sprawa jest pilna. Mogę wpisać Panią/Pana na listę rezerwową albo zaproponować innego lekarza w piątek. Co Pani/Pan wybiera?",
         "Zapisane. Proszę przyjść piętnaście minut wcześniej z dokumentem. Do widzenia!"
-      ]
+      ],
+      "z1_image": "M-04.svg"
     },
     {
       "id": "M-05",
@@ -59,7 +63,8 @@
         "Naprawdę? Nie sądziłem, że tak dobrze to słychać. Przecież to tylko muzyka…",
         "No dobrze, rozumiem. A do której godziny by Pani/Panu nie przeszkadzało?",
         "W porządku, umowa stoi. Przepraszam za kłopot i dobranoc!"
-      ]
+      ],
+      "z1_image": "M-05.svg"
     },
     {
       "id": "M-06",
@@ -71,7 +76,8 @@
         "Mamy grupy dla początkujących i zaawansowanych, zajęcia we wtorki i czwartki. Dla kogo szuka Pani/Pan zajęć?",
         "Karnet miesięczny kosztuje 160 złotych, pierwsze zajęcia są bezpłatne. Chce się Pani/Pan zapisać na próbę?",
         "Świetnie, zapisuję na wtorek na osiemnastą. Proszę zabrać strój sportowy. Do zobaczenia!"
-      ]
+      ],
+      "z1_image": "M-06.svg"
     }
   ]
 }
