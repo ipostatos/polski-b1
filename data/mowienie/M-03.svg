@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Ludzie w różnym wieku pracują razem przy jednym stole">
+  <!-- Zadanie 1 · M-03: coworking, wspólna praca przy jednym stole -->
+  <rect width="800" height="600" fill="#EDEAE2"/>
+  <rect y="460" width="800" height="140" fill="#CBC2B0"/>
+  <!-- окно -->
+  <rect x="80" y="70" width="280" height="200" rx="10" fill="#C9D8E8"/>
+  <g stroke="#EDEAE2" stroke-width="10">
+    <path d="M220 70 v200"/><path d="M80 170 h280"/>
+  </g>
+  <rect x="80" y="70" width="280" height="200" rx="10" fill="none" stroke="#B9AE99" stroke-width="8"/>
+  <!-- растение -->
+  <rect x="676" y="330" width="52" height="52" rx="8" fill="#A8763E"/>
+  <g fill="#4E7D5B">
+    <ellipse cx="702" cy="292" rx="16" ry="42"/>
+    <ellipse cx="676" cy="304" rx="14" ry="34" transform="rotate(-24 676 304)"/>
+    <ellipse cx="728" cy="304" rx="14" ry="34" transform="rotate(24 728 304)"/>
+  </g>
+  <!-- стол -->
+  <rect x="120" y="380" width="560" height="26" rx="10" fill="#C9A876"/>
+  <rect x="150" y="406" width="22" height="150" fill="#A8875A"/>
+  <rect x="628" y="406" width="22" height="150" fill="#A8875A"/>
+  <!-- ноутбуки и блокнот -->
+  <g>
+    <rect x="200" y="352" width="86" height="10" rx="3" fill="#5B6B7E"/>
+    <path d="M212 352 l10 -34 h56 l10 34 z" fill="#7C8BA0"/>
+    <rect x="470" y="352" width="86" height="10" rx="3" fill="#5B6B7E"/>
+    <path d="M482 352 l10 -34 h56 l10 34 z" fill="#7C8BA0"/>
+    <rect x="330" y="356" width="64" height="10" rx="3" fill="#E7E2D2"/>
+    <rect x="596" y="356" width="14" height="34" rx="6" fill="#C7495B" transform="rotate(30 596 356)"/>
+  </g>
+  <!-- человек 1: старший, седой -->
+  <circle cx="180" cy="256" r="27" fill="#E8C49C"/>
+  <path d="M156 246 a27 27 0 0 1 48 -6 z" fill="#C9CBCF"/>
+  <rect x="150" y="286" width="60" height="96" rx="24" fill="#5B7089"/>
+  <!-- человек 2 -->
+  <circle cx="330" cy="240" r="26" fill="#D9A878"/>
+  <path d="M308 228 a26 26 0 0 1 44 -2 z" fill="#2E3A4C"/>
+  <rect x="302" y="270" width="56" height="112" rx="23" fill="#C7495B"/>
+  <!-- человек 3: молодой -->
+  <circle cx="512" cy="248" r="25" fill="#E8C49C"/>
+  <path d="M488 244 a25 25 0 0 1 50 -4 l-8 12 z" fill="#6B4A2F"/>
+  <rect x="484" y="276" width="56" height="106" rx="23" fill="#4CAF72"/>
+  <!-- человек 4 -->
+  <circle cx="640" cy="256" r="26" fill="#C98E62"/>
+  <path d="M616 250 a26 26 0 0 1 48 -8 l2 12 z" fill="#2E3A4C"/>
+  <rect x="612" y="286" width="58" height="96" rx="24" fill="#E0A13A"/>
+</svg>

@@ -7,6 +7,9 @@
 
 const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 if (tg) { tg.ready(); tg.expand(); }
+/* telegram-web-app.js создаёт window.Telegram.WebApp и в обычном браузере —
+   «мы внутри Telegram» определяется по initData, а не по наличию объекта */
+const W_TELEGRAMIE = !!(tg && tg.initData);
 
 /* API: same-origin за Caddy; на GitHub Pages — кросс-доменный fallback */
 const API_BASE = location.hostname.endsWith("github.io")
@@ -76,6 +79,23 @@ const MARK = `<svg class="mark" viewBox="0 0 30 30" aria-hidden="true">
   <rect x="7" y="17" width="6" height="6" rx="1.5" fill="#C7495B"/>
   <path d="M16 11h7M16 20h7" stroke="#8B98AC" stroke-width="1.6" stroke-linecap="round"/>
 </svg>`;
+
+/* единый набор простых stroke-иконок вместо разнобойных системных emoji:
+   монохром, цвет берётся из CSS (color плашки .ic-tile) */
+const IKONY = {
+  egzamin: `<path d="M12 3.5 22 8.5 12 13.5 2 8.5Z"/><path d="M6 11v4.4c0 1.7 2.7 3.1 6 3.1s6-1.4 6-3.1V11"/><path d="M22 8.5V14"/>`,
+  gram: `<path d="M3 16 7 6l4 10"/><path d="M4.5 12.5h5"/><path d="M13.5 14.5 16 17l4.5-4.5"/>`,
+  sluchanie: `<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4.5" height="6.5" rx="2"/><rect x="16.5" y="14" width="4.5" height="6.5" rx="2"/>`,
+  czasy: `<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3.2 2"/>`,
+  trans: `<path d="m17 3 4 4-4 4"/><path d="M21 7H8a5 5 0 0 0-5 5"/><path d="m7 21-4-4 4-4"/><path d="M3 17h13a5 5 0 0 0 5-5"/>`,
+  czytanie: `<path d="M2 4.5h6.5A3.5 3.5 0 0 1 12 8v12a3 3 0 0 0-3-2.5H2Z"/><path d="M22 4.5h-6.5A3.5 3.5 0 0 0 12 8v12a3 3 0 0 1 3-2.5h7Z"/>`,
+  pisanie: `<path d="M12 20h9"/><path d="M16.4 3.6a2.2 2.2 0 0 1 3.1 3.1L7.5 18.7 3 20l1.3-4.5Z"/>`,
+  mowienie: `<path d="M21 11.6a8.4 8.4 0 0 1-8.5 8.2 8.8 8.8 0 0 1-3.7-.8L3 20.6l1.7-5.2a8.2 8.2 0 1 1 16.3-3.8Z"/>`,
+  mapa: `<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2Z"/><path d="M9 4v14"/><path d="M15 6v14"/>`,
+  wyniki: `<path d="m3 16.5 5.5-5.5 4 4L21 7.5"/><path d="M15.5 7.5H21V13"/>`,
+};
+const ikona = n => `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+  stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IKONY[n]}</svg>`;
 
 /* ── учебные данные (те же id позиций, что в боте) ── */
 let D = null;
@@ -191,9 +211,11 @@ function render(name, html, opts = {}) {
   widok = name;
   if (aktywnyTimer) { clearInterval(aktywnyTimer); aktywnyTimer = null; }
   const back = name !== "home";
+  /* одна кнопка «назад», не две: в Telegram — только нативный BackButton,
+     собственный «‹ Назад» рисуем ТОЛЬКО вне Telegram (браузер/Pages) */
   if (tg) { back ? tg.BackButton.show() : tg.BackButton.hide(); }
   app.innerHTML = `
-    ${back ? `<header class="top"><button class="back" id="back">‹ Назад</button></header>` : ""}
+    ${back && !W_TELEGRAMIE ? `<header class="top"><button class="back" id="back">‹ Назад</button></header>` : ""}
     ${html}`;
   const b = document.getElementById("back");
   if (b) b.onclick = przeladujHome;
@@ -201,6 +223,19 @@ function render(name, html, opts = {}) {
   window.scrollTo(0, 0);
 }
 if (tg) tg.BackButton.onClick(() => { if (widok !== "home") przeladujHome(); });
+
+/* навигация по data-go — одна делегация на все экраны (плашки, чипы,
+   строки плана дня) вместо повторной подписки в каждом view */
+app.addEventListener("click", e => {
+  const el = e.target.closest("[data-go]");
+  if (el && VIEWS[el.dataset.go]) VIEWS[el.dataset.go]();
+});
+
+/* iOS: сфокусированное поле не должно прятаться за клавиатурой */
+document.addEventListener("focusin", e => {
+  if (e.target.matches("input, textarea"))
+    setTimeout(() => e.target.scrollIntoView({ block: "center", behavior: "smooth" }), 300);
+});
 
 async function przeladujHome() {
   if (S.authed) { try { S.dash = await api("/api/dashboard"); } catch (e) { /* оставляем прежний */ } }
@@ -241,23 +276,33 @@ function home() {
 
     /* ── готовность ── */
     const g = d.readiness;
-    const kolor = g.razem >= 70 ? "var(--ok)" : g.razem >= 50 ? "var(--warn)" : "var(--red)";
+    /* 0 замеренных модулей — это «нет данных», а не «знаю на 0%»: кольцо
+       нейтральное, без процента и без интерпретации уровня */
+    const bezZamiaru = !g.zmierzone;
+    const kolor = bezZamiaru ? "var(--hint)"
+      : g.razem >= 70 ? "var(--ok)" : g.razem >= 50 ? "var(--warn)" : "var(--red)";
     const slabe = [...d.weakest.kategorie.map(k => ({ label: nazwaKategorii(k.kategoria), go: goDlaKategorii(k.kategoria) })),
                    ...d.weakest.error_map.filter(e => e.priorytet).map(e => ({ label: e.kod, go: "mapa" }))]
       .slice(0, 3);
+    /* «слабее всего» звучит категорично: пока по всем категориям меньше
+       MALO_POKAZOW показов — только «предварительно» */
+    const wstepnie = d.weakest.kategorie.length > 0 &&
+      d.weakest.kategorie.every(k => k.pokazy < MALO_POKAZOW);
     czesci.push(`
       <div class="card" style="margin-bottom:var(--sp-3)">
         <div style="display:flex; gap:var(--sp-4); align-items:center">
-          <div class="ring" style="--p:${g.razem}; --ring-color:${kolor}">
-            <div class="ring-val"><span class="ring-num num">${g.razem}%</span>
+          <div class="ring" style="--p:${bezZamiaru ? 0 : g.razem}; --ring-color:${kolor}">
+            <div class="ring-val"><span class="ring-num num">${bezZamiaru ? "—" : g.razem + "%"}</span>
             <span class="ring-cap">B1</span></div>
           </div>
           <div style="flex:1; min-width:0">
             <div class="h2" style="margin:0 0 2px">Готовность · B1</div>
-            <div style="font-size:var(--fs-sm)">${esc(g.status)}</div>
+            <div style="font-size:var(--fs-sm)">${bezZamiaru ? "Нет замера" : esc(g.status)}</div>
             <div class="muted" style="font-size:var(--fs-xs); margin-top:4px">
-              замерено ${g.zmierzone} из 5 модулей ·
-              <span data-go="oGotowosci" style="text-decoration:underline; cursor:pointer">как считается?</span>
+              ${bezZamiaru
+                ? `Первый показатель появится после тренировок или первого пробного экзамена · `
+                : `замерено ${g.zmierzone} из 5 модулей · `}<span data-go="oGotowosci"
+                style="text-decoration:underline; cursor:pointer">как считается?</span>
             </div>
           </div>
         </div>
@@ -267,7 +312,7 @@ function home() {
           <div><div class="k">До экзамена</div><div class="v num">${d.exam.days_left}</div></div>
         </div>
         ${slabe.length ? `<div class="muted" style="font-size:var(--fs-sm); margin-top:var(--sp-3)">
-          Слабее всего (${d.weakest.okno_dni ?? 30} дн): ${slabe.map(s =>
+          ${wstepnie ? "Предварительно слабее" : "Слабее всего"} (${d.weakest.okno_dni ?? 30} дн): ${slabe.map(s =>
             `<span class="chip tap" data-go="${s.go}">${esc(s.label)}</span>`).join(" ")}
         </div>` : ""}
       </div>`);
@@ -288,13 +333,7 @@ function home() {
     czesci.push(`
       <div class="card" style="margin-bottom:var(--sp-3)">
         <div class="h2">Сегодня · неделя ${d.week.nr}</div>
-        ${d.today.plan.map(p => `
-          <div class="todo ${p.done ? "done" : ""}">
-            <span class="st">${p.done ? "✓" : "○"}</span>
-            <span class="lbl">${esc(p.label)}
-              ${p.zrobione ? `<span class="muted num">· ${p.zrobione}</span>` : ""}</span>
-            <span class="min num">${esc(String(p.minut))} мин</span>
-          </div>`).join("")}
+        ${d.today.plan.map(wierszPlanuDnia).join("")}
       </div>`);
 
     /* ── активность ── */
@@ -302,8 +341,9 @@ function home() {
       <div class="card" style="margin-bottom:var(--sp-3)">
         <div class="h2">Активность</div>
         ${heatmapHTML(d.activity)}
-        <div class="muted" style="font-size:var(--fs-xs); margin-top:var(--sp-2)">
-          12 недель · закрашиваются только реальные учебные действия</div>
+        <div class="legend"><span>меньше</span><i></i><i class="a1"></i><i class="a2"></i><i
+          class="a3"></i><i class="a4"></i><span>больше</span>
+          <span style="margin-left:auto">12 недель · только учебная активность</span></div>
       </div>`);
   } else if (S.authed) {
     czesci.push(`<div class="state">Дашборд не загрузился — проверь связь и потяни вниз.</div>`);
@@ -313,38 +353,56 @@ function home() {
   czesci.push(`
     <div class="section-title">Практика</div>
     <button class="cell wide" data-go="egzamin" style="margin-bottom:var(--sp-2)">
-      <span class="ic-tile red">🎓</span>
+      <span class="ic-tile red">${ikona("egzamin")}</span>
       <span class="body"><span class="t">Реальный экзамен</span><br>
         <span class="d">Таймер · 4 письменных модуля · перерывы · результат</span></span>
       <span class="chev">›</span>
     </button>
     <div class="grid">
-      ${[["gram", "🧩", "blue", "Грамматика", "8 типов заданий"],
-         ["intencje", "🎧", "violet", "Аудирование", "Intencje · audio · один проход"],
-         ["czasy", "⏱", "cyan", "Czasy (IV)", "Формы глагола текстом"],
-         ["trans", "🔁", "violet", "Transformacje (VI)", "Перестроить предложение"],
-         ["czytanie", "📖", "gold", "Чтение", "Форматы реального B1 · таймер"],
-         ["pisanie", "✍️", "green", "Письмо", "2 работы · счётчик объёма"],
-         ["mowienie", "🗣", "amber", "Говорение", "3 задания · симуляция"],
-         ["mapa", "🗺", "red", "Error Map", "Мои повторяющиеся ошибки"]]
+      ${[["gram", "gram", "blue", "Грамматика", "Poprawność gramatyczna · 8 типов"],
+         ["intencje", "sluchanie", "violet", "Аудирование", "Rozumienie ze słuchu · один проход"],
+         ["czasy", "czasy", "cyan", "Czasy (IV)", "Формы глагола текстом"],
+         ["trans", "trans", "violet", "Transformacje (VI)", "Перестроить предложение"],
+         ["czytanie", "czytanie", "gold", "Чтение", "Rozumienie tekstów pisanych"],
+         ["pisanie", "pisanie", "green", "Письмо", "Pisanie · 2 работы · объём"],
+         ["mowienie", "mowienie", "amber", "Говорение", "Mówienie · 3 задания"],
+         ["mapa", "mapa", "red", "Error Map", "Мои повторяющиеся ошибки"]]
         .map(([id, ic, tone, t, dsc]) => `
         <button class="cell" data-go="${id}">
-          <span class="ic-tile ${tone}">${ic}</span>
+          <span class="ic-tile ${tone}">${ikona(ic)}</span>
           <span class="t">${t}</span><span class="d">${dsc}</span>
         </button>`).join("")}
     </div>
     <button class="cell wide" data-go="wyniki" style="margin-top:var(--sp-2)">
-      <span class="ic-tile cyan">📈</span>
-      <span class="body"><span class="t">Historia egzaminów próbnych</span><br>
+      <span class="ic-tile cyan">${ikona("wyniki")}</span>
+      <span class="body"><span class="t">История пробных экзаменов</span><br>
         <span class="d">Моки, тренды по модулям, вердикты</span></span>
       <span class="chev">›</span>
     </button>
-    <p class="foot">Egzamin 17.10.2026 · 25/45/45/75 min + mówienie do 15 min<br>
+    <p class="foot">Экзамен 17.10.2026 · 25/45/45/75 мин + mówienie до 15 мин<br>
       Порог: 50% в каждом из пяти модулей, среднего не существует.</p>`);
 
   render("home", czesci.join(""));
-  app.querySelectorAll("[data-go]").forEach(el =>
-    el.onclick = () => VIEWS[el.dataset.go] && VIEWS[el.dataset.go]());
+}
+
+/* порог уверенности выборки = MIN_POKAZOW из bot/gotowosc.py (не третья
+   произвольная константа): меньше показов — суждение «предварительное» */
+const MALO_POKAZOW = 20;
+
+/* строка плана дня — тапабельна и ведёт в соответствующий тренажёр;
+   ✓ ставится только реальным действием (сервер считает активность сам) */
+const GO_DLA_TYPU = { gramatyka: "gram", sluchanie: "intencje", czytanie: "czytanie",
+  pisanie: "pisanie", mowienie: "mowienie", mok: "egzamin", powtorka: "powtorki" };
+function wierszPlanuDnia(p) {
+  const go = GO_DLA_TYPU[p.typ];
+  return `
+    <div class="todo ${p.done ? "done" : ""} ${go ? "tap" : ""}" ${go ? `data-go="${go}" role="button" tabindex="0"` : ""}>
+      <span class="st">${p.done ? "✓" : "○"}</span>
+      <span class="lbl">${esc(p.label)}
+        ${p.zrobione ? `<span class="muted num">· ${p.zrobione}</span>` : ""}</span>
+      <span class="min num">${esc(String(p.minut))} мин</span>
+      ${go ? `<span class="chev">›</span>` : ""}
+    </div>`;
 }
 
 function wierszModulu(klucz, m) {
@@ -367,8 +425,9 @@ function wierszModulu(klucz, m) {
         </div>
       </div>
       <div class="score">
-        <div class="v num">${ost ? `${ost.punkty}/${m.maks}` : "—"}</div>
-        <div class="s num">${proc !== null ? proc + "% · " + esc(ost.sesja) : "нет замера"}</div>
+        ${ost ? `<div class="v num">${ost.punkty}/${m.maks}</div>
+        <div class="s num">${proc}% · ${esc(ost.sesja)}</div>`
+        : `<div class="s">Нет замера</div>`}
       </div>
     </div>`;
 }
@@ -439,22 +498,24 @@ function widokWybor(name, pula, opts = {}) {
       <p class="q-head">${esc(p.nag)}</p>
       ${audioSrc ? `
         <audio id="au" preload="auto" src="${audioSrc}"></audio>
-        <button class="btn sm" id="play">🎧 Odsłuchaj — tylko jeden raz</button>
+        <button class="btn sm" id="play">Прослушать — только один раз</button>
         <p class="q-text" style="margin-top:var(--sp-3)">${esc(p.pyt)}</p>`
       : `<p class="q-text">${esc(p.pytanie)}</p>`}
       <div class="opts">${p.opcje.map((o, i) =>
-        `<button class="btn opt" data-i="${i}">${esc(o)}</button>`).join("")}</div>
+        `<button class="btn opt" data-i="${i}" lang="pl">${esc(o)}</button>`).join("")}</div>
       <div class="expl hidden" id="expl"></div>
     </div>
     <div class="split" style="margin-top:var(--sp-3)">
-      <button class="btn ghost" id="next">Dalej →</button>
+      <button class="btn ghost" id="next" disabled>Дальше →</button>
     </div>`, { after: () => {
       const play = document.getElementById("play");
       if (play) {
         const au = document.getElementById("au");
         play.onclick = () => { au.play(); play.disabled = true;
-          play.textContent = "🎧 Odtworzone (1/1)"; };
+          play.textContent = "Прослушано (1/1)"; };
       }
+      /* «Дальше» открывается ТОЛЬКО после ответа — случайно пропустить
+         вопрос нельзя; повторный тап по вариантам гасится флагом done */
       let done = false;
       app.querySelectorAll(".opt").forEach(btn => btn.onclick = async () => {
         if (done) return;
@@ -472,6 +533,7 @@ function widokWybor(name, pula, opts = {}) {
           + (audioSrc && p.tekst ? `Transkrypcja: „${esc(p.tekst)}”<br>` : "")
           + (p.dlaczego ? "<i>" + esc(p.dlaczego) + "</i>" : "")
           + (w.zapisano ? "" : "<br><i>⚠ не сохранено</i>");
+        document.getElementById("next").disabled = false;
         if (tg) tg.HapticFeedback.notificationOccurred(w.ok ? "success" : "error");
         if (opts.poOdpowiedzi) opts.poOdpowiedzi(w.ok);
       });
@@ -489,17 +551,19 @@ function widokOtwarte(name, pula, opts = {}) {
       <p class="q-text">${esc(p.pytanie)}</p>
       <p class="muted" style="font-size:var(--fs-sm)">${esc(p.hint)}</p>
       <div class="stack">
-        <input type="text" id="odp" autocomplete="off" autocapitalize="off"
-               placeholder="Twoja odpowiedź…">
-        <button class="btn" id="check">Sprawdź</button>
+        <input type="text" id="odp" lang="pl" spellcheck="true"
+               autocomplete="off" autocapitalize="off"
+               placeholder="Ответ по-польски…">
+        <button class="btn" id="check">Проверить</button>
       </div>
       <div class="expl hidden" id="expl"></div>
     </div>
     <div class="split" style="margin-top:var(--sp-3)">
-      <button class="btn ghost" id="next">Dalej →</button>
+      <button class="btn ghost" id="next" disabled>Дальше →</button>
     </div>`, { after: () => {
       const inp = document.getElementById("odp");
       inp.focus();
+      /* «Дальше» открывается только после проверки; done гасит двойную отправку */
       let done = false;
       const check = async () => {
         if (done) return;
@@ -514,11 +578,15 @@ function widokOtwarte(name, pula, opts = {}) {
           + (p.dlaczego ? "<br><i>" + esc(p.dlaczego) + "</i>" : "")
           + (w.zapisano ? "" : "<br><i>⚠ не сохранено</i>");
         document.getElementById("check").disabled = true;
+        document.getElementById("next").disabled = false;
         if (tg) tg.HapticFeedback.notificationOccurred(w.ok ? "success" : "error");
         if (opts.poOdpowiedzi) opts.poOdpowiedzi(w.ok);
       };
       document.getElementById("check").onclick = check;
-      inp.addEventListener("keydown", e => { if (e.key === "Enter") check(); });
+      inp.addEventListener("keydown", e => {
+        if (e.key !== "Enter") return;
+        if (done) document.getElementById("next").click(); else check();
+      });
       document.getElementById("next").onclick =
         () => (opts.dalej ? opts.dalej() : widokOtwarte(name, pula, opts));
     }});
@@ -561,27 +629,49 @@ async function widokPowtorki() {
   nastepny();
 }
 
-/* ── чтение: честный протокол (тренажёра нет, есть режим занятия) ── */
+/* ── чтение: guided workflow — приложение ведёт протокол и таймер,
+   официальный материал открывается отдельно (PDF не републикуем) ── */
+const CZYTANIE_URL = "https://certyfikatpolski.pl/o-egzaminie/testy-egzaminacyjne-z-poprzednich-lat/";
 function widokCzytanie() {
   render("czytanie", `
-    <h1>Czytanie</h1>
-    <p class="sub">Тренажёра чтения в приложении нет — и это честно: модуль
-      тренируется на полных текстах.</p>
+    <h1>Чтение</h1>
+    <p class="sub">Rozumienie tekstów pisanych · 5 заданий · 45 минут</p>
     <div class="card" style="margin-bottom:var(--sp-3)">
-      <p class="q-text" style="margin-bottom:var(--sp-2)">Возьми модуль чтения из
-      сборника <b>6_B1_RT</b> (ключи официальные) или из архивной сессии по
-      программе. 5 заданий, лимит как на экзамене.</p>
-      <div class="timer" id="t">45:00</div>
-      <button class="btn" id="start">▶ 45 минут</button>
+      <div class="h2">Выбери материал</div>
+      <button class="btn ghost" id="oficjalny" style="margin-bottom:var(--sp-2)">
+        Официальный сборник B1 ↗</button>
+      <p class="muted" style="font-size:var(--fs-sm); margin:0">Или архивная
+        сессия по программе недели — модуль <b>Rozumienie tekstów pisanych</b>
+        из своего архива. Тексты открывай отдельно: в приложение чужие
+        материалы не встроены.</p>
     </div>
-    <button class="btn ghost" id="done">Отметить занятие чтением ✓</button>
+    <div class="card" style="margin-bottom:var(--sp-3)">
+      <div class="timer" id="t">45:00</div>
+      <button class="btn" id="start">Начать тренировку</button>
+      <div id="lista" style="margin-top:var(--sp-2)">
+        ${["I", "II", "III", "IV", "V"].map(n => `
+          <div class="todo tap" data-z="${n}" role="button" tabindex="0">
+            <span class="st">○</span><span class="lbl">Zadanie ${n}</span>
+          </div>`).join("")}
+      </div>
+    </div>
+    <button class="btn ghost" id="done">Отметить тренировку ✓</button>
     <p class="foot">Отметка попадает в активность и план дня. Результат полного
-      модуля вноси через «Реальный экзамен» или Historia.</p>`, { after: () => {
+      модуля вноси через «Реальный экзамен» или Историю.</p>`, { after: () => {
+      document.getElementById("oficjalny").onclick = () =>
+        tg ? tg.openLink(CZYTANIE_URL) : window.open(CZYTANIE_URL, "_blank");
       timerNaPrzycisku("start", "t", 45 * 60);
+      /* чек-лист заданий — локальный ход занятия, не учебная статистика */
+      app.querySelectorAll("[data-z]").forEach(row => row.onclick = () => {
+        const st = row.querySelector(".st");
+        const done = st.textContent === "✓";
+        st.textContent = done ? "○" : "✓";
+        row.classList.toggle("done", !done);
+      });
       document.getElementById("done").onclick = async function () {
         this.disabled = true;
         if (S.authed) await apiCicho("/api/aktywnosc", { typ: "czytanie" });
-        this.textContent = "Записано ✓";
+        this.textContent = "Тренировка записана ✓";
       };
     }});
 }
@@ -605,21 +695,22 @@ function widokPisanie() {
   const praca = czesc => `
     <div class="card" style="margin-bottom:var(--sp-3)">
       <p class="q-head">Praca ${czesc} — ${esc(z[czesc].gatunek)} · ${z[czesc].slow} słów</p>
-      <p class="q-text">${esc(z[czesc].polecenie)}</p>
-      <textarea id="txt-${czesc}" placeholder="Pisz po polsku, bez tłumacza…"></textarea>
+      <p class="q-text" lang="pl">${esc(z[czesc].polecenie)}</p>
+      <textarea id="txt-${czesc}" lang="pl" spellcheck="true" autocapitalize="sentences"
+        placeholder="Пиши по-польски, без переводчика…"></textarea>
       <div class="wc num" id="wc-${czesc}">0 słów</div>
       <div class="meter" id="m-${czesc}"><i style="width:0%"></i></div>
       <button class="btn sm" id="zap-${czesc}" style="margin-top:var(--sp-3)" disabled>
         Записать работу ${czesc}</button>
     </div>`;
   render("pisanie", `
-    <h1>Pisanie · ${esc(z.id)}</h1>
-    <p class="sub">75 минут на обе работы. Объём ±10% — тренировочный ориентир,
-      не официальный порог.</p>
+    <h1>Письмо · ${esc(z.id)}</h1>
+    <p class="sub">Pisanie · 75 минут на обе работы. Объём ±10% — тренировочный
+      ориентир, не официальный порог.</p>
     <div class="timer mini" id="t">75:00</div>
     <button class="btn sm ghost" id="start" style="margin-bottom:var(--sp-3)">▶ Старт 75 мин</button>
     ${praca("a")}${praca("b")}
-    <button class="btn ghost" id="next">Inny zestaw</button>`, { after: () => {
+    <button class="btn ghost" id="next">Другой набор</button>`, { after: () => {
       timerNaPrzycisku("start", "t", 75 * 60);
       for (const czesc of ["a", "b"]) {
         const txt = document.getElementById("txt-" + czesc);
@@ -652,31 +743,57 @@ function widokPisanie() {
 /* ── говорение ── */
 function widokMowienie() {
   const z = D.mowienie.zestawy[Math.floor(Math.random() * D.mowienie.zestawy.length)];
+  /* иллюстрация задания 1 — собственный copyright-safe asset из data/mowienie;
+     формат z1_image позволяет заменить файл на фотографию без правок кода */
+  const obraz = z.z1_image ? DATA + "mowienie/" + z.z1_image : null;
+  const nagrywanie = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia
+    && window.MediaRecorder);
   render("mowienie", `
-    <h1>Mówienie · ${esc(z.id)}</h1>
-    <p class="sub">До 15 минут. Составь короткий план монолога — официальный
-      сборник это прямо рекомендует. Говори вслух, пиши на диктофон.</p>
-    <div class="timer mini" id="t">15:00</div>
-    <button class="btn sm ghost" id="start" style="margin-bottom:var(--sp-4)">▶ Старт таймера</button>
+    <h1>Говорение · ${esc(z.id)}</h1>
+    <p class="sub">Mówienie · до 15 минут · 40 баллов</p>
+    <div class="card" style="margin-bottom:var(--sp-3)">
+      <div class="h2" style="margin-bottom:2px">Подготовка</div>
+      <p class="muted" style="font-size:var(--fs-sm); margin:0 0 var(--sp-2)">Составь
+        короткий план ответа. Говори вслух — запиши себя и прослушай.</p>
+      <div class="task-steps">
+        <span class="chip">1 · opis ilustracji</span>
+        <span class="chip">2 · monolog</span>
+        <span class="chip">3 · dialog</span>
+      </div>
+      <div class="timer mini" id="t">15:00</div>
+      <button class="btn sm ghost" id="start">Старт</button>
+    </div>
     <div class="card" style="margin-bottom:var(--sp-3)">
       <p class="q-head">Zadanie 1 — opis ilustracji</p>
-      <p class="q-text">${esc(z.z1)}</p>
-      <p class="muted" style="font-size:var(--fs-xs)">На экзамене здесь настоящая
-        фотография — сцена пока описана словами.</p>
+      ${obraz ? `<img class="z1-img" src="${obraz}" loading="lazy"
+          alt="Ilustracja do opisu" width="800" height="600">
+        <p class="q-text" lang="pl" style="margin-bottom:0">Proszę opisać ilustrację: co się dzieje, kto, gdzie, jaka jest sytuacja.</p>`
+      : `<p class="q-text" lang="pl">${esc(z.z1)}</p>`}
     </div>
     <div class="card" style="margin-bottom:var(--sp-3)">
       <p class="q-head">Zadanie 2 — monolog</p>
-      <p class="q-text">${esc(z.z2)}</p>
+      <p class="q-text" lang="pl" style="margin-bottom:0">${esc(z.z2)}</p>
     </div>
     <div class="card" style="margin-bottom:var(--sp-3)">
       <p class="q-head">Zadanie 3 — sytuacja komunikacyjna (dialog!)</p>
-      <p class="q-text">${esc(z.z3)}</p>
+      <p class="q-text" lang="pl">${esc(z.z3)}</p>
       <div id="dialog"></div>
       <button class="btn sm" id="dlg">▶ Реплика собеседника</button>
     </div>
+    ${nagrywanie ? `
+    <div class="card" style="margin-bottom:var(--sp-3)">
+      <p class="q-head">Самопроверка — запись голоса</p>
+      <div class="split">
+        <button class="btn sm ghost" id="rec">● Записать ответ</button>
+        <button class="btn sm ghost" id="odtw" disabled>▶ Прослушать</button>
+      </div>
+      <audio id="nagranie" controls class="hidden" style="width:100%; margin-top:var(--sp-2)"></audio>
+      <p class="muted" style="font-size:var(--fs-xs); margin:var(--sp-2) 0 0">Запись
+        остаётся на устройстве и никуда не отправляется.</p>
+    </div>` : ""}
     <div class="split">
-      <button class="btn ghost" id="next">Inny zestaw</button>
-      <button class="btn" id="done">Сессия пройдена ✓</button>
+      <button class="btn ghost" id="next">Другой набор</button>
+      <button class="btn" id="done">Завершить тренировку</button>
     </div>`, { after: () => {
       timerNaPrzycisku("start", "t", 15 * 60);
       let krok = 0;
@@ -685,19 +802,53 @@ function widokMowienie() {
         const linie = z.z3_dialog || [];
         if (krok < linie.length) {
           dlg.insertAdjacentHTML("beforeend",
-            `<div class="dialog-line">🗣 ${esc(linie[krok])}</div>
+            `<div class="dialog-line" lang="pl">${esc(linie[krok])}</div>
              <div class="dialog-line me muted">…твой ответ вслух…</div>`);
           krok++;
-          if (krok >= linie.length) { this.disabled = true; this.textContent = "Rozmowa zakończona"; }
+          if (krok >= linie.length) { this.disabled = true; this.textContent = "Диалог завершён"; }
         }
       };
+      if (nagrywanie) zapisGlosu();
+      /* «пройдена» не пишем — оценки не было; записываем только активность */
       document.getElementById("done").onclick = async function () {
         this.disabled = true;
         if (S.authed) await apiCicho("/api/aktywnosc", { typ: "mowienie" });
-        this.textContent = "Записано ✓";
+        this.textContent = "Тренировка записана ✓";
       };
       document.getElementById("next").onclick = widokMowienie;
     }});
+}
+
+/* локальная запись ответа: object URL для самопроверки, на сервер не уходит */
+function zapisGlosu() {
+  const btnRec = document.getElementById("rec");
+  const btnOdtw = document.getElementById("odtw");
+  const audio = document.getElementById("nagranie");
+  let rec = null, kawalki = [], url = null;
+  btnRec.onclick = async () => {
+    if (rec && rec.state === "recording") { rec.stop(); return; }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      kawalki = [];
+      rec = new MediaRecorder(stream);
+      rec.ondataavailable = e => { if (e.data.size) kawalki.push(e.data); };
+      rec.onstop = () => {
+        stream.getTracks().forEach(t => t.stop());
+        if (url) URL.revokeObjectURL(url);
+        url = URL.createObjectURL(new Blob(kawalki, { type: rec.mimeType || "audio/webm" }));
+        audio.src = url;
+        audio.classList.remove("hidden");
+        btnOdtw.disabled = false;
+        btnRec.textContent = "● Записать заново";
+      };
+      rec.start();
+      btnRec.textContent = "■ Стоп";
+    } catch (e) {
+      btnRec.disabled = true;
+      btnRec.textContent = "Нет доступа к микрофону";
+    }
+  };
+  btnOdtw.onclick = () => audio.play();
 }
 
 /* ═══════════════════════════ REAL EXAM ═══════════════════════════ */
@@ -745,13 +896,37 @@ function egzaminWznow() {
   return false;
 }
 
-function widokEgzamin() {
+/* архив закрыт — новых сессий не появится; список = ключи data/exam_map.json
+   (равенство сторожит тест), свободного текстового ввода нет: одна сессия —
+   одно имя, Historia остаётся чистой */
+const SESJE_ARKUSZY = ["2021-01", "2021-05", "2021-06", "2021-11",
+  "2022-02", "2022-03", "2022-06", "2022-11", "2023-02", "2023-04", "2023-06",
+  "2023-11", "2024-02", "2024-04", "2024-06"];
+/* из PLAN (bot/content.py): диагностика и контрольные моки; 2024-06 — резерв */
+const SESJE_KONTROLNE = { "2021-11": "диагностика", "2023-11": "контрольный",
+  "2024-02": "контрольный", "2024-04": "контрольный", "2024-06": "резерв" };
+
+async function widokEgzamin() {
   const cfg = S.cfg;
   if (!cfg) { render("egzamin", `<div class="state">Конфиг экзамена не загрузился.</div>`); return; }
   if (egzaminStan()) { egzaminWznow(); return; }
   const t = cfg.timing;
+  /* какие сессии уже проходились — из Historia (не критично при сбое) */
+  let uzyte = new Set();
+  if (S.authed) {
+    try { uzyte = new Set((await api("/api/wyniki")).sesje.map(s => s.sesja)); }
+    catch (e) { /* без статусов, список всё равно валиден */ }
+  }
+  const opcja = s => {
+    const znaki = [uzyte.has(s) ? "✓ уже проходил" : "",
+                   SESJE_KONTROLNE[s] ? "★ " + SESJE_KONTROLNE[s] : ""]
+      .filter(Boolean).join(" · ");
+    return `<option value="${s}">${s}${znaki ? " · " + znaki : ""}</option>`;
+  };
+  /* по умолчанию — первая непройденная (диагностика 2021-11 в приоритете) */
+  const domyslna = ["2021-11", ...SESJE_ARKUSZY].find(s => !uzyte.has(s)) || SESJE_ARKUSZY[0];
   render("egzamin", `
-    <h1>Realny tryb egzaminu</h1>
+    <h1>Реальный экзамен</h1>
     <p class="sub">B1 · dorośli · протокол честного мока</p>
     <div class="card" style="margin-bottom:var(--sp-3)">
       <table class="exam-table">
@@ -759,25 +934,30 @@ function widokEgzamin() {
           <td class="num">${t[k]} min</td></tr>`).join("")}
         <tr><td>Razem</td><td class="num">${EXAM_KOLEJNOSC.reduce((a, k) => a + t[k], 0)} min</td></tr>
       </table>
-      <div class="warnbox">
-        <b>Без словаря. Без переводчика. Без AI. Без паузы.</b><br>
-        Аудио — ровно столько раз, сколько в задании. Пустых клеток не оставлять:
-        штрафа за неверный ответ нет. Материал модуля — архивный аркуш по
-        программе (в приложение он не встроен: чужие авторские материалы).
-        Следующий модуль начинается по расписанию, даже если работа сдана
-        раньше, — как на настоящем экзамене.
-      </div>
-      <label class="muted" style="font-size:var(--fs-sm)">Сессия аркуша
-        <input type="text" id="sesja" placeholder="например 2021-11"
-               style="margin-top:6px"></label>
     </div>
-    <button class="btn danger" id="start">Rozpocznij egzamin</button>
-    <p class="foot">Между модулями перерыв не меньше ${cfg.przerwa_min} минут.
-      Mówienie (до ${cfg.mowienie_max_min} мин) проводится отдельно и вносится
-      в результат вручную.</p>`, { after: () => {
+    <div class="card" style="margin-bottom:var(--sp-3)">
+      <div class="h2">Режим экзамена</div>
+      <div class="rules">
+        ${["без словаря", "без переводчика", "без AI",
+           "модули по расписанию — досрочная сдача не ускоряет",
+           `перерыв минимум ${cfg.przerwa_min} мин`].map(r =>
+          `<div class="rule"><span class="ok-mark">✓</span><span>${r}</span></div>`).join("")}
+      </div>
+      <p class="muted" style="font-size:var(--fs-xs); margin:var(--sp-2) 0 0">Аудио
+        воспроизводи столько раз, сколько указано в задании. Аркуш используется
+        отдельно — в приложение он не встроен.</p>
+    </div>
+    <div class="card" style="margin-bottom:var(--sp-3)">
+      <label class="muted" style="font-size:var(--fs-sm)">Сессия аркуша
+        <select id="sesja" style="margin-top:6px">${SESJE_ARKUSZY.map(opcja).join("")}</select>
+      </label>
+    </div>
+    <button class="btn danger" id="start">Начать экзамен</button>
+    <p class="foot">Mówienie (до ${cfg.mowienie_max_min} мин) проводится отдельно
+      и вносится в результат вручную.</p>`, { after: () => {
+      document.getElementById("sesja").value = domyslna;
       document.getElementById("start").onclick = () => {
-        const sesja = document.getElementById("sesja").value.trim()
-          || isoLokalne(new Date());
+        const sesja = document.getElementById("sesja").value;
         if (tg) tg.enableClosingConfirmation();
         const stan = { sesja, proba: idProby(),
                        idx: 0, faza: "modul", start: Date.now(),
@@ -804,9 +984,9 @@ function egzaminModul(stan) {
            модуль закрыт, листы откладываются и больше не трогаются.`}</p>
     </div>
     <button class="btn ghost" id="oddaj" ${stan.oddany ? "disabled" : ""}>
-      Oddaj pracę wcześniej</button>
+      Сдать работу досрочно</button>
     <button class="btn ghost" id="przerwij"
-      style="margin-top:var(--sp-2); color:var(--red)">Przerwij egzamin</button>`,
+      style="margin-top:var(--sp-2); color:var(--red)">Прервать экзамен</button>`,
     { after: () => {
       const t = document.getElementById("t");
       const tick = () => {
@@ -847,7 +1027,7 @@ function przyciskPrzerwania(btn) {
     setTimeout(() => {
       if (document.body.contains(btn)) {
         delete btn.dataset.raz;
-        btn.textContent = "Przerwij egzamin";
+        btn.textContent = "Прервать экзамен";
       }
     }, 4000);
   };
@@ -869,13 +1049,13 @@ function egzaminPoModule(stan) {
 function egzaminPrzerwa(stan) {
   const cfg = S.cfg;
   render("egzamin", `
-    <h1>Przerwa</h1>
+    <h1>Перерыв</h1>
     <p class="sub">Минимум ${cfg.przerwa_min} минут. Следующий модуль:
       ${esc(cfg.moduly[EXAM_KOLEJNOSC[stan.idx]].nazwa)}</p>
     <div class="timer" id="t">--:--</div>
-    <button class="btn" id="dalej" disabled>Rozpocznij następny moduł</button>
+    <button class="btn" id="dalej" disabled>Начать следующий модуль</button>
     <button class="btn ghost" id="przerwij"
-      style="margin-top:var(--sp-2); color:var(--red)">Przerwij egzamin</button>
+      style="margin-top:var(--sp-2); color:var(--red)">Прервать экзамен</button>
     <p class="foot">Кнопка откроется, когда перерыв пройдёт целиком —
       как на настоящем экзамене.</p>`, { after: () => {
       const t = document.getElementById("t");
@@ -909,11 +1089,11 @@ function egzaminWynik(stan) {
              inputmode="decimal" style="margin-top:4px">
     </label>`).join("");
   render("egzamin", `
-    <h1>Wynik · ${esc(sesja)}</h1>
+    <h1>Результат · ${esc(sesja)}</h1>
     <p class="sub">Проверь по ключу (klucze/) и внеси баллы. Mówienie можно
       внести позже отдельно.</p>
     <div class="card" style="margin-bottom:var(--sp-3)">${pola}</div>
-    <button class="btn" id="zapisz">Zapisz wynik</button>
+    <button class="btn" id="zapisz">Записать результат</button>
     <div id="werdykt" style="margin-top:var(--sp-3)"></div>`, { after: () => {
       document.getElementById("zapisz").onclick = async function () {
         this.disabled = true;
@@ -990,7 +1170,7 @@ async function widokWyniki() {
     for (const [m, p] of Object.entries(s.wyniki))
       (trendy[m] = trendy[m] || []).push(p);
   render("wyniki", `
-    <h1>Historia egzaminów próbnych</h1>
+    <h1>История пробных экзаменов</h1>
     <p class="sub">Вердикт — только по полным мокам: каждый модуль ≥ порога</p>
     ${sesje.length ? `<div class="card" style="margin-bottom:var(--sp-3)">
       ${sesje.map(s => `
@@ -1013,8 +1193,15 @@ async function widokWyniki() {
         <div class="todo"><span class="lbl">${esc(cfg.moduly[m].nazwa)}</span>
           <span class="trendline">${v.join(" → ")}</span></div>`).join("")
         || `<p class="muted" style="font-size:var(--fs-sm)">Тренд появится после второго мока.</p>`}
-    </div>` : `<div class="state">Моков ещё не было. Первый — диагностика по
-      «Реальный экзамен».</div>`}`);
+    </div>` : `
+    <div class="card" style="text-align:center; padding:var(--sp-6) var(--sp-4)">
+      <p class="q-text" style="margin-bottom:var(--sp-2)">Пока нет ни одного полного мока.</p>
+      <p class="muted" style="font-size:var(--fs-sm); margin:0 0 var(--sp-4)">Первый мок нужен для:<br>базового замера · готовности<br>трендов · поиска слабого модуля</p>
+      <button class="btn" id="cta">Начать диагностику</button>
+    </div>`}`, { after: () => {
+      const cta = document.getElementById("cta");
+      if (cta) cta.onclick = widokEgzamin;
+    }});
 }
 
 const KODY_BLEDOW = ["CASE-GEN", "CASE-DAT", "CASE-ACC", "CASE-INS", "CASE-LOC",
@@ -1038,15 +1225,18 @@ function widokMapa() {
     ${kat.length ? `<div class="card" style="margin-bottom:var(--sp-3)">
       <div class="h2">Слабые места по тренировкам</div>
       ${kat.map(k => `<div class="todo">
-        <span class="lbl">${esc(nazwaKategorii(k.kategoria))}</span>
+        <span class="lbl">${esc(nazwaKategorii(k.kategoria))}${k.pokazy < MALO_POKAZOW
+          ? ` <span class="muted" style="font-size:var(--fs-xs)">· мало данных</span>` : ""}</span>
         <span class="min num">${k.bledy} из ${k.pokazy}</span></div>`).join("")}
     </div>` : ""}
     <div class="card">
       <div class="h2">Записать ошибку</div>
       <div class="stack">
         <select id="kod">${KODY_BLEDOW.map(k => `<option>${k}</option>`).join("")}</select>
-        <input type="text" id="zle" placeholder="как написал / сказал">
-        <input type="text" id="dobrze" placeholder="как правильно (опционально)">
+        <input type="text" id="zle" lang="pl" spellcheck="true" autocomplete="off"
+               placeholder="как написал / сказал">
+        <input type="text" id="dobrze" lang="pl" spellcheck="true" autocomplete="off"
+               placeholder="как правильно (опционально)">
         <button class="btn" id="zapisz">Записать</button>
         <div id="wynik-bledu" class="muted" style="font-size:var(--fs-sm)"></div>
       </div>
@@ -1071,16 +1261,11 @@ function widokPlan() {
   const tygodnie = cfg ? cfg.plan_tygodni : [];
   const nrTeraz = S.dash ? S.dash.week.nr : 0;
   render("plan", `
-    <h1>Plan</h1>
+    <h1>План</h1>
     <p class="sub">17.08 → 17.10.2026 · 9 недель</p>
     ${S.dash ? `<div class="card" style="margin-bottom:var(--sp-3)">
       <div class="h2">Сегодня</div>
-      ${S.dash.today.plan.map(p => `
-        <div class="todo ${p.done ? "done" : ""}">
-          <span class="st">${p.done ? "✓" : "○"}</span>
-          <span class="lbl">${esc(p.label)}</span>
-          <span class="min num">${esc(String(p.minut))} мин</span>
-        </div>`).join("")}
+      ${S.dash.today.plan.map(wierszPlanuDnia).join("")}
     </div>` : ""}
     <div class="card">
       ${tygodnie.map(t => `

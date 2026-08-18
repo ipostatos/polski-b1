@@ -31,7 +31,9 @@
 *{ box-sizing:border-box }
 
 body{
-  margin:0; padding: var(--sp-5) var(--sp-4) calc(var(--sp-6) + env(safe-area-inset-bottom));
+  margin:0;
+  padding: calc(var(--sp-5) + env(safe-area-inset-top)) var(--sp-4)
+           calc(var(--sp-6) + env(safe-area-inset-bottom));
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   background:var(--bg); color:var(--text); line-height:1.5;
   -webkit-tap-highlight-color:transparent;
@@ -64,15 +66,15 @@ body{
 .next .actions{ display:flex; gap:var(--sp-2) }
 .next .actions .btn{ width:auto; flex:1 }
 
-/* сетка разделов 2 колонки */
+/* сетка разделов 2 колонки — компактно, но тап-мишень целой плашки ≥44px */
 .grid{ display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-2) }
-.cell{ display:flex; flex-direction:column; gap:var(--sp-1); text-align:left;
+.cell{ display:flex; flex-direction:column; gap:2px; text-align:left;
   font:inherit; cursor:pointer; text-decoration:none; color:var(--text);
   background:var(--card); border:1px solid var(--border); border-radius:var(--r-md);
-  padding:var(--sp-3) var(--sp-4); min-height:92px; transition:transform .12s }
+  padding:10px var(--sp-3); min-height:76px; transition:transform .12s }
 .cell:active{ transform:scale(.98) }
 .cell .t{ font-size:var(--fs-body); font-weight:700 }
-.cell .d{ color:var(--hint); font-size:var(--fs-xs); line-height:1.35 }
+.cell .d{ color:var(--hint); font-size:var(--fs-xs); line-height:1.3 }
 .cell.wide{ grid-column:1 / -1; flex-direction:row; align-items:center;
   gap:var(--sp-3); min-height:0 }
 .cell.wide .body{ flex:1; min-width:0 } .cell.wide .chev{ color:var(--hint) }
@@ -113,11 +115,14 @@ body{
   color:var(--text); border-radius:var(--r-md); padding:var(--sp-3) var(--sp-4);
   font-size:var(--fs-sm); margin-bottom:var(--sp-3) }
 
-/* ── иконка-плашка ── */
+/* ── иконка-плашка: единые stroke-SVG вместо системных emoji ── */
 .ic-tile{ --tone: var(--accent); display:inline-flex; align-items:center;
-  justify-content:center; width:40px; height:40px; border-radius:11px;
-  font-size:20px; flex:0 0 auto; color:var(--tone);
+  justify-content:center; width:34px; height:34px; border-radius:10px;
+  flex:0 0 auto; color:var(--tone); margin-bottom:2px;
   background:color-mix(in srgb, var(--tone) 16%, transparent) }
+.ic-tile .ico{ width:18px; height:18px }
+.cell.wide .ic-tile{ width:38px; height:38px; margin-bottom:0 }
+.cell.wide .ic-tile .ico{ width:20px; height:20px }
 .ic-tile.blue  { --tone:#5B9BD9 }
 .ic-tile.green { --tone:#4CAF72 }
 .ic-tile.amber { --tone:#E0A13A }
@@ -147,11 +152,13 @@ body{
 /* ── heatmap активности ── */
 .heatmap{ display:grid; grid-auto-flow:column; grid-template-rows:repeat(7, 1fr);
   gap:3px; overflow-x:auto; padding-bottom:2px }
-.heatmap i{ width:11px; height:11px; border-radius:3px; background:var(--border) }
-.heatmap i.a1{ background:color-mix(in srgb, var(--accent) 30%, transparent) }
-.heatmap i.a2{ background:color-mix(in srgb, var(--accent) 55%, transparent) }
-.heatmap i.a3{ background:color-mix(in srgb, var(--accent) 80%, transparent) }
-.heatmap i.a4{ background:var(--accent) }
+.heatmap i, .legend i{ width:11px; height:11px; border-radius:3px; background:var(--border) }
+.heatmap i.a1, .legend i.a1{ background:color-mix(in srgb, var(--accent) 30%, transparent) }
+.heatmap i.a2, .legend i.a2{ background:color-mix(in srgb, var(--accent) 55%, transparent) }
+.heatmap i.a3, .legend i.a3{ background:color-mix(in srgb, var(--accent) 80%, transparent) }
+.heatmap i.a4, .legend i.a4{ background:var(--accent) }
+.legend{ display:flex; align-items:center; gap:4px; margin-top:var(--sp-2);
+  font-size:var(--fs-xs); color:var(--hint); flex-wrap:wrap }
 
 /* ── строки модулей ── */
 .mod{ display:flex; align-items:center; gap:var(--sp-3); padding:var(--sp-2) 0 }
